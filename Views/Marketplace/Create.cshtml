@@ -1,0 +1,127 @@
+﻿@model SmartFarmMVC.Models.ViewModels.MarketplaceViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "List Produce";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/Marketplace" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Marketplace
+        </a>
+        <h2 class="text-success">List Produce for Sale</h2>
+        <p class="text-muted">Publish your harvested yields onto the buyer marketplace to find bulk buyers.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="HarvestId" class="form-label fw-semibold text-dark">Harvest Yield Record *</label>
+                <select asp-for="HarvestId" class="form-select rounded-3" required id="harvestSelect">
+                    <option value="">-- Select Harvest --</option>
+                    @foreach (var harvest in ViewBag.Harvests as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Harvest>)
+                    {
+                        <option value="@harvest.HarvestId" data-qty="@harvest.ActualQuantity" data-unit="@harvest.Unit">
+                            @harvest.CropCycle.Crop.CropName (@harvest.ActualQuantity @harvest.Unit - @harvest.CropCycle.LandPlot.PlotName)
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="HarvestId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-dark">Crop Photo</label>
+                <input type="file" name="cropImage" accept="image/*" class="form-control rounded-3" id="cropImageInput" />
+                <small class="text-muted">Upload a photo of your harvested crop (optional, JPG/PNG, max 5MB)</small>
+                <div class="mt-2" id="imagePreview" style="display: none;">
+                    <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-height: 150px;" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="AvailableQuantity" class="form-label fw-semibold text-dark">Listing Quantity *</label>
+                    <input asp-for="AvailableQuantity" type="number" step="0.01" class="form-control rounded-3" placeholder="e.g. 50" required id="qtyInput" />
+                    <span asp-validation-for="AvailableQuantity" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Unit" class="form-label fw-semibold text-dark">Measurement Unit *</label>
+                    <input asp-for="Unit" class="form-control rounded-3 bg-light" required readonly id="unitInput" />
+                    <span asp-validation-for="Unit" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PricePerUnit" class="form-label fw-semibold text-dark">Price per Unit (₹) *</label>
+                <input asp-for="PricePerUnit" type="number" step="0.01" class="form-control rounded-3" placeholder="e.g. 2400" required />
+                <span asp-validation-for="PricePerUnit" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/Marketplace" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-success rounded-3 px-4">Publish Listing</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var harvestSelect = document.getElementById("harvestSelect");
+            var qtyInput = document.getElementById("qtyInput");
+            var unitInput = document.getElementById("unitInput");
+
+            function updateFields() {
+                var selectedOption = harvestSelect.options[harvestSelect.selectedIndex];
+                if (!selectedOption) return;
+                var qty = selectedOption.getAttribute("data-qty");
+                var unit = selectedOption.getAttribute("data-unit");
+
+                if (qty && unit) {
+                    qtyInput.value = qty;
+                    unitInput.value = unit;
+                } else {
+                    qtyInput.value = "";
+                    unitInput.value = "";
+                }
+            }
+
+            harvestSelect.addEventListener("change", updateFields);
+
+            // Populate if already pre-selected
+            updateFields();
+
+            // Image preview functionality
+            var cropImageInput = document.getElementById("cropImageInput");
+            var imagePreview = document.getElementById("imagePreview");
+            var previewImg = document.getElementById("previewImg");
+
+            cropImageInput.addEventListener("change", function (e) {
+                var file = e.target.files[0];
+                if (file && file.type.startsWith("image/")) {
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        previewImg.src = event.target.result;
+                        imagePreview.style.display = "block";
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.style.display = "none";
+                }
+            });
+        });
+    </script>
+}

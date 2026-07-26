@@ -1,0 +1,105 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Reports & Support";
+}
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="text-success mb-1">Reports &amp; Support Tickets</h2>
+            <p class="text-muted mb-0">Communicate with agronomists, field officers, and cooperative managers to resolve farm issues.</p>
+        </div>
+        <a href="~/Support/Create" class="btn btn-success d-flex align-items-center gap-2 rounded-pill px-4 py-2 shadow-sm">
+            <span class="material-icons-round">add_circle</span> Raise Support Query
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <span class="material-icons-round align-middle me-1">check_circle</span> @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <span class="material-icons-round align-middle me-1">error</span> @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- Query History List -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="text-dark fw-bold mb-0">Query &amp; Ticket History</h5>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <span class="material-icons-round text-muted mb-2" style="font-size: 3rem;">support_agent</span>
+                <p class="mb-1 fw-semibold">No Support Tickets Raised</p>
+                <p class="small mb-3">If you face irrigation issues, pest outbreaks, or need field visits, submit a query.</p>
+                <a href="~/Support/Create" class="btn btn-success btn-sm rounded-3">Submit Your First Query</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted uppercase small font-monospace">
+                        <tr>
+                            <th class="ps-4">Ticket ID</th>
+                            <th>Date</th>
+                            <th>Query Type</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Resolution Date</th>
+                            <th class="pe-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var query in Model)
+                        {
+                            string priorityClass = query.Priority == "High" ? "bg-danger-subtle text-danger" : (query.Priority == "Medium" ? "bg-warning-subtle text-warning-emphasis" : "bg-info-subtle text-info");
+                            string statusClass = query.Status == "Resolved" ? "bg-success text-white" : (query.Status == "Assigned" ? "bg-info text-white" : "bg-warning text-dark");
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">#@query.QueryId</td>
+                                <td class="text-muted small">@query.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td class="fw-semibold">@query.QueryType</td>
+                                <td class="text-dark">@query.Title</td>
+                                <td>
+                                    <span class="badge @priorityClass rounded-pill px-2.5 py-1">@query.Priority</span>
+                                </td>
+                                <td class="text-muted small">
+                                    @if (query.AssignedToUser != null)
+                                    {
+                                        <span class="fw-semibold text-dark">@query.AssignedToUser.FullName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-warning-emphasis fw-semibold">Manager Queue (Pending)</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @statusClass rounded-pill px-3 py-1">@query.Status</span>
+                                </td>
+                                <td class="text-muted small">
+                                    @(query.ResolutionDate?.ToString("dd-MM-yyyy HH:mm") ?? "-")
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="~/Support/Details/@query.QueryId" class="btn btn-sm btn-outline-success rounded-3 d-inline-flex align-items-center gap-1">
+                                        <span class="material-icons-round font-size-sm">visibility</span> View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

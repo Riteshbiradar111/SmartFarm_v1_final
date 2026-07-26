@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SmartFarm</title>
+    <meta name="description" content="@ViewData["Description"]" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Bootstrap (for layout components/utilities) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+
+    <!-- Dashboard Stylesheet -->
+    <link rel="stylesheet" href="~/css/dashboard-shared.css" asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+        <span class="material-icons-round">chevron_left</span>
+    </button>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="dash-sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <span class="material-icons-round">eco</span>
+            </div>
+            <span class="logo-text">SmartFarm</span>
+        </div>
+
+        <div class="sidebar-role-badge">
+            <span class="role-dot" style="background:@ViewData["RoleColor"];"></span>
+            <span class="role-label">@ViewData["UserRole"]</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <partial name="_Sidebar" />
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="~/Auth/Logout" class="nav-item logout">
+                <span class="material-icons-round">logout</span>
+                <span class="nav-label">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="dash-main" id="dashMain">
+
+        <!-- Topbar Header -->
+        <header class="dash-topbar" id="topbar">
+            <div class="topbar-left">
+                <div class="topbar-breadcrumb">
+                    <span class="bc-title">@ViewData["Title"]</span>
+                    <span class="bc-sub">@ViewData["Subtitle"]</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <!-- User Profile Avatar/Details -->
+                <div class="topbar-user">
+                    <div class="user-avatar">@ViewData["UserInitials"]</div>
+                    <div class="user-info">
+                        <div class="user-name">@ViewData["UserName"]</div>
+                        <div class="user-role">@ViewData["UserRole"]</div>
+                    </div>
+                </div>
+
+                <!-- Profile panel (hidden by default) -->
+                <div id="profilePanel" class="topbar-panel shadow-sm" aria-hidden="true">
+                    <div class="panel-body p-3">
+                        <div class="d-flex gap-3 align-items-center mb-3">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-weight:700">@ViewData["UserInitials"]</div>
+                            <div>
+                                <div class="fw-600">@ViewData["UserName"]</div>
+                                <div class="text-muted small">@ViewData["UserRole"]</div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            @{
+                                var role = ViewData["UserRole"]?.ToString() ?? "";
+                                var profileUrl = role switch
+                                {
+                                    "Farmer" => Url.Action("Profile", "Farmer"),
+                                    "Agronomist" => Url.Action("Profile", "Agronomist"),
+                                    "Buyer" => Url.Action("Profile", "Buyer"),
+                                    "Field Officer" => Url.Action("MyProfile", "FieldOfficer"),
+                                    "Cooperative Manager" => Url.Action("MyProfile", "CooperativeManager"),
+                                    "Admin" => Url.Action("MyProfile", "Admin"),
+                                    _ => "#"
+                                };
+                            }
+                            <a href="@profileUrl" class="btn btn-outline">View Profile</a>
+                            <a href="~/Auth/Logout" class="btn btn-outline">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Dashboard Page Content -->
+        <div class="dash-content">
+            @RenderBody()
+        </div>
+
+    </div>
+
+    <!-- Bootstrap Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="liveToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-500" id="toastMessage">
+                    <!-- Toast message will be inserted here -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Sidebar Logic -->
+    <!-- jQuery (required for AJAX calls) -->
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+
+    <!-- Bootstrap JS (bundle includes Popper) -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+
+    <!-- Active Menu Highlighting Script v2.0 -->
+    <script>
+        // Highlight the current page's menu item in the sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+
+            console.log('Current path:', currentPath); // Debug
+
+            // Remove 'active' class from all nav items
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // Sort nav items by href length (longest first) to match more specific routes first
+            const sortedNavItems = Array.from(navItems).sort((a, b) => {
+                const hrefA = a.getAttribute('href') || '';
+                const hrefB = b.getAttribute('href') || '';
+                return hrefB.length - hrefA.length;
+            });
+
+            let matched = false;
+
+            // Find and activate the first matching nav item only
+            for (let item of sortedNavItems) {
+                if (matched) break; // Stop immediately after first match
+
+                const href = item.getAttribute('href')?.toLowerCase();
+                if (!href || href === '#' || href.startsWith('#')) continue;
+
+                // Convert tilde paths to absolute
+                const absoluteHref = href.startsWith('~/') ? href.substring(1) : href;
+
+                console.log('Checking:', absoluteHref); // Debug
+
+                // Exact match (including trailing slash variants)
+                if (currentPath === absoluteHref || currentPath === absoluteHref + '/' || currentPath + '/' === absoluteHref) {
+                    console.log('Exact match:', absoluteHref); // Debug
+                    item.classList.add('active');
+                    matched = true;
+                    break;
+                }
+                // Starts with match (for sub-pages) - but only if not already matched
+                else if (currentPath.startsWith(absoluteHref + '/') && absoluteHref !== '/') {
+                    console.log('Prefix match:', absoluteHref); // Debug
+                    item.classList.add('active');
+                    matched = true;
+                    break;
+                }
+            }
+        });
+    </script>
+
+    <!-- Dashboard-specific scripts (e.g. Chart.js initializations) -->
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

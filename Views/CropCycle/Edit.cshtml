@@ -1,0 +1,96 @@
+﻿@model SmartFarmMVC.Models.ViewModels.CropCycleViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Edit Crop Cycle";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/CropCycle" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Crop Cycles
+        </a>
+        <h2 class="text-success">Edit Crop Cycle Details</h2>
+        <p class="text-muted">Modify crop stages, status, and timeline dates.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Edit" asp-route-id="@ViewData["CropCycleId"]" method="post" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="PlotId" class="form-label fw-semibold text-dark">Target Land Plot *</label>
+                <select asp-for="PlotId" class="form-select rounded-3" required>
+                    <option value="">-- Select Plot --</option>
+                    @foreach (var plot in ViewBag.Plots as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.LandPlot>)
+                    {
+                        <option value="@plot.PlotId">@plot.PlotName (@plot.Area @plot.AreaUnit - @plot.Farm.FarmName)</option>
+                    }
+                </select>
+                <span asp-validation-for="PlotId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CropId" class="form-label fw-semibold text-dark">Select Crop Type *</label>
+                <select asp-for="CropId" class="form-select rounded-3" required id="cropSelect">
+                    <option value="">-- Select Crop --</option>
+                    @foreach (var crop in ViewBag.Crops as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Crop>)
+                    {
+                        <option value="@crop.CropId" data-duration="@crop.DurationDays">@crop.CropName (@crop.Season)</option>
+                    }
+                </select>
+                <span asp-validation-for="CropId" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="SowingDate" class="form-label fw-semibold text-dark">Sowing Date *</label>
+                    <input asp-for="SowingDate" type="date" class="form-control rounded-3" required id="sowingDate" />
+                    <span asp-validation-for="SowingDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ExpectedHarvestDate" class="form-label fw-semibold text-dark">Expected Harvest Date *</label>
+                    <input asp-for="ExpectedHarvestDate" type="date" class="form-control rounded-3" required id="harvestDate" />
+                    <span asp-validation-for="ExpectedHarvestDate" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CurrentStage" class="form-label fw-semibold text-dark">Current Growth Stage *</label>
+                    <select asp-for="CurrentStage" class="form-select rounded-3" required>
+                        <option value="Sowing">Sowing</option>
+                        <option value="Vegetative">Vegetative</option>
+                        <option value="Flowering">Flowering</option>
+                        <option value="Yielding">Yielding</option>
+                        <option value="Harvesting">Harvesting</option>
+                    </select>
+                    <span asp-validation-for="CurrentStage" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Status" class="form-label fw-semibold text-dark">Cycle Status *</label>
+                    <select asp-for="Status" class="form-select rounded-3" required>
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+                <a href="~/CropCycle" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-success rounded-3 px-4">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>

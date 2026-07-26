@@ -1,0 +1,394 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.ReportsViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Reports";
+}
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="dash-content">
+
+	<!-- Page Header -->
+	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+		<div>
+			<h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">Reports</h1>
+			<p style="color: #7a9a8a; font-size: 14px; margin: 4px 0 0 0;">Generate and export system reports.</p>
+		</div>
+		<div>
+			<button type="button" 
+					onclick="showGenerateReportModal()"
+					style="padding: 10px 20px; background: #2D6A4F; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+				<i class="fas fa-plus-circle"></i> Generate New Report
+			</button>
+		</div>
+	</div>
+
+	<!-- Statistics Cards Row -->
+	<div class="row g-3" style="margin-bottom: 24px;">
+		<!-- Total Reports -->
+		<div class="col-md-3">
+			<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+				<div style="display: flex; align-items: center; gap: 16px;">
+					<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+						<i class="fas fa-file-alt" style="color: #2D6A4F; font-size: 24px;"></i>
+					</div>
+					<div>
+						<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">TOTAL REPORTS</div>
+						<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.TotalReports</div>
+						<div style="font-size: 12px; color: #7a9a8a;">All time</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Generated This Month -->
+		<div class="col-md-3">
+			<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+				<div style="display: flex; align-items: center; gap: 16px;">
+					<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+						<i class="fas fa-chart-line" style="color: #2D6A4F; font-size: 24px;"></i>
+					</div>
+					<div>
+						<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">THIS MONTH</div>
+						<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.GeneratedThisMonth</div>
+						<div style="font-size: 12px; color: #7a9a8a;">Generated</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Exported Reports -->
+		<div class="col-md-3">
+			<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+				<div style="display: flex; align-items: center; gap: 16px;">
+					<div style="width: 48px; height: 48px; background: #fff3e0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+						<i class="fas fa-download" style="color: #f57c00; font-size: 24px;"></i>
+					</div>
+					<div>
+						<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">EXPORTED</div>
+						<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.ExportedReports</div>
+						<div style="font-size: 12px; color: #7a9a8a;">Reports</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pending Reports -->
+		<div class="col-md-3">
+			<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+				<div style="display: flex; align-items: center; gap: 16px;">
+					<div style="width: 48px; height: 48px; background: #ffebee; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+						<i class="fas fa-exclamation-triangle" style="color: #c62828; font-size: 24px;"></i>
+					</div>
+					<div>
+						<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">PENDING</div>
+						<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.PendingReports</div>
+						<div style="font-size: 12px; color: #7a9a8a;">Awaiting generation</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Filters and Reports Table -->
+	<div class="dash-card" style="margin-bottom: 0;">
+		<div class="dash-card-body">
+			<!-- Filters -->
+			<form method="get" asp-action="Reports" id="filterForm">
+				<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+					<!-- From Date -->
+					<div style="position: relative;">
+						<label style="font-size: 12px; color: #7a9a8a; display: block; margin-bottom: 4px;">From Date</label>
+						<input type="date" 
+							   name="fromDate" 
+							   value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" 
+							   style="padding: 8px 12px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; width: 160px;" />
+					</div>
+
+					<!-- To Date -->
+					<div style="position: relative;">
+						<label style="font-size: 12px; color: #7a9a8a; display: block; margin-bottom: 4px;">To Date</label>
+						<input type="date" 
+							   name="toDate" 
+							   value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" 
+							   style="padding: 8px 12px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; width: 160px;" />
+					</div>
+
+					<!-- Report Type Filter -->
+					<div style="position: relative;">
+						<label style="font-size: 12px; color: #7a9a8a; display: block; margin-bottom: 4px;">Report Type</label>
+						<select name="reportTypeFilter" 
+								style="padding: 8px 12px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 180px;">
+							<option value="">All Types</option>
+							<option value="Crop Report" selected="@(Model.ReportTypeFilter == "Crop Report")">Crop Report</option>
+							<option value="Farm Report" selected="@(Model.ReportTypeFilter == "Farm Report")">Farm Report</option>
+							<option value="Revenue Report" selected="@(Model.ReportTypeFilter == "Revenue Report")">Revenue Report</option>
+							<option value="Yield Report" selected="@(Model.ReportTypeFilter == "Yield Report")">Yield Report</option>
+							<option value="Assignment Report" selected="@(Model.ReportTypeFilter == "Assignment Report")">Assignment Report</option>
+						</select>
+					</div>
+
+					<!-- Filter Button -->
+					<div style="padding-top: 20px;">
+						<button type="submit" 
+								style="padding: 8px 20px; background: #2D6A4F; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+							<i class="fas fa-filter"></i> Filter
+						</button>
+					</div>
+
+					<!-- Export Report Button -->
+					<div style="margin-left: auto; padding-top: 20px;">
+						<button type="button" 
+								onclick="exportReports()"
+								style="padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+							<i class="fas fa-file-export"></i> Export Report
+						</button>
+					</div>
+				</div>
+			</form>
+
+			<!-- Recent Reports Label -->
+			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+				<h5 style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0;">Recent Reports</h5>
+				<span style="font-size: 13px; color: #7a9a8a;">Showing latest 10</span>
+			</div>
+
+			<!-- Reports Table -->
+			<div class="table-responsive">
+				<table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+					<thead>
+						<tr style="background: #f8fafb; border-bottom: 2px solid #e2ede8;">
+							<th style="padding: 12px 16px; text-align: left; color: #7a9a8a; font-size: 12px; font-weight: 600; text-transform: uppercase;">Report Name</th>
+							<th style="padding: 12px 16px; text-align: left; color: #7a9a8a; font-size: 12px; font-weight: 600; text-transform: uppercase;">Type</th>
+							<th style="padding: 12px 16px; text-align: left; color: #7a9a8a; font-size: 12px; font-weight: 600; text-transform: uppercase;">Date</th>
+							<th style="padding: 12px 16px; text-align: left; color: #7a9a8a; font-size: 12px; font-weight: 600; text-transform: uppercase;">Generated By</th>
+							<th style="padding: 12px 16px; text-align: center; color: #7a9a8a; font-size: 12px; font-weight: 600; text-transform: uppercase;">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Reports.Any())
+						{
+							@foreach (var report in Model.Reports)
+							{
+								<tr style="border-bottom: 1px solid #e2ede8;">
+									<td style="padding: 16px; font-size: 14px; color: #1a1a1a; font-weight: 500;">@report.ReportName</td>
+									<td style="padding: 16px; font-size: 14px;">
+										<span class="badge @report.ReportTypeBadgeClass" 
+											  style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;">
+											@report.ReportType
+										</span>
+									</td>
+									<td style="padding: 16px; font-size: 14px; color: #7a9a8a;">@report.GeneratedDateFormatted</td>
+									<td style="padding: 16px; font-size: 14px; color: #7a9a8a;">@report.GeneratedBy</td>
+									<td style="padding: 16px; text-align: center;">
+										<button type="button" 
+												class="btn btn-sm" 
+												onclick="viewReport(@report.ReportId)"
+												style="padding: 6px 12px; background: #e8f5e9; color: #2D6A4F; border: none; border-radius: 6px; margin-right: 6px; cursor: pointer;">
+											<i class="fas fa-eye"></i>
+										</button>
+										<button type="button" 
+												class="btn btn-sm" 
+												onclick="downloadReport(@report.ReportId)"
+												style="padding: 6px 12px; background: #e3f2fd; color: #1976d2; border: none; border-radius: 6px; cursor: pointer;">
+											<i class="fas fa-download"></i>
+										</button>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr>
+								<td colspan="5" style="padding: 40px; text-align: center; color: #7a9a8a; font-size: 14px;">
+									<i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 12px; opacity: 0.3;"></i>
+									<div>No reports found matching the selected filters.</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- View Report Modal -->
+<div class="modal fade" id="viewReportModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content" style="border-radius: 12px; border: none;">
+			<div class="modal-header" style="border-bottom: 1px solid #e2ede8; padding: 20px;">
+				<h5 class="modal-title" id="viewReportModalLabel" style="font-weight: 600; color: #1a1a1a;">Report Details</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" id="reportContentArea" style="padding: 24px;">
+				<!-- Report content will be loaded here -->
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid #e2ede8; padding: 16px 20px;">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Generate Report Modal -->
+<div class="modal fade" id="generateReportModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content" style="border-radius: 12px; border: none;">
+			<div class="modal-header" style="border-bottom: 1px solid #e2ede8; padding: 20px;">
+				<h5 class="modal-title" style="font-weight: 600; color: #1a1a1a;">
+					<i class="fas fa-chart-bar" style="color: #2D6A4F;"></i> Generate Real-Time Report
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="padding: 24px;">
+				<p style="color: #7a9a8a; margin-bottom: 20px;">
+					Select a report type to generate from live database data:
+				</p>
+				<div class="mb-3">
+					<label style="font-weight: 500; color: #1a1a1a; margin-bottom: 8px; display: block;">Report Type</label>
+					<select id="reportTypeSelect" class="form-select" style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px;">
+						<option value="">-- Select Report Type --</option>
+						<option value="Crop Report">📊 Crop Report (Real-time from Crop & CropCycles)</option>
+						<option value="Farm Report">🏡 Farm Report (Real-time from Farms)</option>
+						<option value="Revenue Report">💰 Revenue Report (Real-time from Harvests)</option>
+						<option value="Yield Report">🌾 Yield Report (Real-time from Harvests & Crops)</option>
+						<option value="Assignment Report">👥 Assignment Report (Real-time from Assignments)</option>
+					</select>
+				</div>
+				<div class="alert alert-info" style="background: #e3f2fd; border: 1px solid #1976d2; border-radius: 8px; padding: 12px;">
+					<i class="fas fa-info-circle" style="color: #1976d2;"></i>
+					<strong>Real-Time Data:</strong> Reports will be generated from current database records.
+				</div>
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid #e2ede8; padding: 16px 20px;">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn" onclick="generateRealtimeReport()" 
+						style="background: #2D6A4F; color: white; padding: 8px 20px; border: none; border-radius: 8px;">
+					<i class="fas fa-cog fa-spin" id="generateSpinner" style="display: none;"></i>
+					<span id="generateButtonText">Generate Report</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		function showGenerateReportModal() {
+			const modal = new bootstrap.Modal(document.getElementById('generateReportModal'));
+			modal.show();
+		}
+
+		function generateRealtimeReport() {
+			const reportType = document.getElementById('reportTypeSelect').value;
+
+			if (!reportType) {
+				alert('Please select a report type');
+				return;
+			}
+
+			// Show loading state
+			document.getElementById('generateSpinner').style.display = 'inline-block';
+			document.getElementById('generateButtonText').textContent = 'Generating...';
+
+			fetch('/Admin/GenerateRealtimeReport', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: `reportType=${encodeURIComponent(reportType)}`
+			})
+			.then(response => response.json())
+			.then(data => {
+				// Hide loading state
+				document.getElementById('generateSpinner').style.display = 'none';
+				document.getElementById('generateButtonText').textContent = 'Generate Report';
+
+				if (data.success) {
+					// Close modal
+					bootstrap.Modal.getInstance(document.getElementById('generateReportModal')).hide();
+
+					// Show success message
+					alert(`✅ ${data.message}\n\nReport: ${data.reportName}\nGenerated: ${data.generatedDate}\n\nThe page will refresh to show the new report.`);
+
+					// Refresh page to show new report
+					location.reload();
+				} else {
+					alert('❌ Error: ' + data.message);
+				}
+			})
+			.catch(error => {
+				// Hide loading state
+				document.getElementById('generateSpinner').style.display = 'none';
+				document.getElementById('generateButtonText').textContent = 'Generate Report';
+
+				console.error('Error:', error);
+				alert('An error occurred while generating the report');
+			});
+		}
+
+		function viewReport(reportId) {
+			fetch(`/Admin/ViewReport?id=${reportId}`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						const report = data.report;
+						document.getElementById('reportContentArea').innerHTML = report.content;
+						const modal = new bootstrap.Modal(document.getElementById('viewReportModal'));
+						modal.show();
+					} else {
+						alert(data.message || 'Failed to load report');
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('An error occurred while loading the report');
+				});
+		}
+
+		function downloadReport(reportId) {
+			window.location.href = `/Admin/DownloadReport?id=${reportId}`;
+		}
+
+		function exportReports() {
+			const form = document.getElementById('filterForm');
+			const fromDate = form.querySelector('[name="fromDate"]').value;
+			const toDate = form.querySelector('[name="toDate"]').value;
+			const reportType = form.querySelector('[name="reportTypeFilter"]').value;
+
+			let url = '/Admin/ExportReport?';
+			if (fromDate) url += `fromDate=${fromDate}&`;
+			if (toDate) url += `toDate=${toDate}&`;
+			if (reportType) url += `reportTypeFilter=${reportType}&`;
+
+			window.location.href = url;
+		}
+	</script>
+
+	<style>
+		.badge-success {
+			background-color: #e8f5e9;
+			color: #2D6A4F;
+		}
+
+		.badge-info {
+			background-color: #e3f2fd;
+			color: #1976d2;
+		}
+
+		.badge-warning {
+			background-color: #fff3e0;
+			color: #f57c00;
+		}
+
+		.badge-primary {
+			background-color: #e8eaf6;
+			color: #3f51b5;
+		}
+
+		.badge-secondary {
+			background-color: #f5f5f5;
+			color: #616161;
+		}
+	</style>
+}

@@ -1,0 +1,64 @@
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Operational Reports";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title"><span class="material-icons-round">summarize</span> Cooperative Operational Analytics &amp; Reports</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border text-center">
+                    <h3 class="text-purple fw-bold mb-1" style="color:#7c3aed;">@ViewBag.TotalFarmers</h3>
+                    <small class="text-muted">Total Member Farmers</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border text-center">
+                    <h3 class="text-success fw-bold mb-1">@ViewBag.TotalHarvests</h3>
+                    <small class="text-muted">Total Harvest Batches</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border text-center">
+                    <h3 class="text-primary fw-bold mb-1">₹@(((decimal)ViewBag.TotalSales).ToString("N0"))</h3>
+                    <small class="text-muted">Cooperative Sales Revenue</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-light rounded border text-center">
+                    <h3 class="text-danger fw-bold mb-1">@ViewBag.TotalPestCases</h3>
+                    <small class="text-muted">Pest Cases Tracked</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white rounded border">
+            <h5 class="fw-bold mb-3">Generate Custom Operational Report</h5>
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label font-weight-bold">Report Type</label>
+                    <select class="form-select">
+                        <option>Farmer Cultivation &amp; Harvest Summary</option>
+                        <option>Regional Yield Production Report</option>
+                        <option>Staff Assignment &amp; Field Visit Log</option>
+                        <option>Pest Outbreak &amp; Advisory Report</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label font-weight-bold">From Date</label>
+                    <input type="date" class="form-control" value="@DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label font-weight-bold">To Date</label>
+                    <input type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="window.print()"><span class="material-icons-round fs-6">print</span> Print Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

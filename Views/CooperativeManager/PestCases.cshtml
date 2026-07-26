@@ -1,0 +1,75 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Pest Incidents Registry";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title"><span class="material-icons-round">bug_report</span> Pest Incidents Registry</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#ID</th>
+                        <th>Farmer &amp; Plot</th>
+                        <th>Title / Incident</th>
+                        <th>Severity</th>
+                        <th>Assigned Agronomist</th>
+                        <th>Reported Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No pest cases reported in the system.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var pest in Model)
+                        {
+                            <tr>
+                                <td>#@pest.PestCaseId</td>
+                                <td>
+                                    <strong>@(pest.CropCycle?.LandPlot?.Farm?.Farmer?.FullName ?? "Member Farmer")</strong><br />
+                                    <small class="text-muted">Plot: @(pest.CropCycle?.LandPlot?.PlotName ?? "N/A")</small>
+                                </td>
+                                <td>@pest.Title</td>
+                                <td>
+                                    <span class="badge @(pest.Priority == "High" ? "bg-danger" : "bg-warning text-dark")">@pest.Priority</span>
+                                </td>
+                                <td>
+                                    @if (pest.AssignedOfficer != null)
+                                    {
+                                        <span>@pest.AssignedOfficer.FullName</span>
+                                        @if (!string.IsNullOrEmpty(pest.AssignedOfficer.Phone))
+                                        {
+                                            <small class="text-muted d-block"><span class="material-icons-round align-middle" style="font-size: 14px;">phone</span> @pest.AssignedOfficer.Phone</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted italic">Unassigned</span>
+                                    }
+                                </td>
+                                <td>@pest.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td>
+                                    <span class="badge @(pest.Status == "Resolved" ? "bg-success" : "bg-primary")">@pest.Status</span>
+                                </td>
+                                <td>
+                                    <a href="/PestCase/Details/@pest.PestCaseId" class="btn btn-sm btn-outline-primary"><span class="material-icons-round fs-6">visibility</span> Inspect</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

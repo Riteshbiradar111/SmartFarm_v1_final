@@ -1,0 +1,71 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.FieldVisit>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Field Inspection Visits";
+}
+
+<!-- Notification Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-green" style="margin-bottom: 20px;">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dash-alert dash-alert-red" style="margin-bottom: 20px;">
+        <span class="material-icons-round">error</span>
+        <div><b>Error:</b> @TempData["ErrorMessage"]</div>
+    </div>
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center">
+        <h2 class="dash-card-title"><span class="material-icons-round">commute</span> Field Inspection Visits</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Farmer Name</th>
+                        <th>Phone Number</th>
+                        <th>Plot Number / Plot Code</th>
+                        <th>Visit Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No field visits scheduled.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var visit in Model)
+                        {
+                            <tr>
+                                <td>#@(visit.Farmer?.FarmerId ?? 0)</td>
+                                <td><strong>@(visit.Farmer?.FullName ?? "Farmer")</strong></td>
+                                <td>@(visit.Farmer?.MobileNumber ?? "N/A")</td>
+                                <td>@(visit.LandPlot?.PlotCode ?? visit.LandPlot?.PlotName ?? "N/A")</td>
+                                <td>@(visit.VisitDate?.ToString("dd-MM-yyyy HH:mm") ?? "Not Scheduled")</td>
+                                <td>
+                                    <span class="badge @(visit.Status == "Completed" ? "bg-success" : (visit.Status == "Scheduled" ? "bg-info text-white" : "bg-warning text-dark"))">@visit.Status</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="/FieldOfficer/FieldVisitDetails/@visit.VisitId" class="btn btn-sm btn-outline-primary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

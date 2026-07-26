@@ -1,0 +1,145 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropMonitoring>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Growth Monitoring";
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 text-success">Crop Growth Monitoring</h2>
+            <p class="text-muted mb-0">List of all historical plant growth measurements and health logs.</p>
+        </div>
+        <a href="~/CropMonitoring/Create" class="btn btn-success d-flex align-items-center gap-2">
+            <span class="material-icons-round">analytics</span>
+            Log Growth Observation
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            var weather = ViewBag.Weather;
+            var reading = ViewBag.SensorReading;
+
+            if (weather != null || reading != null)
+            {
+                <div class="row g-4 p-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);">
+                            <h4 class="mb-3 fw-semibold text-white d-flex align-items-center gap-2">
+                                <span class="material-icons-round">cloud</span>
+                                Live Weather
+                            </h4>
+                            @if (weather == null)
+                            {
+                                <div class="text-center py-4 text-white-50">Weather unavailable.</div>
+                            }
+                            else
+                            {
+                                var cur = weather.Current;
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div>
+                                            <h2 class="fw-bold mb-0">@((cur!=null && cur.Temperature.HasValue) ? Math.Round(cur.Temperature.Value,1)+"°C" : "--°C")</h2>
+                                            <span class="small opacity-75">@((cur?.Condition) ?? "-")</span>
+                                        </div>
+                                        <span class="material-icons-round" style="font-size: 3.5rem;">cloud</span>
+                                    </div>
+                                    <div class="row g-2 border-top border-light border-opacity-20 pt-2 small">
+                                        <div class="col-6">Humidity: <span class="fw-semibold">@((cur!=null && cur.Humidity.HasValue)?cur.Humidity.Value+"%":"-")</span></div>
+                                        <div class="col-6">Rain Prob.: <span class="fw-semibold">@((cur!=null && cur.Rain.HasValue)?cur.Rain.Value+" mm":"-")</span></div>
+                                        <div class="col-12">Wind Speed: <span class="fw-semibold">@((cur!=null && cur.WindSpeed.HasValue)?cur.WindSpeed.Value+" m/s":"-")</span></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4">
+                            <h4 class="mb-3 fw-semibold d-flex align-items-center gap-2"><span class="material-icons-round text-success">sensors</span> Soil Telemetry</h4>
+                            @if (reading == null)
+                            {
+                                <div class="text-center py-4 text-muted small">No telemetry data available.</div>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Soil Moisture</div><div class="fw-bold text-success">@($"{reading.SoilMoisture}%")</div></div></div>
+                                    <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Soil pH</div><div class="fw-bold text-success">@reading.SoilPH</div></div></div>
+                                    <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Nitrogen</div><div class="fw-bold small">@($"{reading.Nitrogen} ppm")</div></div></div>
+                                    <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Phosphorus</div><div class="fw-bold small">@($"{reading.Phosphorus} ppm")</div></div></div>
+                                    <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Potassium</div><div class="fw-bold small">@($"{reading.Potassium} ppm")</div></div></div>
+                                    <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Electrical Cond.</div><div class="fw-bold small">@($"{reading.ElectricalConductivity} dS/m")</div></div></div>
+                                    <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Organic Carbon</div><div class="fw-bold small">@($"{reading.OrganicCarbon}%")</div></div></div>
+                                    <div class="col-12 text-center small text-muted">Last Updated: @reading.LastUpdated.ToString("dd-MM-yyyy HH:mm:ss")</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <span class="material-icons-round text-muted" style="font-size: 4rem;">analytics</span>
+                    <h4 class="mt-3">No Measurements Logged</h4>
+                    <p class="text-muted">You haven't logged any crop observations yet.</p>
+                    <a href="~/CropMonitoring/Create" class="btn btn-success mt-2">Log First Observation</a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="min-width: 800px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Observation Date</th>
+                            <th>Crop Name</th>
+                            <th>Plot Name</th>
+                            <th>Growth Stage</th>
+                            <th>Plant Height</th>
+                            <th>Crop Health</th>
+                            <th>Remarks</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">@log.ObservationDate.ToString("dd-MM-yyyy")</td>
+                                <td class="fw-semibold text-success">@log.CropCycle.Crop.CropName</td>
+                                <td>@log.CropCycle.LandPlot.PlotName</td>
+                                <td>@log.GrowthStage</td>
+                                <td>@($"{log.PlantHeight} cm")</td>
+                                <td>
+                                    <span class="badge @(log.CropHealth == "Excellent" || log.CropHealth == "Good" ? "bg-success-subtle text-success" : log.CropHealth == "Fair" ? "bg-warning-subtle text-warning" : "bg-danger-subtle text-danger") rounded-pill px-3 py-1">
+                                        @log.CropHealth
+                                    </span>
+                                </td>
+                                <td class="text-muted text-truncate" style="max-width: 250px;">@log.Remarks</td>
+                                <td class="text-end pe-4">
+                                    <a href="~/CropMonitoring/Details/@log.MonitoringId" class="btn btn-sm btn-outline-success border-0" title="View Detail observation">
+                                        <span class="material-icons-round">visibility</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

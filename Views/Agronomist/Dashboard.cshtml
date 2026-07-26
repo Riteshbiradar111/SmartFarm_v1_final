@@ -1,0 +1,330 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.AgronomistDashboardViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Agronomist Dashboard";
+}
+
+@section Styles {
+	<style>
+		.dashboard-container {
+			padding: 1.5rem;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		/* KPI Cards */
+		.kpi-card {
+			background: white;
+			border-radius: 16px;
+			padding: 1.5rem;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+			transition: all 0.25s ease;
+			border: 1px solid #f1f5f9;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.kpi-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+		}
+
+		.kpi-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--kpi-color) 0%, var(--kpi-color-light) 100%);
+		}
+
+		.kpi-card.primary {
+			--kpi-color: #10b981;
+			--kpi-color-light: #34d399;
+		}
+
+		.kpi-card.danger {
+			--kpi-color: #ef4444;
+			--kpi-color-light: #f87171;
+		}
+
+		.kpi-card.info {
+			--kpi-color: #3b82f6;
+			--kpi-color-light: #60a5fa;
+		}
+
+		.kpi-card.success {
+			--kpi-color: #059669;
+			--kpi-color-light: #10b981;
+		}
+
+		.kpi-header {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			margin-bottom: 1rem;
+		}
+
+		.kpi-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.25rem;
+		}
+
+		.kpi-card.primary .kpi-icon {
+			background: #ecfdf5;
+			color: #10b981;
+		}
+
+		.kpi-card.danger .kpi-icon {
+			background: #fef2f2;
+			color: #ef4444;
+		}
+
+		.kpi-card.info .kpi-icon {
+			background: #eff6ff;
+			color: #3b82f6;
+		}
+
+		.kpi-card.success .kpi-icon {
+			background: #d1fae5;
+			color: #059669;
+		}
+
+		.kpi-label {
+			font-size: 0.875rem;
+			color: #64748b;
+			font-weight: 500;
+		}
+
+		.kpi-value {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #1e293b;
+			line-height: 1;
+			margin-bottom: 0.5rem;
+		}
+
+		.kpi-action a {
+			font-size: 0.8rem;
+			color: var(--kpi-color);
+			text-decoration: none;
+			font-weight: 600;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.25rem;
+			transition: gap 0.2s;
+		}
+
+		.kpi-action a:hover {
+			gap: 0.5rem;
+		}
+	</style>
+}
+
+<div class="dashboard-container">
+	<!-- Dashboard Welcome Header -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<h2 class="text-success mb-1">Welcome back, @ViewData["UserName"]</h2>
+			<p class="text-muted mb-0">Here's your agronomist workspace dashboard overview</p>
+		</div>
+	</div>
+
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+			<span class="material-icons-round align-middle me-1">check_circle</span> @TempData["SuccessMessage"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+	}
+
+	<!-- 4 Essential KPI Cards in Bootstrap Grid -->
+	<div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-4">
+		<!-- Card 1: Active Issues -->
+		<div class="col">
+			<div class="kpi-card danger h-100">
+				<div class="kpi-header">
+					<div class="kpi-icon">
+						<span class="material-icons-round">report_problem</span>
+					</div>
+					<div class="kpi-label">Active Issues</div>
+				</div>
+				<div class="kpi-value">@Model.ActiveIssuesCount</div>
+				<div class="kpi-action">
+					<a href="~/Agronomist/AssignedIssues?status=Assigned">Resolve Now →</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Card 2: High Priority -->
+		<div class="col">
+			<div class="kpi-card primary h-100">
+				<div class="kpi-header">
+					<div class="kpi-icon">
+						<span class="material-icons-round">priority_high</span>
+					</div>
+					<div class="kpi-label">High Priority</div>
+				</div>
+				<div class="kpi-value">@Model.HighPriorityCount</div>
+				<div class="kpi-action">
+					<a href="~/Agronomist/AssignedIssues?status=Assigned">View Urgent →</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Card 3: Resolved Total -->
+		<div class="col">
+			<div class="kpi-card success h-100">
+				<div class="kpi-header">
+					<div class="kpi-icon">
+						<span class="material-icons-round">check_circle</span>
+					</div>
+					<div class="kpi-label">Resolved Total</div>
+				</div>
+				<div class="kpi-value">@Model.ResolvedCount</div>
+				<div class="kpi-action">
+					<a href="~/Agronomist/AssignedIssues?status=Resolved">View History →</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Card 4: Total Assigned -->
+		<div class="col">
+			<div class="kpi-card info h-100">
+				<div class="kpi-header">
+					<div class="kpi-icon">
+						<span class="material-icons-round">assignment</span>
+					</div>
+					<div class="kpi-label">Total Assigned</div>
+				</div>
+				<div class="kpi-value">@Model.TotalAssignedCount</div>
+				<div class="kpi-action">
+					<a href="~/Agronomist/AssignedIssues?status=Assigned">View All →</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 1st Section: Assigned Farmers -->
+	<div class="card border-0 shadow-sm rounded-4 mb-4">
+		<div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+			<span class="material-icons-round text-success">people</span>
+			<h5 class="text-dark fw-bold mb-0">Assigned Farmers</h5>
+		</div>
+		<div class="card-body p-0">
+			@if (!Model.AssignedFarmers.Any())
+			{
+				<div class="text-center py-5 text-muted">
+					<span class="material-icons-round text-muted" style="font-size: 3rem;">people_outline</span>
+					<p class="mb-0 mt-2 fw-semibold">No Farmers Assigned</p>
+					<p class="small text-muted">You are currently not assigned to any cooperative farmers.</p>
+				</div>
+			}
+			else
+			{
+				<div class="table-responsive">
+					<table class="table table-hover align-middle mb-0 text-dark">
+						<thead class="table-light text-muted small">
+							<tr>
+								<th class="ps-4">Farmer Name</th>
+								<th>Contact Number</th>
+								<th>Farm Name &amp; Location</th>
+								<th>Primary Crops</th>
+								<th class="pe-4 text-end">Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var farmer in Model.AssignedFarmers)
+							{
+								string initials = string.Join("", farmer.FarmerName.Split(' ').Select(s => s.Length > 0 ? s[0].ToString() : ""));
+								<tr>
+									<td class="ps-4">
+										<div class="d-flex align-items-center gap-2">
+											<div class="avatar bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 12px;">
+												@initials
+											</div>
+											<div>
+												<span class="fw-semibold">@farmer.FarmerName</span>
+											</div>
+										</div>
+									</td>
+									<td>@farmer.PhoneNumber</td>
+									<td>
+										<span class="d-block fw-semibold">@farmer.FarmName</span>
+										<small class="text-muted">@farmer.Location</small>
+									</td>
+									<td>
+										<span class="badge bg-light text-dark border">@farmer.PrimaryCrops</span>
+									</td>
+									<td class="pe-4 text-end">
+										<a href="~/Agronomist/FarmAnalysis" class="btn btn-sm btn-outline-success rounded-pill px-3">
+											<span class="material-icons-round align-middle me-1" style="font-size: 14px;">analytics</span> View History
+										</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	</div>
+
+	<!-- 2nd Section: Assigned Issues -->
+	<div class="card border-0 shadow-sm rounded-4 mb-4">
+		<div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+			<span class="material-icons-round text-success">support_agent</span>
+			<h5 class="text-dark fw-bold mb-0">Assigned Issues</h5>
+		</div>
+		<div class="card-body">
+			@if (!Model.AssignedIssues.Any())
+			{
+				<div class="text-center py-5 text-muted">
+					<span class="material-icons-round text-success" style="font-size: 3rem;">check_circle_outline</span>
+					<p class="mb-0 mt-2 fw-semibold">All Clear!</p>
+					<p class="small text-muted">There are no pending crop issues or pest reports assigned to you.</p>
+				</div>
+			}
+			else
+			{
+				<div class="row g-3">
+					@foreach (var issue in Model.AssignedIssues)
+					{
+						<div class="col-12 col-md-6 col-lg-4">
+							<div class="card border border-light shadow-sm rounded-4 h-100">
+								<div class="card-body d-flex flex-column justify-content-between p-4">
+									<div>
+										<div class="d-flex justify-content-between align-items-center mb-3">
+											<span class="badge @(issue.Priority == "High" ? "bg-danger" : "bg-warning text-dark")">@issue.Priority</span>
+											<small class="text-muted">@issue.CreatedDate.ToString("dd-MM-yyyy")</small>
+										</div>
+										<h6 class="fw-bold text-dark mb-1">@issue.Title</h6>
+										<p class="small text-muted mb-2">Farmer: <strong>@issue.FarmerName</strong></p>
+										<p class="small text-muted text-truncate mb-3" style="max-height: 48px;">@issue.Description</p>
+									</div>
+									<div class="border-top pt-3 d-flex justify-content-between align-items-center">
+										<span class="badge bg-light text-success border">@issue.IssueType</span>
+										<a href="~/Agronomist/AssignedIssues?status=Assigned" class="btn btn-sm btn-success rounded-pill px-3">
+											Prescribe Solution
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

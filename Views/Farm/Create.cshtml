@@ -1,0 +1,74 @@
+﻿@model SmartFarmMVC.Models.ViewModels.FarmViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add New Farm";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/Farm" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Farms
+        </a>
+        <h2 class="text-success">Add New Farm</h2>
+        <p class="text-muted">Register a new farm property. After registering, you will be redirected to add land plots.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="FarmName" class="form-label fw-semibold text-dark">Farm Name *</label>
+                <input asp-for="FarmName" class="form-control rounded-3" placeholder="e.g. Patil Organic Farms" required />
+                <span asp-validation-for="FarmName" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Village" class="form-label fw-semibold text-dark">Village *</label>
+                    <input asp-for="Village" class="form-control rounded-3" placeholder="e.g. Rahuri" required />
+                    <span asp-validation-for="Village" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Taluka" class="form-label fw-semibold text-dark">Taluka *</label>
+                    <input asp-for="Taluka" class="form-control rounded-3" placeholder="e.g. Rahuri" required />
+                    <span asp-validation-for="Taluka" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="District" class="form-label fw-semibold text-dark">District *</label>
+                    <input asp-for="District" class="form-control rounded-3" placeholder="e.g. Ahmednagar" required />
+                    <span asp-validation-for="District" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="State" class="form-label fw-semibold text-dark">State *</label>
+                    <input asp-for="State" class="form-control rounded-3" placeholder="e.g. Maharashtra" required />
+                    <span asp-validation-for="State" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Pincode" class="form-label fw-semibold text-dark">Pincode *</label>
+                <input asp-for="Pincode" class="form-control rounded-3" placeholder="e.g. 413705" required maxlength="6" />
+                <span asp-validation-for="Pincode" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/Farm" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-success rounded-3 px-4">Save &amp; Continue</button>
+            </div>
+        </form>
+    </div>
+</div>

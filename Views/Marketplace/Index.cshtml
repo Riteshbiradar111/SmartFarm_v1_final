@@ -1,0 +1,321 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropListing>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Produce Sales";
+    var userRole = ViewData["UserRole"] as string ?? "";
+    var buyerOrders = ViewBag.BuyerOrders as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="mb-1 text-success">Produce Sales Manager</h2>
+            <p class="text-muted mb-0">Publish warehouse stock, review incoming B2B buyer requests, and track shipping stages.</p>
+        </div>
+        @if (userRole == "Farmer")
+        {
+            <a href="~/Marketplace/Create" class="btn btn-success d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm">
+                <span class="material-icons-round">storefront</span>
+                List Produce for Sale
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <span class="material-icons-round align-middle me-1">check_circle</span> @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <span class="material-icons-round align-middle me-1">error</span> @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- Tab Headers -->
+<ul class="nav nav-tabs border-bottom mb-4" id="salesTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold text-dark" id="listings-tab" data-bs-toggle="tab" data-bs-target="#listings-pane" type="button" role="tab" aria-controls="listings-pane" aria-selected="true">
+            My Crop Listings (@Model.Count())
+        </button>
+    </li>
+    @if (userRole == "Farmer")
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders-pane" type="button" role="tab" aria-controls="orders-pane" aria-selected="false">
+                Incoming Buyer Orders (@buyerOrders.Count())
+            </button>
+        </li>
+    }
+</ul>
+
+<div class="tab-content" id="salesTabsContent">
+    <!-- 1. Active Listings Tab -->
+    <div class="tab-pane fade show active" id="listings-pane" role="tabpanel" aria-labelledby="listings-tab">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-0">
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <span class="material-icons-round text-muted" style="font-size: 3rem;">storefront</span>
+                        <p class="mb-0 mt-2 fw-semibold">No Listings Found</p>
+                        <p class="small">You haven't listed any harvests on the marketplace yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-dark">
+                            <thead class="table-light text-muted small">
+                                <tr>
+                                    <th class="ps-4">Listed Date</th>
+                                    <th>Crop Type</th>
+                                    <th>Quantity</th>
+                                    <th>Price per Unit</th>
+                                    <th>Status</th>
+                                    <th>Action / Direct Buyer</th>
+                                    <th class="pe-4 text-end">Listing ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4 text-muted small">@item.ListedDate.ToString("dd-MM-yyyy")</td>
+                                        <td class="fw-bold text-success">@item.Harvest.CropCycle.Crop.CropName</td>
+                                        <td>@item.AvailableQuantity @item.Unit</td>
+                                        <td class="fw-semibold">₹@item.PricePerUnit.ToString("0.00") / @item.Unit</td>
+                                        <td>
+                                            <span class="badge @(item.Status == "Available" ? "bg-success" : "bg-secondary") rounded-pill px-2.5 py-1">
+                                                @item.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (item.Buyer != null)
+                                            {
+                                                <span class="fw-semibold text-dark">@item.Buyer.FullName</span>
+                                                <small class="text-muted d-block">Company: @item.Buyer.CompanyName</small>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex gap-2 align-items-center">
+                                                    <span class="text-muted small">Awaiting Buyer</span>
+                                                    <form asp-action="Delete" asp-controller="Marketplace" asp-route-id="@item.ListingId" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" title="Delete Listing">
+                                                            <span class="material-icons-round" style="font-size: 1rem;">delete</span>
+                                                            Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td class="pe-4 text-end text-muted small">#@item.ListingId</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Incoming Orders Tab -->
+    @if (userRole == "Farmer")
+    {
+        <div class="tab-pane fade" id="orders-pane" role="tabpanel" aria-labelledby="orders-tab">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    @if (!buyerOrders.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <span class="material-icons-round text-muted" style="font-size: 3rem;">shopping_bag</span>
+                            <p class="mb-0 mt-2 fw-semibold">No Incoming Orders</p>
+                            <p class="small">No buyer has purchased your listings yet.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-dark">
+                                <thead class="table-light text-muted small">
+                                    <tr>
+                                        <th class="ps-4">Order ID</th>
+                                        <th>Order Date</th>
+                                        <th>Crop Name</th>
+                                        <th>Volume</th>
+                                        <th>Billed Total</th>
+                                        <th>Buyer Details</th>
+                                        <th>Status Stage</th>
+                                        <th class="pe-4 text-end" style="min-width: 250px;">Fulfillment Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var o in buyerOrders)
+                                    {
+                                        string cropName = o.CropListing != null
+                                            ? o.CropListing.Harvest.CropCycle.Crop.CropName
+                                            : o.Harvest.CropCycle.Crop.CropName;
+
+                                        string unit = o.CropListing != null
+                                            ? o.CropListing.Unit
+                                            : o.Harvest.Unit;
+
+                                        <tr>
+                                            <td class="ps-4 fw-bold">#@o.OrderId</td>
+                                            <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
+                                            <td class="fw-bold">@cropName</td>
+                                            <td>@o.Quantity.ToString("0.00") @unit</td>
+                                            <td class="fw-bold text-success">₹@o.TotalAmount.ToString("N2")</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div>
+                                                        <span class="fw-semibold text-dark">@o.Buyer.FullName</span>
+                                                        <small class="text-muted d-block">@o.Buyer.CompanyName</small>
+                                                    </div>
+                                                    <!-- Info Icon Button -->
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-outline-secondary rounded-circle p-1 d-flex align-items-center justify-content-center" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#buyerDetails-@o.OrderId"
+                                                            title="View buyer contact and delivery details"
+                                                            style="width: 30px; height: 30px;">
+                                                        <span class="material-icons-round" style="font-size: 18px;">info</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Modal with full buyer details -->
+                                                <div class="modal fade" id="buyerDetails-@o.OrderId" tabindex="-1">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0 shadow-lg rounded-4">
+                                                            <div class="modal-header bg-light border-0">
+                                                                <h5 class="modal-title text-dark fw-bold d-flex align-items-center gap-2">
+                                                                    <span class="material-icons-round text-success">contact_page</span>
+                                                                    Buyer Details - Order #@o.OrderId
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body p-4">
+                                                                <!-- Buyer Info -->
+                                                                <div class="mb-4">
+                                                                    <h6 class="text-muted text-uppercase small mb-3">Contact Information</h6>
+                                                                    <div class="row g-3">
+                                                                        <div class="col-12">
+                                                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                                                <span class="material-icons-round text-success">person</span>
+                                                                                <div>
+                                                                                    <small class="text-muted d-block">Buyer Name</small>
+                                                                                    <strong>@o.Buyer.FullName</strong>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12">
+                                                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                                                <span class="material-icons-round text-success">business</span>
+                                                                                <div>
+                                                                                    <small class="text-muted d-block">Company Name</small>
+                                                                                    <strong>@o.Buyer.CompanyName</strong>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12">
+                                                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                                                <span class="material-icons-round text-success">phone</span>
+                                                                                <div>
+                                                                                    <small class="text-muted d-block">Mobile Number</small>
+                                                                                    <strong>@o.Buyer.MobileNumber</strong>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                @if (!string.IsNullOrEmpty(o.DeliveryAddress))
+                                                                {
+                                                                    <hr class="my-4" />
+                                                                    <!-- Delivery Address -->
+                                                                    <div class="mb-3">
+                                                                        <h6 class="text-muted text-uppercase small mb-3">Delivery Address</h6>
+                                                                        <div class="alert alert-light border rounded-3 p-3 mb-0">
+                                                                            <div class="d-flex gap-2">
+                                                                                <span class="material-icons-round text-success">location_on</span>
+                                                                                <div class="flex-grow-1">
+                                                                                    <p class="mb-0">@o.DeliveryAddress</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+
+                                                                @if (!string.IsNullOrEmpty(o.SpecialInstructions))
+                                                                {
+                                                                    <hr class="my-4" />
+                                                                    <!-- Special Instructions -->
+                                                                    <div>
+                                                                        <h6 class="text-muted text-uppercase small mb-3">Special Instructions</h6>
+                                                                        <div class="alert alert-warning border rounded-3 p-3 mb-0">
+                                                                            <div class="d-flex gap-2">
+                                                                                <span class="material-icons-round text-warning">info</span>
+                                                                                <div class="flex-grow-1">
+                                                                                    <p class="mb-0">@o.SpecialInstructions</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                            <div class="modal-footer border-0 bg-light">
+                                                                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(o.Status == "Delivered" ? "bg-success" : (o.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary")) rounded-pill px-2.5 py-1">@o.Status</span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                @if (o.Status == "Request Sent" || o.Status == "PENDING_FARMER_ACCEPTANCE" || o.Status == "REQUESTED")
+                                                {
+                                                    <form asp-action="AcceptOrder" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="orderId" value="@o.OrderId" />
+                                                        <button type="submit" class="btn btn-sm btn-success rounded-3 px-3">Accept Request</button>
+                                                    </form>
+                                                }
+                                                else if (o.Status != "Delivered")
+                                                {
+                                                    <!-- Simulation Dropdown to progress stages -->
+                                                    <form asp-action="UpdateOrderStatus" method="post" class="d-inline-flex gap-1 align-items-center">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="orderId" value="@o.OrderId" />
+                                                        <select name="status" class="form-select form-select-sm rounded-3 py-1" style="width: auto; font-size: 11px;">
+                                                            <option value="Farmer Accepted" selected="@(o.Status == "Farmer Accepted" ? "selected" : null)">Accepted</option>
+                                                            <option value="Preparing Produce" selected="@(o.Status == "Preparing Produce" ? "selected" : null)">Preparing</option>
+                                                            <option value="Ready for Pickup" selected="@(o.Status == "Ready for Pickup" ? "selected" : null)">Ready for Pickup</option>
+                                                            <option value="In Transit" selected="@(o.Status == "In Transit" ? "selected" : null)">In Transit</option>
+                                                            <option value="Delivered" selected="@(o.Status == "Delivered" ? "selected" : null)">Delivered</option>
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-primary rounded-3 text-nowrap py-1 px-2.5" style="font-size: 11px;">Update</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-success small fw-bold"><i class="fas fa-check-circle me-1"></i> Order Completed</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

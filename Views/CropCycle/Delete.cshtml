@@ -1,0 +1,42 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Delete Crop Cycle";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/CropCycle" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Crop Cycles
+        </a>
+        <h2 class="text-danger">Delete Crop Cycle</h2>
+        <p class="text-muted">Are you sure you want to delete this crop cycle? This action cannot be undone.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600 border-start border-danger border-4">
+    <div class="card-body p-4">
+        <h4 class="text-danger mb-3 fw-semibold">Delete Warning</h4>
+        <p class="text-dark">
+            Removing the crop cycle for <strong>"@Model.Crop.CropName"</strong> on plot <strong>"@Model.LandPlot.PlotName"</strong> will delete all monitoring logs and pest incidents logged during this cycle.
+        </p>
+
+        <div class="mt-4 border-top pt-3">
+            <h5 class="text-muted small mb-2">Cycle details:</h5>
+            <ul class="text-muted small ps-3">
+                <li>Sowing Date: @Model.SowingDate.ToString("dd-MM-yyyy")</li>
+                <li>Current Stage: @Model.CurrentStage</li>
+                <li>Status: @Model.Status</li>
+            </ul>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.CropCycleId" method="post" class="mt-4">
+            @Html.AntiForgeryToken()
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/CropCycle" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-3 px-4">Confirm Delete</button>
+            </div>
+        </form>
+    </div>
+</div>

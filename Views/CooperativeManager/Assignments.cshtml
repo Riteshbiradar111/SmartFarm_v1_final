@@ -1,0 +1,68 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Assignment>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Farm Assignments Directory";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-blue mb-4">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center">
+        <h2 class="dash-card-title"><span class="material-icons-round">assignment_ind</span> Active &amp; Past Staff Assignments</h2>
+        <a href="/CooperativeManager/MemberFarms" class="btn btn-primary btn-sm"><span class="material-icons-round fs-6">person_add</span> New Assignment</a>
+    </div>
+    <div class="dash-card-body">
+        <form method="get" class="row g-3 mb-3">
+            <div class="col-md-8">
+                <input type="text" name="search" class="form-control" placeholder="Search by farmer name or task description..." value="@Context.Request.Query["search"]" />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+                <a href="/CooperativeManager/Assignments" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#ID</th>
+                        <th>Farmer</th>
+                        <th>Farm</th>
+                        <th>Task / Instructions</th>
+                        <th>Assigned Date</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No assignment records found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>#@item.AssignmentId</td>
+                                <td><strong>@(item.Farmer?.FullName ?? "N/A")</strong></td>
+                                <td>@(item.Farm?.FarmName ?? "N/A")</td>
+                                <td>@item.Task</td>
+                                <td>@item.AssignedDate.ToString("dd-MM-yyyy")</td>
+                                <td>@item.DueDate.ToString("dd-MM-yyyy")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

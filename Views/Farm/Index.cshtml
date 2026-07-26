@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Farm>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "My Farms";
+}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 text-success">My Farms</h2>
+            <p class="text-muted mb-0">Manage your farm properties and locations.</p>
+        </div>
+        <a href="~/Farm/Create" class="btn btn-success d-flex align-items-center gap-2">
+            <span class="material-icons-round">add</span>
+            Add New Farm
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <span class="material-icons-round text-muted" style="font-size: 4rem;">landscape</span>
+                <h4 class="mt-3">No Farms Registered</h4>
+                <p class="text-muted">You have not registered any farms yet.</p>
+                <a href="~/Farm/Create" class="btn btn-success mt-2">Get Started - Create Farm</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="min-width: 800px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Farm Name</th>
+                            <th>Village</th>
+                            <th>Taluka</th>
+                            <th>District</th>
+                            <th>State</th>
+                            <th>Pincode</th>
+                            <th>Created Date</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var farm in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">@farm.FarmName</td>
+                                <td>@farm.Village</td>
+                                <td>@farm.Taluka</td>
+                                <td>@farm.District</td>
+                                <td>@farm.State</td>
+                                <td>@farm.Pincode</td>
+                                <td>@farm.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group gap-1">
+                                        <a href="~/Farm/Details/@farm.FarmId" class="btn btn-sm btn-outline-success border-0" title="View Details">
+                                            <span class="material-icons-round">visibility</span>
+                                        </a>
+                                        <a href="~/Farm/Edit/@farm.FarmId" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                                            <span class="material-icons-round">edit</span>
+                                        </a>
+                                        <a href="~/Farm/Delete/@farm.FarmId" class="btn btn-sm btn-outline-danger border-0" title="Delete">
+                                            <span class="material-icons-round">delete</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

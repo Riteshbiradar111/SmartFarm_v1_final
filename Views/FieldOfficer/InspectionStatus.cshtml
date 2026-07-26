@@ -1,0 +1,59 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Field Quality Audit & Inspection Reports";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center">
+        <h2 class="dash-card-title"><span class="material-icons-round">verified</span> Field Quality Audit &amp; Inspection Reports</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Farmer Name</th>
+                        <th>Crop Detail</th>
+                        <th>Phone Number</th>
+                        <th>Farmer Issue</th>
+                        <th>Agro Report</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No inspection records found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            var farmer = item.CropCycle?.LandPlot?.Farm?.Farmer;
+                            <tr>
+                                <td>#@(farmer?.FarmerId ?? 0)</td>
+                                <td><strong>@(farmer?.FullName ?? "Unknown Farmer")</strong></td>
+                                <td>@(item.CropCycle?.Crop?.CropName ?? "N/A")</td>
+                                <td>@(farmer?.MobileNumber ?? "N/A")</td>
+                                <td>
+                                    <span class="d-block fw-semibold text-primary">@item.Title</span>
+                                    <small class="text-muted">@item.Description</small>
+                                </td>
+                                <td>@(item.Recommendation ?? "Pending Recommendation")</td>
+                                <td>
+                                    <span class="badge @(item.Status == "Resolved" ? "bg-success" : (item.Priority == "High" ? "bg-danger" : "bg-warning text-dark"))">
+                                        @item.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

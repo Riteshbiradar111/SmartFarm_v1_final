@@ -1,0 +1,84 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.FieldVisit
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Field Visit Details #{Model?.VisitId ?? 0}";
+}
+
+<!-- Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-green" style="margin-bottom: 20px;">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dash-alert dash-alert-red" style="margin-bottom: 20px;">
+        <span class="material-icons-round">error</span>
+        <div><b>Error:</b> @TempData["ErrorMessage"]</div>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="dash-card h-100">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title"><span class="material-icons-round">commute</span> Field Inspection Visit #@Model?.VisitId</h2>
+            </div>
+            <div class="dash-card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small d-block">Farmer Name</label>
+                        <p class="fw-bold fs-6">@(Model?.Farmer?.FullName ?? "Member Farmer")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small d-block">Land Plot</label>
+                        <p class="fw-bold fs-6">@(Model?.LandPlot?.PlotName ?? "Target Plot")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small d-block">Visit Date</label>
+                        <p class="fw-bold">@(Model?.VisitDate?.ToString("dd-MM-yyyy HH:mm") ?? "Scheduled")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small d-block">Status</label>
+                        <p><span class="badge @(Model?.Status == "Completed" ? "bg-success" : (Model?.Status == "Scheduled" ? "bg-info text-white" : "bg-warning text-dark"))">@Model?.Status</span></p>
+                    </div>
+                    <div class="col-md-12 border-top pt-3">
+                        <label class="text-muted small d-block">Inspection Notes &amp; Ground Observations</label>
+                        <p class="text-dark">@(Model?.Notes ?? "Inspection details pending.")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model?.Status != "Completed")
+    {
+        <div class="col-md-5">
+            <div class="dash-card h-100">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title"><span class="material-icons-round">schedule</span> Schedule / Update Visit Date</h2>
+                </div>
+                <div class="dash-card-body">
+                    <form method="post" action="~/FieldOfficer/ScheduleVisit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="visitId" value="@Model?.VisitId" />
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="visitDate">Choose Inspection Date &amp; Time</label>
+                            <input type="datetime-local" id="visitDate" name="visitDate" class="form-input" 
+                                   value="@(Model?.VisitDate?.ToString("yyyy-MM-ddTHH:mm"))" required />
+                        </div>
+                        
+                        <div class="form-actions mb-0">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <span class="material-icons-round me-1">save</span> Save &amp; Notify Farmer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

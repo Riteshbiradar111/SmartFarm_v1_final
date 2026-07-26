@@ -1,0 +1,186 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.CropMonitoring
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Observation Log Details";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/CropCycle/Details/@Model.CropCycleId" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Crop Cycle
+        </a>
+        <h2 class="text-success mb-1">Growth Observation</h2>
+        <p class="text-muted">Observation Date: @Model.ObservationDate.ToString("dd MMMM yyyy")</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-4 fw-semibold border-bottom pb-2">Measurement parameters</h4>
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="text-muted small d-block">Crop Name</label>
+                    <span class="fw-semibold text-dark">@Model.CropCycle.Crop.CropName</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Plot Location</label>
+                    <span class="fw-semibold text-dark">@Model.CropCycle.LandPlot.PlotName</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Growth Stage</label>
+                    <span class="badge bg-success text-white rounded-pill px-3 py-1 mt-1">@Model.GrowthStage</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Plant Height</label>
+                    <span class="fw-semibold text-dark">@($"{Model.PlantHeight} cm")</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Crop Health</label>
+                    <span class="badge bg-light text-dark border px-3 py-1 mt-1">@Model.CropHealth</span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top">
+                <label class="text-muted small d-block mb-1">Observations Remarks</label>
+                <p class="text-dark">@Model.Remarks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right pane: image & live weather -->
+    <div class="col-md-6 d-flex flex-column gap-4">
+        <!-- Photo card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 flex-grow-1">
+            <h4 class="text-dark mb-3 fw-semibold">Uploaded Photo</h4>
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" class="img-fluid rounded-4 shadow-sm" style="max-height: 250px; object-fit: cover;" />
+            }
+            else
+            {
+                <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-4 shadow-sm py-5">
+                    <div class="text-center">
+                        <span class="material-icons-round" style="font-size: 3rem;">image_not_supported</span>
+                        <p class="small mt-2 mb-0">No image uploaded for this log</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Weather card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-gradient-success text-white" style="background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);">
+            <h4 class="mb-3 fw-semibold text-white d-flex align-items-center gap-2">
+                <span class="material-icons-round">cloud</span>
+                Soil & Weather
+            </h4>
+            @{
+                var weather = ViewBag.Weather as Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.WeatherViewModel;
+                var reading = ViewBag.SensorReading as Smart_Farm_and_Crop_Yeild_Management_System.Models.SensorReading;
+            }
+
+            @if (weather == null)
+            {
+                <div class="text-center py-4 text-white-50">Weather unavailable. Use Refresh to fetch current conditions.</div>
+            }
+            else
+            {
+                var cur = weather.Current;
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <h2 class="fw-bold mb-0">@((cur!=null && cur.Temperature.HasValue) ? Math.Round(cur.Temperature.Value,1)+"°C" : "--°C")</h2>
+                            <span class="small opacity-75">@((cur?.Condition) ?? "-")</span>
+                        </div>
+                        <span class="material-icons-round" style="font-size: 3.5rem;">cloud</span>
+                    </div>
+                    <div class="row g-2 border-top border-light border-opacity-20 pt-2 small">
+                        <div class="col-6">Humidity: <span class="fw-semibold">@((cur!=null && cur.Humidity.HasValue)?cur.Humidity.Value+"%":"-")</span></div>
+                        <div class="col-6">Rain Prob.: <span class="fw-semibold">@((cur!=null && cur.Rain.HasValue)?cur.Rain.Value+" mm":"-")</span></div>
+                        <div class="col-12">Wind Speed: <span class="fw-semibold">@((cur!=null && cur.WindSpeed.HasValue)?cur.WindSpeed.Value+" m/s":"-")</span></div>
+                    </div>
+
+                    <div class="mt-3 border-top pt-3 d-flex justify-content-between align-items-center">
+                        <div class="small text-white-75">7-Day Forecast</div>
+                        <form asp-controller="CropMonitoring" asp-action="RefreshWeather" asp-route-id="@Model.MonitoringId" method="post" class="m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-light">Refresh Weather</button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <div class="mt-3 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small text-dark fw-semibold">IoT Telemetry</div>
+                    <form asp-controller="CropMonitoring" asp-action="RefreshTelemetry" asp-route-id="@Model.MonitoringId" method="post" class="m-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-success">Refresh</button>
+                    </form>
+                </div>
+
+                @if (reading == null)
+                {
+                    <div class="text-muted small">No telemetry data. Click refresh to simulate.</div>
+                }
+                else
+                {
+                    <div class="row g-3 mt-2">
+                        <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Soil Moisture</div><div class="fw-bold text-success">@($"{reading.SoilMoisture}%")</div></div></div>
+                        <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Soil pH</div><div class="fw-bold text-success">@reading.SoilPH</div></div></div>
+                        <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Nitrogen (N)</div><div class="fw-bold small">@($"{reading.Nitrogen} ppm")</div></div></div>
+                        <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Phosphorus (P)</div><div class="fw-bold small">@($"{reading.Phosphorus} ppm")</div></div></div>
+                        <div class="col-4"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Potassium (K)</div><div class="fw-bold small">@($"{reading.Potassium} ppm")</div></div></div>
+                        <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Electrical Cond. (EC)</div><div class="fw-bold small">@($"{reading.ElectricalConductivity} dS/m")</div></div></div>
+                        <div class="col-6"><div class="p-2 border rounded-3 text-center bg-light"><div class="small text-muted">Organic Carbon</div><div class="fw-bold small">@($"{reading.OrganicCarbon}%")</div></div></div>
+                        <div class="col-12 text-center small text-muted">Last Updated: @reading.LastUpdated.ToString("dd-MM-yyyy HH:mm:ss")</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var lat = @Model.CropCycle.LandPlot.Latitude;
+            var lng = @Model.CropCycle.LandPlot.Longitude;
+
+            // Fetch live weather dynamically from coordinates
+            var weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
+
+            fetch(weatherUrl)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("weather-temp").innerText = Math.round(data.current.temperature_2m) + "°C";
+                    document.getElementById("weather-humidity").innerText = data.current.relative_humidity_2m + "%";
+                    document.getElementById("weather-wind").innerText = data.current.wind_speed_10m + " km/h";
+
+                    var rainProb = (data.daily && data.daily.precipitation_probability_max) ? data.daily.precipitation_probability_max[0] : 0;
+                    document.getElementById("weather-rain").innerText = rainProb + "%";
+
+                    var code = data.current.weather_code;
+                    var desc = "Clear";
+                    var icon = "wb_sunny";
+
+                    if (code == 0) { desc = "Clear Sky"; icon = "wb_sunny"; }
+                    else if (code >= 1 && code <= 3) { desc = "Partly Cloudy"; icon = "cloud_queue"; }
+                    else if (code >= 61 && code <= 65) { desc = "Rainy"; icon = "umbrella"; }
+                    else if (code == 95) { desc = "Thunderstorm"; icon = "flash_on"; }
+                    else { desc = "Overcast"; icon = "cloud"; }
+
+                    document.getElementById("weather-desc").innerText = desc;
+                    document.getElementById("weather-icon").innerText = icon;
+
+                    document.getElementById("weather-loader").classList.add("d-none");
+                    document.getElementById("weather-content").classList.remove("d-none");
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById("weather-loader").innerHTML = `<p class="small text-danger mb-0">Weather services offline</p>`;
+                });
+        });
+    </script>
+}

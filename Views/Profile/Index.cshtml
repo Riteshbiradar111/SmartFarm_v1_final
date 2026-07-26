@@ -1,0 +1,245 @@
+@model SmartFarmMVC.Models.ViewModels.FarmerProfileViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "My Profile";
+}
+
+<div class="row mb-4">
+	<div class="col-12">
+		<h2 class="mb-1 text-success">My Profile</h2>
+		<p class="text-muted mb-0">Manage your personal information and account settings.</p>
+	</div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+	<div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+		<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">check_circle</span>
+		@TempData["SuccessMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+		<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">error</span>
+		@ViewData["ErrorMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+
+<div class="row g-4">
+	<!-- Profile Picture Card -->
+	<div class="col-lg-4">
+		<div class="card border-0 shadow-sm rounded-4">
+			<div class="card-body p-4 text-center">
+				<div class="mb-4">
+					@if (!string.IsNullOrEmpty(ViewBag.ProfilePicturePath))
+					{
+						<img src="@ViewBag.ProfilePicturePath" 
+							 alt="Profile Picture" 
+							 class="rounded-circle border border-3 border-success" 
+							 style="width: 150px; height: 150px; object-fit: cover;" />
+					}
+					else
+					{
+						<div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center border border-3 border-success" 
+							 style="width: 150px; height: 150px;">
+							<span class="text-white fw-bold" style="font-size: 3rem;">@ViewData["UserInitials"]</span>
+						</div>
+					}
+				</div>
+				<h4 class="mb-1 fw-bold text-dark">@ViewData["UserName"]</h4>
+				<p class="text-muted mb-2">@ViewData["UserRole"]</p>
+				<div class="d-flex align-items-center justify-content-center gap-2 text-muted small mb-3">
+					<span class="material-icons-round" style="font-size: 1rem;">email</span>
+					<span>@ViewBag.Email</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
+					<span class="material-icons-round" style="font-size: 1rem;">account_circle</span>
+					<span>@("@" + ViewBag.Username)</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Quick Stats Card -->
+		<div class="card border-0 shadow-sm rounded-4 mt-4">
+			<div class="card-body p-4">
+				<h6 class="fw-semibold mb-3 text-dark">Account Information</h6>
+				<div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+					<span class="text-muted small">Username</span>
+					<span class="fw-semibold text-dark">@ViewBag.Username</span>
+				</div>
+				<div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+					<span class="text-muted small">Email</span>
+					<span class="fw-semibold text-dark">@ViewBag.Email</span>
+				</div>
+				<div class="d-flex justify-content-between align-items-center">
+					<span class="text-muted small">Role</span>
+					<span class="badge bg-success-subtle text-success rounded-pill px-3">Farmer</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Profile Edit Form -->
+	<div class="col-lg-8">
+		<div class="card border-0 shadow-sm rounded-4">
+			<div class="card-body p-4">
+				<h5 class="fw-semibold mb-4 pb-3 border-bottom">Edit Profile Information</h5>
+
+				<form asp-action="Index" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+					@Html.AntiForgeryToken()
+
+					<!-- Personal Information Section -->
+					<h6 class="fw-semibold mb-3 text-success">
+						<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">person</span>
+						Personal Information
+					</h6>
+
+					<div class="row mb-3">
+						<div class="col-md-6 mb-3">
+							<label asp-for="FullName" class="form-label fw-semibold text-dark">Full Name *</label>
+							<input asp-for="FullName" type="text" class="form-control rounded-3" required />
+							<span asp-validation-for="FullName" class="text-danger small"></span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label asp-for="MobileNumber" class="form-label fw-semibold text-dark">Mobile Number *</label>
+							<input asp-for="MobileNumber" type="tel" class="form-control rounded-3" required />
+							<span asp-validation-for="MobileNumber" class="text-danger small"></span>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<div class="col-md-6 mb-3">
+							<label asp-for="Gender" class="form-label fw-semibold text-dark">Gender</label>
+							<select asp-for="Gender" class="form-select rounded-3">
+								<option value="">-- Select Gender --</option>
+								<option value="Male">Male</option>
+								<option value="Female">Female</option>
+								<option value="Other">Other</option>
+							</select>
+							<span asp-validation-for="Gender" class="text-danger small"></span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label asp-for="DateOfBirth" class="form-label fw-semibold text-dark">Date of Birth</label>
+							<input asp-for="DateOfBirth" type="date" class="form-control rounded-3" />
+							<span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+						</div>
+					</div>
+
+					<div class="mb-4">
+						<label asp-for="EmergencyContact" class="form-label fw-semibold text-dark">Emergency Contact</label>
+						<input asp-for="EmergencyContact" type="tel" class="form-control rounded-3" placeholder="e.g. +91 9876543210" />
+						<span asp-validation-for="EmergencyContact" class="text-danger small"></span>
+					</div>
+
+					<!-- Address Section -->
+					<h6 class="fw-semibold mb-3 text-success mt-4">
+						<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">location_on</span>
+						Address Information
+					</h6>
+
+					<div class="mb-3">
+						<label asp-for="Address" class="form-label fw-semibold text-dark">Address</label>
+						<textarea asp-for="Address" class="form-control rounded-3" rows="2" placeholder="House no., Street, Area"></textarea>
+						<span asp-validation-for="Address" class="text-danger small"></span>
+					</div>
+
+					<div class="row mb-3">
+						<div class="col-md-6 mb-3">
+							<label asp-for="Village" class="form-label fw-semibold text-dark">Village</label>
+							<input asp-for="Village" type="text" class="form-control rounded-3" />
+							<span asp-validation-for="Village" class="text-danger small"></span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label asp-for="Taluka" class="form-label fw-semibold text-dark">Taluka</label>
+							<input asp-for="Taluka" type="text" class="form-control rounded-3" />
+							<span asp-validation-for="Taluka" class="text-danger small"></span>
+						</div>
+					</div>
+
+					<div class="row mb-4">
+						<div class="col-md-4 mb-3">
+							<label asp-for="District" class="form-label fw-semibold text-dark">District</label>
+							<input asp-for="District" type="text" class="form-control rounded-3" />
+							<span asp-validation-for="District" class="text-danger small"></span>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label asp-for="State" class="form-label fw-semibold text-dark">State</label>
+							<input asp-for="State" type="text" class="form-control rounded-3" />
+							<span asp-validation-for="State" class="text-danger small"></span>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label asp-for="PinCode" class="form-label fw-semibold text-dark">Pin Code</label>
+							<input asp-for="PinCode" type="text" class="form-control rounded-3" maxlength="10" />
+							<span asp-validation-for="PinCode" class="text-danger small"></span>
+						</div>
+					</div>
+
+					<!-- Profile Picture Section -->
+					<h6 class="fw-semibold mb-3 text-success mt-4">
+						<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">photo_camera</span>
+						Profile Picture
+					</h6>
+
+					<div class="mb-4">
+						<label asp-for="ProfilePicture" class="form-label fw-semibold text-dark">Upload New Profile Picture</label>
+						<input asp-for="ProfilePicture" type="file" class="form-control rounded-3" accept="image/*" />
+						<span asp-validation-for="ProfilePicture" class="text-danger small"></span>
+						<div class="form-text">Accepted formats: JPG, JPEG, PNG, GIF. Max size: 5MB</div>
+					</div>
+
+					<!-- Change Password Section -->
+					<h6 class="fw-semibold mb-3 text-success mt-4">
+						<span class="material-icons-round align-middle me-2" style="font-size: 1.2rem;">lock</span>
+						Change Password (Optional)
+					</h6>
+
+					<div class="alert alert-info d-flex align-items-start gap-2 mb-3" role="alert">
+						<span class="material-icons-round" style="font-size: 1.2rem;">info</span>
+						<div>
+							<strong>Note:</strong> Leave these fields empty if you don't want to change your password.
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label asp-for="CurrentPassword" class="form-label fw-semibold text-dark">Current Password</label>
+						<input asp-for="CurrentPassword" type="password" class="form-control rounded-3" />
+						<span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+					</div>
+
+					<div class="row mb-4">
+						<div class="col-md-6 mb-3">
+							<label asp-for="NewPassword" class="form-label fw-semibold text-dark">New Password</label>
+							<input asp-for="NewPassword" type="password" class="form-control rounded-3" />
+							<span asp-validation-for="NewPassword" class="text-danger small"></span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label asp-for="ConfirmNewPassword" class="form-label fw-semibold text-dark">Confirm New Password</label>
+							<input asp-for="ConfirmNewPassword" type="password" class="form-control rounded-3" />
+							<span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+						</div>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+						<a href="~/Farmer/Dashboard" class="btn btn-light rounded-3 px-4">
+							<span class="material-icons-round align-middle me-1" style="font-size: 1rem;">close</span>
+							Cancel
+						</a>
+						<button type="submit" class="btn btn-success rounded-3 px-4">
+							<span class="material-icons-round align-middle me-1" style="font-size: 1rem;">save</span>
+							Save Changes
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

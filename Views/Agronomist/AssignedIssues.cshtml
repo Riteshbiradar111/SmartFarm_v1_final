@@ -1,0 +1,163 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Assigned Issues";
+    string selectedStatus = ViewBag.SelectedStatus ?? "Assigned";
+    var pestCases = ViewBag.PestCases as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase>();
+}
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="text-success mb-1">Assigned Farmer Issues</h2>
+            <p class="text-muted">Analyze problems reported by farmers (pest infestation, crop diseases, soil deficiencies) and prescribe corrective actions.</p>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible show fade mb-4" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- Filters Section -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="~/Agronomist/AssignedIssues?status=Assigned" class="btn @(selectedStatus == "Assigned" ? "btn-success" : "btn-light") rounded-3 px-4">
+            Assigned Issues
+        </a>
+        <a href="~/Agronomist/AssignedIssues?status=Resolved" class="btn @(selectedStatus == "Resolved" ? "btn-success" : "btn-light") rounded-3 px-4">
+            Resolved Issues
+        </a>
+    </div>
+</div>
+
+<!-- Issues List -->
+<div class="row g-4">
+    @if (!Model.Any() && !pestCases.Any())
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center text-muted">
+                <span class="material-icons-round" style="font-size:3.5rem;">task_alt</span>
+                <p class="mt-2 mb-0">No farmer support queries found matching this status.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var query in Model)
+        {
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-success-subtle text-success">@query.QueryType</span>
+                            <span class="badge @(query.Priority == "High" ? "bg-danger" : (query.Priority == "Medium" ? "bg-warning text-dark" : "bg-info"))">@query.Priority Priority</span>
+                        </div>
+                        <h4 class="text-dark fw-bold mb-2">@query.Title</h4>
+                        <div class="text-muted small mb-3">
+                            <div>Farmer: <strong>@query.Farmer.FullName</strong> (Mob: @query.Farmer.MobileNumber)</div>
+                            <div>Farm: @query.Farm.FarmName, Village: @query.Farm.Village</div>
+                            <div>Date Reported: @query.CreatedDate.ToString("dd MMMM yyyy")</div>
+                        </div>
+                        <p class="text-dark small mb-3" style="line-height:1.5;">@query.Description</p>
+
+                        @if (!string.IsNullOrEmpty(query.ImagePath))
+                        {
+                            <div class="mb-3">
+                                <img src="@query.ImagePath" class="img-fluid rounded-3 border" style="max-height: 150px; object-fit: cover;" />
+                            </div>
+                        }
+
+                        @if (query.Status == "Resolved" && !string.IsNullOrEmpty(query.AgronomistRecommendation))
+                        {
+                            <div class="bg-success-subtle p-3 rounded-3 mt-3">
+                                <span class="text-success small fw-semibold d-block mb-1">Your Recommendation (@(query.RecommendationDate?.ToString("dd-MM-yyyy HH:mm"))):</span>
+                                <p class="text-dark mb-0 small">@query.AgronomistRecommendation</p>
+                            </div>
+                        }
+                    </div>
+
+                    @if (query.Status == "Assigned" || query.Status == "Under Review")
+                    {
+                        <div class="border-top pt-3 mt-3">
+                            <form asp-action="SubmitIssueRecommendation" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="queryId" value="@query.QueryId" />
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-dark">Prescribe Corrective Recommendation</label>
+                                    <textarea name="recommendation" class="form-control rounded-3" rows="3" placeholder="Enter treatment guidelines, spray dosages, or soil corrective steps..." required></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success rounded-3 btn-sm px-4">Submit Recommendation &amp; Resolve</button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@if (pestCases.Any())
+{
+    <h4 class="text-success mt-4 mb-3">Pest &amp; Crop Disease Cases</h4>
+    <div class="row g-4">
+        @foreach (var pc in pestCases)
+        {
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success-subtle text-success">Pest Case</span>
+                        <span class="badge @(pc.Priority == "High" ? "bg-danger" : (pc.Priority == "Medium" ? "bg-warning text-dark" : "bg-info"))">@pc.Priority Priority</span>
+                    </div>
+                    <h4 class="text-dark fw-bold mb-2">@pc.Title</h4>
+                    <div class="text-muted small mb-3">
+                        <div>Farmer: <strong>@pc.CropCycle.LandPlot.Farm.Farmer.FullName</strong></div>
+                        <div>Crop: @pc.CropCycle.Crop.CropName, Farm: @pc.CropCycle.LandPlot.Farm.FarmName</div>
+                        <div>Date Reported: @pc.CreatedDate.ToString("dd MMMM yyyy")</div>
+                        <div>Status: <strong>@pc.Status</strong></div>
+                    </div>
+                    <p class="text-dark small mb-3" style="line-height:1.5;">@pc.Description</p>
+
+                    @if (!string.IsNullOrEmpty(pc.ImagePath))
+                    {
+                        <div class="mb-3">
+                            <img src="@pc.ImagePath" class="img-fluid rounded-3 border" style="max-height:150px;object-fit:cover;" />
+                        </div>
+                    }
+
+                    @if (pc.Status == "Pending")
+                    {
+                        <div class="border-top pt-3 mt-3">
+                            <form asp-controller="PestCase" asp-action="SubmitReport" asp-route-id="@pc.PestCaseId" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-2">
+                                    <label class="form-label small fw-semibold text-dark">Field / Analysis Report</label>
+                                    <textarea name="reportText" class="form-control rounded-3" rows="2" placeholder="Describe your findings..." required></textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-semibold text-dark">Treatment Recommendation</label>
+                                    <textarea name="recommendationText" class="form-control rounded-3" rows="2" placeholder="Enter treatment guidelines, spray dosages, or soil corrective steps..." required></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success rounded-3 btn-sm px-4">Submit Report to Farmer</button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(pc.Recommendation))
+                    {
+                        <div class="bg-success-subtle p-3 rounded-3 mt-3">
+                            <span class="text-success small fw-semibold d-block mb-1">Your Recommendation:</span>
+                            <p class="text-dark mb-0 small">@pc.Recommendation</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

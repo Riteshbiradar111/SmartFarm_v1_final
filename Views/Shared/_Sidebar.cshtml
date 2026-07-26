@@ -1,0 +1,227 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var role = ViewData["UserRole"] as string ?? "";
+}
+
+<div class="nav-section-label">Main Menu</div>
+
+@if (role == "Farmer")
+{
+    <a href="~/Farmer/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">home</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="~/LandPlot" class="nav-item" id="nav-plots">
+        <span class="material-icons-round">landscape</span>
+        <span class="nav-label">My Farm Plots</span>
+    </a>
+    <a href="~/CropCycle" class="nav-item" id="nav-crops">
+        <span class="material-icons-round">grass</span>
+        <span class="nav-label">Crop Cycles</span>
+    </a>
+    <a href="~/LandPlot/SoilWeather" class="nav-item" id="nav-soil">
+        <span class="material-icons-round">sensors</span>
+        <span class="nav-label">Soil &amp; Weather</span>
+    </a>
+    <a href="~/PestCase" class="nav-item" id="nav-pest">
+        <span class="material-icons-round">bug_report</span>
+        <span class="nav-label">Pest Reports</span>
+    </a>
+
+    <a href="~/Harvest" class="nav-item" id="nav-harvest">
+        <span class="material-icons-round">agriculture</span>
+        <span class="nav-label">Harvest Records</span>
+    </a>
+    <a href="~/Marketplace" class="nav-item" id="nav-sales">
+        <span class="material-icons-round">storefront</span>
+        <span class="nav-label">Produce Sales</span>
+    </a>
+    <a href="~/Reports" class="nav-item" id="nav-reports">
+        <span class="material-icons-round">assessment</span>
+        <span class="nav-label">Reports &amp; Analytics</span>
+    </a>
+    <a href="~/Support" class="nav-item" id="nav-support">
+        <span class="material-icons-round">help</span>
+        <span class="nav-label">Help &amp; Support</span>
+    </a>
+}
+else if (role == "Agronomist")
+{
+    <a href="~/Agronomist/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">dashboard</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a href="~/Agronomist/FarmAnalysis" class="nav-item" id="nav-farm-analysis">
+        <span class="material-icons-round">science</span>
+        <span class="nav-label">Farm Analysis</span>
+    </a>
+
+    <a href="~/Agronomist/AssignedIssues" class="nav-item" id="nav-farmer-issues">
+        <span class="material-icons-round">report_problem</span>
+        <span class="nav-label">Farmer Issues</span>
+    </a>
+
+    <a href="~/Agronomist/Analytics" class="nav-item" id="nav-analytics">
+        <span class="material-icons-round">bar_chart</span>
+        <span class="nav-label">Analytics</span>
+    </a>
+
+    <div class="nav-section-label">Resources</div>
+
+    <a href="~/Agronomist/ReferenceLibrary" class="nav-item" id="nav-reference">
+        <span class="material-icons-round">menu_book</span>
+        <span class="nav-label">Reference Library</span>
+    </a>
+}
+else if (role == "Field Officer")
+{
+    <a href="~/FieldOfficer/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">home</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="~/FieldOfficer/PlotMapping" class="nav-item" id="nav-plots">
+        <span class="material-icons-round">map</span>
+        <span class="nav-label">Plot Mapping</span>
+    </a>
+    <a href="~/FieldOfficer/FarmerOB" class="nav-item" id="nav-onboard">
+        <span class="material-icons-round">person_add</span>
+        <span class="nav-label">Farmer OB</span>
+    </a>
+    <a href="~/FieldOfficer/InspectionStatus" class="nav-item" id="nav-verify">
+        <span class="material-icons-round">fact_check</span>
+        <span class="nav-label">Inspection Status</span>
+    </a>
+    <a href="~/FieldOfficer/FieldVisits" class="nav-item" id="nav-visits">
+        <span class="material-icons-round">directions_walk</span>
+        <span class="nav-label">Field Visits</span>
+    </a>
+    <a href="~/FieldOfficer/IncidentReports" class="nav-item" id="nav-incidents">
+        <span class="material-icons-round">report_problem</span>
+        <span class="nav-label">Incident Reports</span>
+    </a>
+}
+else if (role == "Cooperative Manager")
+{
+    <a href="~/CooperativeManager/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">home</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="~/CooperativeManager/MemberFarms" class="nav-item" id="nav-members">
+        <span class="material-icons-round">people</span>
+        <span class="nav-label">Member Farms</span>
+    </a>
+    <a href="~/CooperativeManager/Assignments" class="nav-item" id="nav-assignments">
+        <span class="material-icons-round">assignment_ind</span>
+        <span class="nav-label">Assignments</span>
+    </a>
+    <a href="~/CooperativeManager/SupportCases" class="nav-item" id="nav-support">
+        <span class="material-icons-round">help_outline</span>
+        <span class="nav-label">Support Cases</span>
+    </a>
+    <a href="~/CooperativeManager/PestCases" class="nav-item" id="nav-pest">
+        <span class="material-icons-round">bug_report</span>
+        <span class="nav-label">Pest Cases</span>
+    </a>
+    <a href="~/CooperativeManager/FarmerHarvest" class="nav-item" id="nav-harvest">
+        <span class="material-icons-round">agriculture</span>
+        <span class="nav-label">Farmer Harvest</span>
+    </a>
+}
+else if (role == "Buyer")
+{
+    <a href="~/Buyer/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">home</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="~/BuyerMarketplace" class="nav-item" id="nav-market">
+        <span class="material-icons-round">storefront</span>
+        <span class="nav-label">Marketplace</span>
+    </a>
+    <a href="~/BuyerOrder" class="nav-item" id="nav-orders">
+        <span class="material-icons-round">shopping_bag</span>
+        <span class="nav-label">My Orders</span>
+    </a>
+    <a href="~/Buyer/Wishlist" class="nav-item" id="nav-saved">
+        <span class="material-icons-round">bookmark</span>
+        <span class="nav-label">Saved Items</span>
+    </a>
+    <a href="~/BuyerMarketplace/FarmerProfiles" class="nav-item" id="nav-sellers">
+        <span class="material-icons-round">people</span>
+        <span class="nav-label">Seller Directory</span>
+    </a>
+    <a href="~/Buyer/Transactions" class="nav-item" id="nav-tx">
+        <span class="material-icons-round">receipt_long</span>
+        <span class="nav-label">Transactions</span>
+    </a>
+}
+else if (role == "Admin")
+{
+    <a href="~/Admin/Dashboard" class="nav-item" id="nav-dashboard">
+        <span class="material-icons-round">home</span>
+        <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="~/Admin/UserManagement" class="nav-item" id="nav-users">
+        <span class="material-icons-round">manage_accounts</span>
+        <span class="nav-label">User Management</span>
+    </a>
+    <a href="~/Admin/FarmManagement" class="nav-item" id="nav-farms">
+        <span class="material-icons-round">landscape</span>
+        <span class="nav-label">Farm Management</span>
+    </a>
+    <a href="~/Admin/AssignmentManagement" class="nav-item" id="nav-assignments">
+        <span class="material-icons-round">assignment</span>
+        <span class="nav-label">Assignment Management</span>
+    </a>
+    <a href="~/Admin/Reports" class="nav-item" id="nav-reports">
+        <span class="material-icons-round">summarize</span>
+        <span class="nav-label">Reports</span>
+    </a>
+}
+
+<div class="nav-section-label">Account</div>
+@if (role == "Farmer")
+{
+    <a href="@Url.Action("Profile", "Farmer")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+else if (role == "Agronomist")
+{
+    <a href="@Url.Action("Profile", "Agronomist")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+else if (role == "Field Officer")
+{
+    <a href="@Url.Action("MyProfile", "FieldOfficer")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+else if (role == "Cooperative Manager")
+{
+    <a href="@Url.Action("MyProfile", "CooperativeManager")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+else if (role == "Buyer")
+{
+    <a href="@Url.Action("Profile", "Buyer")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("MyProfile", "Admin")" class="nav-item" id="nav-profile">
+        <span class="material-icons-round">person</span>
+        <span class="nav-label">My Profile</span>
+    </a>
+}
+
+

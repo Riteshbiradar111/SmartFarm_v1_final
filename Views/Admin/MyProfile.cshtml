@@ -1,0 +1,356 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.MyProfileViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "My Profile";
+}
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="dash-content">
+
+	<!-- Page Header -->
+	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+		<div>
+			<h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">My Profile</h1>
+			<p style="color: #7a9a8a; font-size: 14px; margin: 4px 0 0 0;">View and manage your account details.</p>
+		</div>
+	</div>
+
+	<!-- Profile Card -->
+	<div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; text-align: center;">
+		<div style="width: 120px; height: 120px; background: #2D6A4F; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+			<span style="font-size: 48px; font-weight: 600; color: white;">@Model.ProfileInitials</span>
+		</div>
+		<h2 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px 0;">@Model.FullName</h2>
+		<p style="font-size: 16px; color: #7a9a8a; margin: 0 0 8px 0;">@Model.Role</p>
+		<p style="font-size: 14px; color: #7a9a8a; margin: 0 0 12px 0;">@Model.Email</p>
+		<span style="display: inline-block; padding: 6px 16px; background: #e8f5e9; color: #2D6A4F; border-radius: 20px; font-size: 14px; font-weight: 500;">
+			<i class="fas fa-check-circle"></i> @Model.StatusText
+		</span>
+	</div>
+
+	<!-- Personal Information Form -->
+	<div class="dash-card">
+		<div class="dash-card-header" style="display: flex; align-items: center; gap: 12px; padding: 20px; border-bottom: 1px solid #f0f0f0;">
+			<i class="fas fa-id-card" style="color: #2D6A4F; font-size: 20px;"></i>
+			<div>
+				<h3 style="font-size: 18px; font-weight: 600; color: #1a1a1a; margin: 0;">Personal Information</h3>
+				<p style="color: #7a9a8a; font-size: 14px; margin: 4px 0 0 0;">Update your contact and profile details</p>
+			</div>
+		</div>
+		<div class="dash-card-body" style="padding: 24px;">
+			<form id="profileForm" asp-action="UpdateMyProfile" asp-controller="Admin" method="post">
+				@Html.AntiForgeryToken()
+				<input type="hidden" asp-for="UserId" />
+				<input type="hidden" asp-for="Username" />
+				<input type="hidden" asp-for="Role" />
+				<input type="hidden" asp-for="IsActive" />
+
+				<div class="row g-3">
+					<!-- First Name -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-user" style="color: #2D6A4F;"></i>
+							First Name
+						</label>
+						<input type="text" 
+							   asp-for="FirstName" 
+							   class="form-control" 
+							   placeholder="Enter first name"
+							   required
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+						<span asp-validation-for="FirstName" class="text-danger" style="font-size: 12px;"></span>
+					</div>
+
+					<!-- Last Name -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-user-tag" style="color: #2D6A4F;"></i>
+							Last Name
+						</label>
+						<input type="text" 
+							   asp-for="LastName" 
+							   class="form-control" 
+							   placeholder="Enter last name"
+							   required
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+						<span asp-validation-for="LastName" class="text-danger" style="font-size: 12px;"></span>
+					</div>
+
+					<!-- Email -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-envelope" style="color: #2D6A4F;"></i>
+							Email
+						</label>
+						<input type="email" 
+							   asp-for="Email" 
+							   class="form-control" 
+							   placeholder="admin@smartfarm.com"
+							   required
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+						<span asp-validation-for="Email" class="text-danger" style="font-size: 12px;"></span>
+					</div>
+
+					<!-- Phone Number -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-phone" style="color: #2D6A4F;"></i>
+							Phone Number
+						</label>
+						<input type="text" 
+							   asp-for="PhoneNumber" 
+							   class="form-control" 
+							   placeholder="Enter 10-digit phone number"
+							   required
+							   maxlength="10"
+							   pattern="[0-9]{10}"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+						<span asp-validation-for="PhoneNumber" class="text-danger" style="font-size: 12px;"></span>
+					</div>
+
+					<!-- Employee ID -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-id-badge" style="color: #2D6A4F;"></i>
+							Employee ID
+						</label>
+						<input type="text" 
+							   asp-for="EmployeeId" 
+							   class="form-control" 
+							   placeholder="ADM-0001"
+							   readonly
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; background: #f5f5f5;" />
+					</div>
+
+					<!-- Department -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-building" style="color: #2D6A4F;"></i>
+							Department
+						</label>
+						<input type="text" 
+							   asp-for="Department" 
+							   class="form-control" 
+							   placeholder="Enter department"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+					</div>
+
+					<!-- Address -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-map-marker-alt" style="color: #2D6A4F;"></i>
+							Address
+						</label>
+						<input type="text" 
+							   asp-for="Address" 
+							   class="form-control" 
+							   placeholder="241 Harvest Lane"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+					</div>
+
+					<!-- City -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-city" style="color: #2D6A4F;"></i>
+							City
+						</label>
+						<input type="text" 
+							   asp-for="City" 
+							   class="form-control" 
+							   placeholder="Sambhajinagar"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+					</div>
+
+					<!-- State -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-map" style="color: #2D6A4F;"></i>
+							State
+						</label>
+						<input type="text" 
+							   asp-for="State" 
+							   class="form-control" 
+							   placeholder="Maharashtra"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+					</div>
+
+					<!-- PIN Code -->
+					<div class="col-md-6">
+						<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px;">
+							<i class="fas fa-location-dot" style="color: #2D6A4F;"></i>
+							PIN Code
+						</label>
+						<input type="text" 
+							   asp-for="PinCode" 
+							   class="form-control" 
+							   placeholder="431001"
+							   maxlength="6"
+							   pattern="[0-9]{6}"
+							   style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%;" />
+						<span asp-validation-for="PinCode" class="text-danger" style="font-size: 12px;"></span>
+					</div>
+				</div>
+
+				<!-- Action Buttons -->
+				<div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px;">
+					<button type="button" 
+							onclick="cancelChanges()" 
+							style="padding: 12px 32px; background: #f5f5f5; color: #555; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+						<i class="fas fa-times"></i> Cancel
+					</button>
+					<button type="button" 
+							onclick="saveChanges()" 
+							style="padding: 12px 32px; background: #2D6A4F; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);">
+						<i class="fas fa-save"></i> Save Changes
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+</div>
+
+<!-- JavaScript -->
+<script>
+	// Store original values for cancel functionality
+	let originalValues = {};
+
+	document.addEventListener('DOMContentLoaded', function() {
+		// Store original form values
+		const form = document.getElementById('profileForm');
+		const formData = new FormData(form);
+		formData.forEach((value, key) => {
+			originalValues[key] = value;
+		});
+	});
+
+	// Save Changes
+	function saveChanges() {
+		const form = document.getElementById('profileForm');
+
+		// Client-side validation
+		if (!form.checkValidity()) {
+			form.reportValidity();
+			return;
+		}
+
+		const formData = new FormData(form);
+
+		fetch('@Url.Action("UpdateMyProfile", "Admin")', {
+			method: 'POST',
+			body: formData
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				showNotification('success', data.message);
+
+				// Update the profile card with new values
+				const firstName = document.querySelector('input[name="FirstName"]').value;
+				const lastName = document.querySelector('input[name="LastName"]').value;
+				const email = document.querySelector('input[name="Email"]').value;
+
+				// Update displayed name and email
+				document.querySelector('h2').textContent = `${firstName} ${lastName}`;
+				document.querySelectorAll('p')[2].textContent = email;
+
+				// Update initials if provided in response
+				if (data.initials) {
+					document.querySelector('h2').previousElementSibling.querySelector('span').textContent = data.initials;
+				}
+
+				// Update original values
+				const newFormData = new FormData(form);
+				originalValues = {};
+				newFormData.forEach((value, key) => {
+					originalValues[key] = value;
+				});
+			} else {
+				showNotification('error', data.message);
+			}
+		})
+		.catch(error => {
+			showNotification('error', 'Error updating profile: ' + error.message);
+		});
+	}
+
+	// Cancel Changes - Reload from database
+	function cancelChanges() {
+		if (confirm('Are you sure you want to discard all changes?')) {
+			// Reload the page to get fresh data from database
+			window.location.reload();
+		}
+	}
+
+	// Show Notification
+	function showNotification(type, message) {
+		const color = type === 'success' ? '#2D6A4F' : '#d32f2f';
+		const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+
+		const notification = document.createElement('div');
+		notification.style.cssText = `
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			background: white;
+			color: ${color};
+			padding: 16px 24px;
+			border-radius: 8px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+			z-index: 10000;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-size: 14px;
+			font-weight: 500;
+			animation: slideIn 0.3s ease-out;
+		`;
+
+		notification.innerHTML = `
+			<i class="fas fa-${icon}" style="font-size: 18px;"></i>
+			<span>${message}</span>
+		`;
+
+		document.body.appendChild(notification);
+
+		setTimeout(() => {
+			notification.style.animation = 'slideOut 0.3s ease-in';
+			setTimeout(() => notification.remove(), 300);
+		}, 3000);
+	}
+
+	// Animation keyframes
+	const style = document.createElement('style');
+	style.textContent = `
+		@@keyframes slideIn {
+			from {
+				transform: translateX(400px);
+				opacity: 0;
+			}
+			to {
+				transform: translateX(0);
+				opacity: 1;
+			}
+		}
+		@@keyframes slideOut {
+			from {
+				transform: translateX(0);
+				opacity: 1;
+			}
+			to {
+				transform: translateX(400px);
+				opacity: 0;
+			}
+		}
+		.form-control:focus {
+			outline: none;
+			border-color: #2D6A4F;
+			box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+		}
+	`;
+	document.head.appendChild(style);
+</script>
+
+@section Scripts {
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

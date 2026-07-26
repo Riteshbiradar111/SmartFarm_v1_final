@@ -1,0 +1,98 @@
+﻿@model SmartFarmMVC.Models.ViewModels.CropMonitoringViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Log Growth Observation";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/CropCycle" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Crop Cycles
+        </a>
+        <h2 class="text-success">Log Growth Observation</h2>
+        <p class="text-muted">Record parameters, observations, and optional pictures of your crop's current condition.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="CropCycleId" class="form-label fw-semibold text-dark">Active Crop Cycle *</label>
+                <select asp-for="CropCycleId" class="form-select rounded-3" required>
+                    <option value="">-- Select Active Crop --</option>
+                    @foreach (var cycle in ViewBag.Cycles as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle>)
+                    {
+                        <option value="@cycle.CropCycleId">@cycle.Crop.CropName (@cycle.LandPlot.PlotName - @cycle.LandPlot.Farm.FarmName)</option>
+                    }
+                </select>
+                <span asp-validation-for="CropCycleId" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ObservationDate" class="form-label fw-semibold text-dark">Observation Date *</label>
+                    <input asp-for="ObservationDate" type="date" class="form-control rounded-3" required />
+                    <span asp-validation-for="ObservationDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="GrowthStage" class="form-label fw-semibold text-dark">Current Stage *</label>
+                    <select asp-for="GrowthStage" class="form-select rounded-3" required>
+                        <option value="Sowing">Sowing</option>
+                        <option value="Vegetative">Vegetative</option>
+                        <option value="Flowering">Flowering</option>
+                        <option value="Yielding">Yielding</option>
+                        <option value="Harvesting">Harvesting</option>
+                    </select>
+                    <span asp-validation-for="GrowthStage" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PlantHeight" class="form-label fw-semibold text-dark">Plant Height (cm) *</label>
+                    <input asp-for="PlantHeight" type="number" step="0.1" class="form-control rounded-3" placeholder="e.g. 45" required />
+                    <span asp-validation-for="PlantHeight" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CropHealth" class="form-label fw-semibold text-dark">Crop Health *</label>
+                    <select asp-for="CropHealth" class="form-select rounded-3" required>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                        <option value="Diseased">Diseased</option>
+                    </select>
+                    <span asp-validation-for="CropHealth" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Remarks" class="form-label fw-semibold text-dark">Remarks / Remarks</label>
+                <textarea asp-for="Remarks" class="form-control rounded-3" rows="3" placeholder="Describe any observations..."></textarea>
+                <span asp-validation-for="Remarks" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ImageFile" class="form-label fw-semibold text-dark">Upload Observation Photo</label>
+                <input asp-for="ImageFile" type="file" accept="image/*" class="form-control rounded-3" />
+                <span asp-validation-for="ImageFile" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/CropCycle" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-success rounded-3 px-4">Save Observation</button>
+            </div>
+        </form>
+    </div>
+</div>

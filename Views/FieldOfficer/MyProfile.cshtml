@@ -1,0 +1,38 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.FieldOfficer
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Field Officer Profile";
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3 p-4 text-center" style="background:#ffffff;">
+            <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:80px; height:80px; background:#0284c7; font-size:32px; font-weight:bold;">
+                @(Model != null && !string.IsNullOrEmpty(Model.FullName) ? Model.FullName.Substring(0,1).ToUpper() : "F")
+            </div>
+            <h4 class="fw-bold mb-1">@(Model?.FullName ?? "Field Officer")</h4>
+            <p class="text-primary fw-semibold mb-2">Field Officer</p>
+            <p class="text-muted small mb-0">District: @(Model?.AssignedDistrict ?? "Wardha")</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-3 p-4" style="background:#ffffff;">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Profile &amp; Assignment Details</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Full Name</label>
+                    <span class="fw-bold text-dark">@(Model?.FullName ?? "Ramesh Shinde")</span>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Mobile Number</label>
+                    <span class="fw-bold text-dark">@(Model?.MobileNumber ?? "9823011223")</span>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Assigned District</label>
+                    <span class="fw-bold text-dark">@(Model?.AssignedDistrict ?? "Wardha")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

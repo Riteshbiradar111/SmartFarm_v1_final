@@ -1,0 +1,981 @@
+﻿@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Farmer Dashboard";
+}
+
+<!-- ===== DASHBOARD CONTENT ===== -->
+<!-- 4 KPI Stats Row -->
+<div class="stats-row">
+    <!-- Total Farms -->
+    <div class="stat-card green">
+        <div class="stat-icon-wrap si-green">
+            <span class="material-icons-round">home</span>
+        </div>
+
+        <div class="stat-body">
+            <div class="stat-value">@ViewBag.TotalFarms</div>
+            <div class="stat-label">Total Farms</div>
+            <div class="stat-change up">
+                <a href="~/Farm" class="text-white text-decoration-none small">Manage Farms &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Plots -->
+    <div class="stat-card lime">
+        <div class="stat-icon-wrap si-lime">
+            <span class="material-icons-round">landscape</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@ViewBag.TotalPlots</div>
+            <div class="stat-label">Land Plots Mapped</div>
+            <div class="stat-change neutral">
+                <a href="~/LandPlot" class="text-white text-decoration-none small">View Plots &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Crop Cycles -->
+    <div class="stat-card teal">
+        <div class="stat-icon-wrap si-teal">
+            <span class="material-icons-round">grass</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@ViewBag.ActiveCycles</div>
+            <div class="stat-label">Active Crop Cycles</div>
+            <div class="stat-change up">
+                <a href="~/CropCycle" class="text-white text-decoration-none small">Monitor Progress &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marketplace listings -->
+    <div class="stat-card orange">
+        <div class="stat-icon-wrap si-orange">
+            <span class="material-icons-round">storefront</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@ViewBag.MarketplaceListings</div>
+            <div class="stat-label">Active Listings</div>
+            <div class="stat-change orange">
+                <a href="~/Marketplace" class="text-white text-decoration-none small">Sell Produce &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weather Widgets Section -->
+<div class="mt-4">
+    <h4 class="text-dark mb-3 fw-semibold d-flex align-items-center gap-2">
+        <span class="material-icons-round">cloud</span>
+        Live Weather - Your Farms
+    </h4>
+    <div class="weather-scroll-container">
+        <div class="weather-cards-wrapper">
+            @{
+                var farmsWithWeather = ViewBag.FarmsWithWeather as IEnumerable<dynamic>;
+                int farmCount = 0;
+
+                if (farmsWithWeather != null)
+                {
+                    farmCount = farmsWithWeather.Count();
+                }
+
+                // Debug output
+                <text><!-- Debug: Farm count = @farmCount --></text>
+
+                if (farmCount > 0)
+                {
+                    int farmIndex = 0;
+                    foreach (var farm in farmsWithWeather)
+                    {
+                        if (farm != null && farm.FirstPlot != null)
+                        {
+                            <div class="weather-card">
+                                <div class="weather-card-header">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="material-icons-round">agriculture</span>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">@farm.FarmName</h6>
+                                            <small class="opacity-75">@farm.FirstPlot.PlotName</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="weather-card-body">
+                                    <div class="weather-loader-@farmIndex text-center py-3">
+                                        <div class="spinner-border spinner-border-sm text-light" role="status"></div>
+                                        <p class="small mt-2 mb-0">Loading...</p>
+                                    </div>
+                                    <div class="weather-content-@farmIndex d-none">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div>
+                                                <h2 class="mb-0 fw-bold weather-temp-@farmIndex">--°C</h2>
+                                                <span class="small opacity-75 weather-desc-@farmIndex">--</span>
+                                            </div>
+                                            <span class="material-icons-round weather-icon-@farmIndex" style="font-size: 3rem;">cloud</span>
+                                        </div>
+                                        <div class="weather-stats">
+                                            <div class="weather-stat-item">
+                                                <span class="material-icons-round">water_drop</span>
+                                                <div>
+                                                    <div class="weather-stat-label">Humidity</div>
+                                                    <div class="weather-stat-value weather-humidity-@farmIndex">--%</div>
+                                                </div>
+                                            </div>
+                                            <div class="weather-stat-item">
+                                                <span class="material-icons-round">umbrella</span>
+                                                <div>
+                                                    <div class="weather-stat-label">Rain</div>
+                                                    <div class="weather-stat-value weather-rain-@farmIndex">--%</div>
+                                                </div>
+                                            </div>
+                                            <div class="weather-stat-item">
+                                                <span class="material-icons-round">air</span>
+                                                <div>
+                                                    <div class="weather-stat-label">Wind</div>
+                                                    <div class="weather-stat-value weather-wind-@farmIndex">-- km/h</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Hidden data attributes for JavaScript -->
+                                <div class="d-none" 
+                                     data-farm-index="@farmIndex" 
+                                     data-farm-lat="@farm.FirstPlot.Latitude" 
+                                     data-farm-lng="@farm.FirstPlot.Longitude"
+                                     data-farm-name="@farm.FarmName">
+                                </div>
+                            </div>
+                            farmIndex++;
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <span class="material-icons-round">info</span>
+                        No farms with plots found. Please add farms and plots to see weather data.
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="row g-4 mt-2">
+    <!-- Left Column: Crop Recommendations -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h4 class="text-dark mb-4 fw-semibold d-flex align-items-center gap-2">
+                    <span class="material-icons-round text-success">agriculture</span>
+                    Seasonal Crop Recommendations
+                </h4>
+
+                <!-- Current Season Alert -->
+                <div class="alert border-0 mb-4 shadow-sm position-relative overflow-hidden" 
+                     style="background: linear-gradient(135deg, #d8f3dc 0%, #95d5b2 100%);">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="season-icon-badge">
+                                <span class="material-icons-round">wb_sunny</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5 class="text-success fw-bold mb-1">🌱 Current Season: @ViewBag.CurrentSeason</h5>
+                            <p class="mb-1 fw-semibold text-dark">@ViewBag.SeasonDescription</p>
+                            <p class="mb-0 small">
+                                @{
+                                    string seasonText = "";
+                                    if (ViewBag.CurrentSeason == "Kharif")
+                                    {
+                                        seasonText = "Best time to plant: Rice, Cotton, Maize, Sorghum, Pearl Millet, Soybean, Groundnut";
+                                    }
+                                    else if (ViewBag.CurrentSeason == "Rabi")
+                                    {
+                                        seasonText = "Best time to plant: Wheat, Barley, Peas, Gram, Mustard, Linseed";
+                                    }
+                                    else
+                                    {
+                                        seasonText = "Best time to plant: Watermelon, Cucumber, Muskmelon, Bitter Gourd, Summer vegetables";
+                                    }
+                                }
+                                @seasonText
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crop Season Tabs -->
+                <ul class="nav nav-pills mb-4" id="cropSeasonTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="kharif-tab" data-bs-toggle="pill" data-bs-target="#kharif" type="button" role="tab">
+                            <span class="material-icons-round me-1" style="font-size: 18px; vertical-align: middle;">water_drop</span>
+                            Kharif
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rabi-tab" data-bs-toggle="pill" data-bs-target="#rabi" type="button" role="tab">
+                            <span class="material-icons-round me-1" style="font-size: 18px; vertical-align: middle;">ac_unit</span>
+                            Rabi
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="zaid-tab" data-bs-toggle="pill" data-bs-target="#zaid" type="button" role="tab">
+                            <span class="material-icons-round me-1" style="font-size: 18px; vertical-align: middle;">local_fire_department</span>
+                            Zaid
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="cropSeasonTabsContent">
+                    <!-- Kharif Tab -->
+                    <div class="tab-pane fade show active" id="kharif" role="tabpanel">
+                        <div class="crop-season-card kharif-theme">
+                            <div class="crop-season-header">
+                                <h5 class="mb-1"><span class="material-icons-round me-2">water_drop</span>Kharif Crops</h5>
+                                <p class="small mb-0"><strong>Season:</strong> June - October (Monsoon)</p>
+                            </div>
+                            <div class="crop-season-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌾</span>
+                                                <h6 class="mb-0">Rice</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">120-150 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">120:60:60</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌿</span>
+                                                <h6 class="mb-0">Cotton</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">150-180 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">120:60:60</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🫘</span>
+                                                <h6 class="mb-0">Soybean</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">90-100 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">30:60:40</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌽</span>
+                                                <h6 class="mb-0">Maize</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">80-110 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">120:60:40</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="season-conditions mt-3">
+                                    <div class="condition-badge">💧 High rainfall dependency</div>
+                                    <div class="condition-badge">🌡️ 25-35°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rabi Tab -->
+                    <div class="tab-pane fade" id="rabi" role="tabpanel">
+                        <div class="crop-season-card rabi-theme">
+                            <div class="crop-season-header">
+                                <h5 class="mb-1"><span class="material-icons-round me-2">ac_unit</span>Rabi Crops</h5>
+                                <p class="small mb-0"><strong>Season:</strong> November - February (Winter)</p>
+                            </div>
+                            <div class="crop-season-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌾</span>
+                                                <h6 class="mb-0">Wheat</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">120-150 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">120:60:40</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌻</span>
+                                                <h6 class="mb-0">Mustard</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">90-110 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">60:40:20</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🫛</span>
+                                                <h6 class="mb-0">Gram</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">100-120 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">20:40:20</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🌾</span>
+                                                <h6 class="mb-0">Barley</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">120-140 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">80:40:20</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="season-conditions mt-3">
+                                    <div class="condition-badge">💧 Irrigation required</div>
+                                    <div class="condition-badge">🌡️ 15-25°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zaid Tab -->
+                    <div class="tab-pane fade" id="zaid" role="tabpanel">
+                        <div class="crop-season-card zaid-theme">
+                            <div class="crop-season-header">
+                                <h5 class="mb-1"><span class="material-icons-round me-2">local_fire_department</span>Zaid Crops</h5>
+                                <p class="small mb-0"><strong>Season:</strong> March - May (Summer)</p>
+                            </div>
+                            <div class="crop-season-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🍉</span>
+                                                <h6 class="mb-0">Watermelon</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">70-90 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">100:50:50</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🍈</span>
+                                                <h6 class="mb-0">Muskmelon</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">65-80 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">90:45:45</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🥒</span>
+                                                <h6 class="mb-0">Cucumber</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">50-70 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">80:40:40</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="crop-item-card">
+                                            <div class="crop-item-header">
+                                                <span class="crop-emoji">🎃</span>
+                                                <h6 class="mb-0">Pumpkin</h6>
+                                            </div>
+                                            <div class="crop-item-details">
+                                                <div class="detail-row">
+                                                    <span class="detail-label">Duration:</span>
+                                                    <span class="detail-value">90-120 days</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <span class="detail-label">NPK:</span>
+                                                    <span class="detail-value">50:25:25</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="season-conditions mt-3">
+                                    <div class="condition-badge">💧 Frequent irrigation needed</div>
+                                    <div class="condition-badge">🌡️ 30-40°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fertilizer Guide -->
+                <div class="fertilizer-guide-card mt-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="material-icons-round text-primary">science</span>
+                        <h6 class="mb-0 fw-bold">Fertilizer Application Guide</h6>
+                    </div>
+                    <p class="small mb-2"><strong>NPK Format:</strong> Nitrogen:Phosphorus:Potassium (kg/hectare)</p>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="fertilizer-tip">
+                                <strong>Basal Dose:</strong> 50% N + full P & K at sowing
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fertilizer-tip">
+                                <strong>Top Dressing:</strong> Remaining 50% N in 2 splits
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fertilizer-tip">
+                                <strong>Organic:</strong> 10-15 tonnes FYM/hectare
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fertilizer-tip">
+                                <strong>Micronutrients:</strong> Based on soil test
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Notifications -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="card-title d-flex align-items-center gap-2 mb-4">
+                    <span class="material-icons-round text-primary">notifications</span>
+                    Recent Notifications
+                </h5>
+                <div class="notifications-list">
+                    @foreach (var notif in ViewBag.RecentNotifications as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Notification>)
+                    {
+                        <div class="notification-item">
+                            <div class="notification-icon">
+                                <span class="material-icons-round">campaign</span>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title">@notif.Title</h6>
+                                <p class="notification-message">@notif.Message</p>
+                                <small class="notification-time">@notif.CreatedDate.ToString("dd MMM, HH:mm")</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Weather Cards Styling */
+.weather-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #52b788 #f1f3f5;
+}
+
+.weather-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.weather-scroll-container::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 10px;
+}
+
+.weather-scroll-container::-webkit-scrollbar-thumb {
+    background: #52b788;
+    border-radius: 10px;
+}
+
+.weather-cards-wrapper {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
+
+.weather-card {
+    min-width: 320px;
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(27, 67, 50, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.weather-card:hover {
+    transform: translateY(-5px);
+}
+
+.weather-card-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weather-card-body {
+    padding: 1.25rem;
+}
+
+.weather-stats {
+    display: flex;
+    gap: 0.75rem;
+    flex-direction: column;
+}
+
+.weather-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.weather-stat-item .material-icons-round {
+    font-size: 24px;
+    opacity: 0.8;
+}
+
+.weather-stat-label {
+    font-size: 0.75rem;
+    opacity: 0.75;
+}
+
+.weather-stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Season Icon Badge */
+.season-icon-badge {
+    width: 64px;
+    height: 64px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.season-icon-badge .material-icons-round {
+    font-size: 32px;
+    color: #52b788;
+}
+
+/* Crop Season Tabs */
+.nav-pills .nav-link {
+    color: #495057;
+    border-radius: 10px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #52b788;
+    color: white;
+}
+
+/* Crop Season Cards */
+.crop-season-card {
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.kharif-theme {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.rabi-theme {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.zaid-theme {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+}
+
+.crop-season-header {
+    margin-bottom: 1.5rem;
+}
+
+.crop-item-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crop-item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.crop-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.crop-emoji {
+    font-size: 2rem;
+}
+
+.crop-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.detail-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.detail-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.season-conditions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.condition-badge {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Fertilizer Guide */
+.fertilizer-guide-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.fertilizer-tip {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Notifications */
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 3px solid #52b788;
+    transition: transform 0.2s ease;
+}
+
+.notification-item:hover {
+    transform: translateX(5px);
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon .material-icons-round {
+    color: white;
+    font-size: 20px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Dashboard loaded - initializing weather...");
+
+            // Find all weather cards
+            const weatherCards = document.querySelectorAll('.weather-card');
+            console.log(`Found ${weatherCards.length} weather cards`);
+
+            weatherCards.forEach((card, index) => {
+                // Get data from hidden div
+                const dataDiv = card.querySelector('[data-farm-index]');
+                if (!dataDiv) {
+                    console.error(`No data div found for card ${index}`);
+                    return;
+                }
+
+                const farmIndex = dataDiv.getAttribute('data-farm-index');
+                const lat = parseFloat(dataDiv.getAttribute('data-farm-lat'));
+                const lng = parseFloat(dataDiv.getAttribute('data-farm-lng'));
+                const farmName = dataDiv.getAttribute('data-farm-name');
+
+                console.log(`Processing farm ${farmIndex}: ${farmName} at (${lat}, ${lng})`);
+
+                if (isNaN(lat) || isNaN(lng)) {
+                    console.error(`Invalid coordinates for farm ${farmName}`);
+                    document.querySelector(`.weather-loader-${farmIndex}`).innerHTML =
+                        '<span class="material-icons-round text-warning">report_problem</span><p class="small text-warning mb-0">Invalid coordinates</p>';
+                    return;
+                }
+
+                // Build weather API URL
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
+
+                console.log(`Fetching weather for ${farmName}...`);
+
+                // Fetch weather data
+                fetch(weatherUrl)
+                    .then(response => {
+                        if(!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(`Weather data received for ${farmName}:`, data);
+
+                        // Update temperature
+                        const tempElement = document.querySelector(`.weather-temp-${farmIndex}`);
+                        if (tempElement) {
+                            tempElement.innerText = Math.round(data.current.temperature_2m) + "°C";
+                        }
+
+                        // Update humidity
+                        const humidityElement = document.querySelector(`.weather-humidity-${farmIndex}`);
+                        if (humidityElement) {
+                            humidityElement.innerText = data.current.relative_humidity_2m + "%";
+                        }
+
+                        // Update wind
+                        const windElement = document.querySelector(`.weather-wind-${farmIndex}`);
+                        if (windElement) {
+                            windElement.innerText = data.current.wind_speed_10m + " km/h";
+                        }
+
+                        // Update rain probability
+                        const rainProb = (data.daily && data.daily.precipitation_probability_max) 
+                            ? data.daily.precipitation_probability_max[0] 
+                            : 0;
+                        const rainElement = document.querySelector(`.weather-rain-${farmIndex}`);
+                        if (rainElement) {
+                            rainElement.innerText = rainProb + "%";
+                        }
+
+                        // Determine weather description and icon
+                        const code = data.current.weather_code;
+                        let desc = "Clear";
+                        let icon = "wb_sunny";
+
+                        if (code == 0) { 
+                            desc = "Clear Sky"; 
+                            icon = "wb_sunny"; 
+                        }
+                        else if (code >= 1 && code <= 3) { 
+                            desc = "Partly Cloudy"; 
+                            icon = "cloud_queue"; 
+                        }
+                        else if (code >= 61 && code <= 65) { 
+                            desc = "Rainy"; 
+                            icon = "umbrella"; 
+                        }
+                        else if (code == 95) { 
+                            desc = "Thunderstorm"; 
+                            icon = "flash_on"; 
+                        }
+                        else { 
+                            desc = "Overcast"; 
+                            icon = "cloud"; 
+                        }
+
+                        // Update description and icon
+                        const descElement = document.querySelector(`.weather-desc-${farmIndex}`);
+                        if (descElement) {
+                            descElement.innerText = desc;
+                        }
+
+                        const iconElement = document.querySelector(`.weather-icon-${farmIndex}`);
+                        if (iconElement) {
+                            iconElement.innerText = icon;
+                        }
+
+                        // Hide loader and show content
+                        const loaderElement = document.querySelector(`.weather-loader-${farmIndex}`);
+                        if (loaderElement) {
+                            loaderElement.classList.add("d-none");
+                        }
+
+                        const contentElement = document.querySelector(`.weather-content-${farmIndex}`);
+                        if (contentElement) {
+                            contentElement.classList.remove("d-none");
+                        }
+
+                        console.log(`✓ Weather updated successfully for ${farmName}`);
+                    })
+                    .catch(err => {
+                        console.error(`✗ Weather fetch failed for ${farmName}:`, err);
+                        const loaderElement = document.querySelector(`.weather-loader-${farmIndex}`);
+                        if (loaderElement) {
+                            loaderElement.innerHTML =
+                                '<span class="material-icons-round text-warning">report_problem</span><p class="small text-warning mb-0">Weather offline</p>';
+                        }
+                    });
+            });
+        });
+    </script>
+}

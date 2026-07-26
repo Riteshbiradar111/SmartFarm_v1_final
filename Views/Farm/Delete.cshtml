@@ -1,0 +1,41 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.Farm
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Delete Farm";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/Farm" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Farms
+        </a>
+        <h2 class="text-danger">Delete Farm Confirmation</h2>
+        <p class="text-muted">Are you sure you want to delete this farm? This action cannot be undone.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600 border-start border-danger border-4">
+    <div class="card-body p-4">
+        <h4 class="text-danger mb-3 fw-semibold">Delete Warning</h4>
+        <p class="text-dark">
+            Deleting the farm <strong>"@Model.FarmName"</strong> will automatically delete all mapped land plots, crop cycles, and related historical records stored under it.
+        </p>
+
+        <div class="mt-4 border-top pt-3">
+            <h5 class="text-muted small mb-2">Properties to be deleted:</h5>
+            <ul class="text-muted small ps-3">
+                <li>Farm Location: @Model.Village, @Model.Taluka, @Model.District, @Model.State</li>
+                <li>Plots registered: @Model.LandPlots.Count</li>
+            </ul>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.FarmId" method="post" class="mt-4">
+            @Html.AntiForgeryToken()
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/Farm" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-3 px-4">Confirm Delete</button>
+            </div>
+        </form>
+    </div>
+</div>

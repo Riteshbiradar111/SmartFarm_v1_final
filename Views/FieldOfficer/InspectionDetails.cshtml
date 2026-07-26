@@ -1,0 +1,33 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.HarvestDecision
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Inspection Audit #{Model?.DecisionId ?? 0}";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title"><span class="material-icons-round">verified</span> Field Inspection Details #@Model?.DecisionId</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded border">
+                    <h6 class="fw-bold mb-2">Crop Health Analysis</h6>
+                    <p class="text-dark mb-0">@(Model?.CropHealthAnalysis ?? "Crop health parameters verified.")</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded border">
+                    <h6 class="fw-bold mb-2">Pest &amp; Disease Analysis</h6>
+                    <p class="text-dark mb-0">Pest: @(Model?.PestAnalysis ?? "None") | Disease: @(Model?.DiseaseAnalysis ?? "None")</p>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="p-3 bg-success-subtle rounded border border-success">
+                    <h6 class="fw-bold mb-2 text-success">Agronomist &amp; Inspector Recommendation</h6>
+                    <p class="text-dark mb-0">@(Model?.Recommendation ?? "Batch approved for processing and sale.")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

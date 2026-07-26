@@ -1,0 +1,242 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Support Query Details";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/Support" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span> Back to History
+        </a>
+        <h2 class="text-success mb-1">Ticket Details</h2>
+        <p class="text-muted">Ticket #@Model.QueryId | Raised on @Model.CreatedDate.ToString("dd-MM-yyyy HH:mm")</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+}
+
+@if (Model.Status == "Field Visit Scheduled" || (Model.VisitDate.HasValue && Model.Status != "Field Visit Confirmed" && Model.Status != "Resolved"))
+{
+    <div class="card border-primary bg-primary-subtle shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="text-primary fw-bold mb-1 d-flex align-items-center gap-2">
+                    <span class="material-icons-round">event_available</span> Field Visit Scheduled
+                </h5>
+                <p class="text-dark mb-0">
+                    Field Officer <strong>@(Model.OfficerName ?? "Assigned Officer")</strong> has scheduled a farm inspection visit on 
+                    <strong class="text-primary fs-6">@(Model.VisitDate?.ToString("dd MMMM yyyy 'at' hh:mm tt") ?? "-")</strong>.
+                </p>
+            </div>
+            <form method="post" action="~/Support/ConfirmVisitSchedule">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.QueryId" />
+                <button type="submit" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i> Accept &amp; Confirm Visit
+                </button>
+            </form>
+        </div>
+    </div>
+}
+else if (Model.Status == "Field Visit Confirmed")
+{
+    <div class="card border-success bg-success-subtle shadow-sm rounded-4 p-3 mb-4">
+        <div class="d-flex align-items-center gap-2 text-success fw-bold">
+            <span class="material-icons-round">check_circle</span>
+            <span>Field Visit Confirmed for @(Model.VisitDate?.ToString("dd MMMM yyyy 'at' hh:mm tt") ?? "-"). Field Officer @(Model.OfficerName ?? "Assigned Officer") will inspect your farm and submit findings.</span>
+        </div>
+    </div>
+}
+
+<!-- Dynamic Status Stepper -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <h5 class="text-dark mb-4 fw-bold">Ticket Progress Tracking</h5>
+    <div class="row position-relative text-center g-0">
+        <div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -15px;"></div>
+
+        @{
+            int currentStep = 1;
+            if (Model.Status == "Under Review") currentStep = 2;
+            else if (Model.Status == "Assigned") currentStep = 3;
+            else if (Model.Status == "Field Visit Scheduled") currentStep = 4;
+            else if (Model.Status == "Resolved") currentStep = 5;
+        }
+
+        <div class="position-absolute start-0 top-50 translate-middle-y bg-success animate-all" style="height: 4px; z-index: 0; margin-top: -15px; width: @((currentStep - 1) * 25)%; transition: width 0.4s ease;"></div>
+
+        <div class="col-2.4 col position-relative" style="z-index: 1;">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 1 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                <span class="material-icons-round" style="font-size: 1.1rem;">mark_as_unread</span>
+            </div>
+            <div class="mt-2">
+                <span class="fw-bold small d-block @(currentStep >= 1 ? "text-success" : "text-muted")">Pending</span>
+            </div>
+        </div>
+
+        <div class="col-2.4 col position-relative" style="z-index: 1;">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 2 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                <span class="material-icons-round" style="font-size: 1.1rem;">rate_review</span>
+            </div>
+            <div class="mt-2">
+                <span class="fw-bold small d-block @(currentStep >= 2 ? "text-success" : "text-muted")">Under Review</span>
+            </div>
+        </div>
+
+        <div class="col-2.4 col position-relative" style="z-index: 1;">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 3 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                <span class="material-icons-round" style="font-size: 1.1rem;">assignment_ind</span>
+            </div>
+            <div class="mt-2">
+                <span class="fw-bold small d-block @(currentStep >= 3 ? "text-success" : "text-muted")">Assigned</span>
+            </div>
+        </div>
+
+        <div class="col-2.4 col position-relative" style="z-index: 1;">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 4 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                <span class="material-icons-round" style="font-size: 1.1rem;">commute</span>
+            </div>
+            <div class="mt-2">
+                <span class="fw-bold small d-block @(currentStep >= 4 ? "text-success" : "text-muted")">Field Visit</span>
+            </div>
+        </div>
+
+        <div class="col-2.4 col position-relative" style="z-index: 1;">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 5 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                <span class="material-icons-round" style="font-size: 1.1rem;">done_all</span>
+            </div>
+            <div class="mt-2">
+                <span class="fw-bold small d-block @(currentStep >= 5 ? "text-success" : "text-muted")">Resolved</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Panel: Ticket Details -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 align-self-start mb-3">@Model.QueryType</span>
+
+            <h3 class="text-dark fw-bold mb-2">@Model.Title</h3>
+            <p class="text-dark mb-4" style="white-space: pre-wrap; line-height: 1.6;">@Model.Description</p>
+
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <div class="mb-4">
+                    <span class="d-block fw-bold text-dark small mb-2">Attached Image:</span>
+                    <img src="@Model.ImagePath" class="img-fluid rounded-3 border shadow-sm max-height-300" />
+                </div>
+            }
+
+            <div class="row g-2 border-top pt-3 text-muted small">
+                <div class="col-6">Farm: <strong>@Model.Farm.FarmName</strong></div>
+                <div class="col-6">Plot: <strong>@(Model.LandPlot?.PlotName ?? "General Farm")</strong></div>
+                <div class="col-6">Priority: <strong class="text-danger">@Model.Priority</strong></div>
+                <div class="col-6">Assigned To: <strong>@(Model.AssignedToUser?.Username ?? "Unassigned")</strong></div>
+            </div>
+        </div>
+
+        <!-- Field Officer Report Display -->
+        @if (Model.VisitDate.HasValue)
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="text-dark fw-bold mb-0 d-flex align-items-center gap-1">
+                        <span class="material-icons-round text-info">badge</span> Field Officer Report
+                    </h5>
+                    <a href="~/Support/DownloadReport/@Model.QueryId" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <span class="material-icons-round font-size-sm">download</span> Download Report
+                    </a>
+                </div>
+                <div class="border-start border-info border-3 ps-3 small">
+                    <p class="mb-1 text-muted">Visit Date: <strong>@Model.VisitDate.Value.ToString("dd MMMM yyyy")</strong></p>
+                    <p class="mb-2 text-muted">Officer Name: <strong>@Model.OfficerName</strong></p>
+                    <p class="mb-2 text-dark font-monospace"><strong>Observations:</strong> @Model.FieldObservation</p>
+                    <p class="mb-0 text-success"><strong>Action Taken:</strong> @Model.ActionTaken</p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Panel: Recommendation & Improvement Plans -->
+    <div class="col-lg-6">
+        <!-- Agronomist Recommendations Display -->
+        @if (!string.IsNullOrEmpty(Model.AgronomistRecommendation))
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background-color: #f4fcf6;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="text-success fw-bold mb-0 d-flex align-items-center gap-1">
+                        <span class="material-icons-round">psychology</span> Agronomist Recommendation
+                    </h5>
+                    <a href="~/Support/DownloadRecommendation/@Model.QueryId" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <span class="material-icons-round font-size-sm">download</span> Download Advisory
+                    </a>
+                </div>
+                <div class="small">
+                    <p class="text-muted mb-2">Issued on: @(Model.RecommendationDate?.ToString("dd MMMM yyyy HH:mm") ?? "-")</p>
+                    <div class="p-3 bg-white border border-success-subtle rounded-3 text-dark mb-0">
+                        @Model.AgronomistRecommendation
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Improvement Plans Display -->
+        @if (!string.IsNullOrEmpty(Model.ImprovementActions))
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="text-dark fw-bold mb-3 d-flex align-items-center gap-1">
+                    <span class="material-icons-round text-warning">assignment_turned_in</span> Long-Term Improvement Plan
+                </h5>
+                <div class="small mb-4">
+                    <div class="p-3 bg-light rounded-3 mb-3">
+                        <span class="text-muted small d-block">Recommended Action:</span>
+                        <strong class="text-dark d-block">@Model.ImprovementActions</strong>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 mb-3">
+                        <span class="text-muted small d-block">Expected Benefits:</span>
+                        <strong class="text-dark d-block">@Model.ImprovementExpectedBenefits</strong>
+                    </div>
+                    <div class="p-3 bg-light rounded-3">
+                        <span class="text-muted small d-block">Current Implementation Status:</span>
+                        <span class="badge @(Model.ImprovementStatus == "Completed" ? "bg-success text-white" : "bg-warning text-dark") px-3 py-1 rounded-pill mt-1">@Model.ImprovementStatus</span>
+                    </div>
+                </div>
+
+                <!-- Update status form -->
+                <form asp-action="UpdateImprovementStatus" method="post" class="border-top pt-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.QueryId" />
+                    <label class="form-label fw-bold text-dark small">Update Implementation Status:</label>
+                    <div class="d-flex gap-2">
+                        <select name="status" class="form-select rounded-3 small" style="width: auto;">
+                            @if (Model.ImprovementStatus == "Not Started")
+                            {
+                                <option value="Not Started" selected>Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            }
+                            else if (Model.ImprovementStatus == "In Progress")
+                            {
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress" selected>In Progress</option>
+                                <option value="Completed">Completed</option>
+                            }
+                            else
+                            {
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed" selected>Completed</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-success btn-sm rounded-3">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,630 @@
+﻿/* ============================================================
+   register.css
+   Styles for: Choose Registration Type, Farmer Register, Buyer Register
+   ============================================================ */
+
+/* ---------- Google Font is loaded via _Layout ---------- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    background: #f0f4f0;
+    min-height: 100vh;
+}
+
+/* ============================================================
+   TOP NAV BAR (shared across register pages)
+   ============================================================ */
+.reg-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8e2;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.reg-topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #1b4332;
+}
+
+    .reg-topbar-logo .material-icons {
+        font-size: 30px;
+        color: #40916c;
+    }
+
+.reg-topbar-logo-text .brand-name {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1b4332;
+    line-height: 1.1;
+}
+
+.reg-topbar-logo-text .brand-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: #6b8f71;
+    font-weight: 400;
+}
+
+.reg-topbar-login {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #40916c;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 18px;
+    border: 2px solid #40916c;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+    .reg-topbar-login:hover {
+        background: #40916c;
+        color: #fff;
+    }
+
+    .reg-topbar-login .material-icons {
+        font-size: 18px;
+    }
+
+/* ============================================================
+   CHOOSE TYPE PAGE — Page wrapper
+   ============================================================ */
+.choose-page {
+    min-height: calc(100vh - 65px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0f9f4 100%);
+}
+
+/* Page heading */
+.choose-heading {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+    .choose-heading h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1b4332;
+        margin-bottom: 10px;
+    }
+
+        .choose-heading h1 span {
+            color: #40916c;
+        }
+
+    .choose-heading p {
+        color: #4a7c59;
+        font-size: 1rem;
+        max-width: 480px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+/* Cards grid */
+.choose-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 860px;
+    width: 100%;
+}
+
+/* Single card */
+.choose-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    border: 2px solid transparent;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+    .choose-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.16);
+    }
+
+    /* Farmer card hover — green border */
+    .choose-card.farmer-card:hover {
+        border-color: #40916c;
+    }
+
+    /* Buyer card hover — blue border */
+    .choose-card.buyer-card:hover {
+        border-color: #1d6fa4;
+    }
+
+/* Card icon circle */
+.card-icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .card-icon-circle.green {
+        background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+    }
+
+    .card-icon-circle.blue {
+        background: linear-gradient(135deg, #dbeafe, #93c5fd);
+    }
+
+    .card-icon-circle .material-icons {
+        font-size: 38px;
+    }
+
+    .card-icon-circle.green .material-icons {
+        color: #166534;
+    }
+
+    .card-icon-circle.blue .material-icons {
+        color: #1e40af;
+    }
+
+/* Card badge */
+.card-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+    .card-badge.green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .card-badge.blue {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+/* Card title */
+.choose-card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1b4332;
+}
+
+.buyer-card h2 {
+    color: #1e3a5f;
+}
+
+/* Card description */
+.choose-card p {
+    font-size: 0.88rem;
+    color: #6b7280;
+    line-height: 1.6;
+    max-width: 260px;
+}
+
+/* Card features list */
+.card-features {
+    list-style: none;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .card-features li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        color: #374151;
+    }
+
+        .card-features li .material-icons {
+            font-size: 16px;
+        }
+
+            .card-features li .material-icons.green {
+                color: #16a34a;
+            }
+
+            .card-features li .material-icons.blue {
+                color: #2563eb;
+            }
+
+/* Card button */
+.card-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-top: 6px;
+    transition: all 0.2s ease;
+}
+
+    .card-btn.green {
+        background: linear-gradient(135deg, #40916c, #2d6a4f);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(64,145,108,0.35);
+    }
+
+        .card-btn.green:hover {
+            background: linear-gradient(135deg, #2d6a4f, #1b4332);
+            box-shadow: 0 6px 20px rgba(64,145,108,0.5);
+            transform: translateY(-2px);
+        }
+
+    .card-btn.blue {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+
+        .card-btn.blue:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.5);
+            transform: translateY(-2px);
+        }
+
+    .card-btn .material-icons {
+        font-size: 20px;
+    }
+
+/* Bottom note */
+.choose-bottom-note {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #4a7c59;
+}
+
+    .choose-bottom-note a {
+        color: #40916c;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .choose-bottom-note a:hover {
+            text-decoration: underline;
+        }
+
+/* ============================================================
+   REGISTRATION FORM PAGES (Farmer & Buyer)
+   ============================================================ */
+.reg-page {
+    min-height: calc(100vh - 65px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+    /* Farmer page background */
+    .reg-page.farmer-bg {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #f0f9f4 100%);
+    }
+
+    /* Buyer page background */
+    .reg-page.buyer-bg {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 60%, #eff6ff 100%);
+    }
+
+/* Form container card */
+.reg-form-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+}
+
+/* Back link */
+.reg-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    color: #6b7280;
+    text-decoration: none;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+    .reg-back-link:hover {
+        color: #40916c;
+    }
+
+    .reg-back-link .material-icons {
+        font-size: 16px;
+    }
+
+/* Form header */
+.reg-form-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.reg-form-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+}
+
+    .reg-form-icon.green {
+        background: linear-gradient(135deg, #40916c, #2d6a4f);
+    }
+
+    .reg-form-icon.blue {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+
+    .reg-form-icon .material-icons {
+        font-size: 30px;
+        color: #ffffff;
+    }
+
+.reg-form-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1b4332;
+    margin-bottom: 6px;
+}
+
+.buyer-form .reg-form-header h2 {
+    color: #1e3a5f;
+}
+
+.reg-form-header p {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* Role badge displayed inside form header */
+.reg-role-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+    .reg-role-badge.green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .reg-role-badge.blue {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+/* Alert messages */
+.reg-alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+    .reg-alert.error {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+    }
+
+    .reg-alert .material-icons {
+        font-size: 18px;
+    }
+
+/* Two-column row */
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Form group */
+.form-group {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Label */
+.form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+    .form-label .material-icons {
+        font-size: 16px;
+        color: #9ca3af;
+    }
+
+/* Input */
+.form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-family: 'Poppins', sans-serif;
+    color: #111827;
+    background: #f9fafb;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .form-input:focus {
+        border-color: #40916c;
+        box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+        background: #ffffff;
+    }
+
+.buyer-form .form-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+/* Password wrapper with show/hide toggle */
+.input-wrap {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+    .toggle-password:hover {
+        color: #40916c;
+    }
+
+    .toggle-password .material-icons {
+        font-size: 20px;
+    }
+
+/* Submit button */
+.reg-submit-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    transition: all 0.2s ease;
+}
+
+    .reg-submit-btn.green {
+        background: linear-gradient(135deg, #40916c, #2d6a4f);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(64,145,108,0.35);
+    }
+
+        .reg-submit-btn.green:hover {
+            background: linear-gradient(135deg, #2d6a4f, #1b4332);
+            box-shadow: 0 6px 20px rgba(64,145,108,0.5);
+            transform: translateY(-1px);
+        }
+
+    .reg-submit-btn.blue {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+
+        .reg-submit-btn.blue:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.5);
+            transform: translateY(-1px);
+        }
+
+    .reg-submit-btn .material-icons {
+        font-size: 20px;
+    }
+
+/* Bottom note */
+.reg-bottom-note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 20px;
+}
+
+    .reg-bottom-note a {
+        color: #40916c;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .reg-bottom-note a:hover {
+            text-decoration: underline;
+        }
+
+/* ============================================================
+   RESPONSIVE — Tablet & Mobile
+   ============================================================ */
+@media (max-width: 720px) {
+    .choose-cards {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+    }
+
+    .choose-heading h1 {
+        font-size: 1.5rem;
+    }
+
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .reg-form-card {
+        padding: 28px 20px;
+    }
+}

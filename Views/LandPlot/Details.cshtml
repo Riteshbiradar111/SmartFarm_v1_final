@@ -1,0 +1,171 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.LandPlot
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Plot Details";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/LandPlot" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Plots
+        </a>
+        <h2 class="text-success">Plot Details: @Model.PlotName</h2>
+        <p class="text-muted">Plot information, location mapping, and real-time weather alerts.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+}
+
+<div class="row g-4">
+    <!-- Left panel: details + Weather + IoT Telemetry -->
+    <div class="col-md-5 d-flex flex-column gap-4">
+        <!-- Details Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold border-bottom pb-2">Properties</h4>
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="text-muted small d-block">Plot Name</label>
+                    <span class="fw-semibold text-dark">@Model.PlotName</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Plot Code</label>
+                    <span class="fw-semibold text-success font-monospace">@Model.PlotCode</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Associated Farm</label>
+                    <span class="fw-semibold text-dark">@Model.Farm.FarmName</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Size</label>
+                    <span class="fw-semibold text-dark">@Model.Area @Model.AreaUnit</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Soil Type</label>
+                    <span class="fw-semibold text-dark">@Model.SoilType</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Irrigation Type</label>
+                    <span class="fw-semibold text-dark">@Model.IrrigationType</span>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small d-block">Status</label>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 mt-1">@Model.Status</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <a href="~/LandPlot/Edit/@Model.PlotId" class="btn btn-outline-primary rounded-3 flex-grow-1">
+                    <span class="material-icons-round align-middle me-1" style="font-size: 1.1rem;">edit</span>
+                    Edit Location
+                </a>
+                <a href="~/CropCycle/Create?plotId=@Model.PlotId" class="btn btn-success rounded-3 flex-grow-1">
+                    <span class="material-icons-round align-middle me-1" style="font-size: 1.1rem;">grass</span>
+                    Sow Crop
+                </a>
+            </div>
+        </div>
+
+        <!-- Weather and IoT telemetry removed from Plot Details per request. -->
+    </div>
+
+    <!-- Right panel: Map + Active Crop -->
+    <div class="col-md-7 d-flex flex-column gap-4">
+        <!-- Leaflet map -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 flex-grow-1">
+            <h4 class="text-dark mb-3 fw-semibold">GPS Plot Location</h4>
+            <div id="map" class="border rounded-3" style="height: 250px; z-index: 1;"></div>
+        </div>
+
+        <!-- Active Crop Cycle Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold">Active Crop Cycles</h4>
+            @if (!Model.CropCycles.Any(c => c.Status == "Active"))
+            {
+                <div class="text-center py-4">
+                    <span class="material-icons-round text-muted" style="font-size: 2.5rem;">eco</span>
+                    <p class="text-muted small mt-2 mb-0">No active crops are currently sown on this plot.</p>
+                    <a href="~/CropCycle/Create?plotId=@Model.PlotId" class="btn btn-sm btn-success rounded-3 mt-2">Sow Crop Cycle</a>
+                </div>
+            }
+            else
+            {
+                @foreach (var cycle in Model.CropCycles.Where(c => c.Status == "Active"))
+                {
+                    <div class="p-3 bg-light rounded-3 mb-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-success mb-1 fw-bold">@cycle.Crop.CropName</h5>
+                            <span class="small text-muted d-block">Stage: @cycle.CurrentStage | Sown: @cycle.SowingDate.ToString("dd-MM-yyyy")</span>
+                        </div>
+                        <a href="~/CropCycle/Details/@cycle.CropCycleId" class="btn btn-sm btn-success rounded-3">Manage Cycle</a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        // Map Setup
+        var lat = @Model.Latitude;
+        var lng = @Model.Longitude;
+
+        var map = L.map('map', { dragging: false, zoomControl: false, scrollWheelZoom: false }).setView([lat, lng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+        }).addTo(map);
+
+        L.marker([lat, lng]).addTo(map);
+
+        // Open-Meteo Weather API Call
+        var weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
+
+        fetch(weatherUrl)
+        .then(response => {
+        if (!response.ok) throw new Error("Weather API failed");
+        return response.json();
+        })
+        .then(data => {
+        document.getElementById("weather-temp").innerText = Math.round(data.current.temperature_2m) + "°C";
+        document.getElementById("weather-humidity").innerText = data.current.relative_humidity_2m + "%";
+        document.getElementById("weather-wind").innerText = data.current.wind_speed_10m + " km/h";
+
+        var rainProb = (data.daily && data.daily.precipitation_probability_max) ? data.daily.precipitation_probability_max[0] : 0;
+        document.getElementById("weather-rain").innerText = rainProb + "%";
+
+        // Map Weather Codes to description/icons
+        var code = data.current.weather_code;
+        var desc = "Clear";
+        var icon = "wb_sunny";
+
+        if (code == 0) { desc = "Clear Sky"; icon = "wb_sunny"; }
+        else if (code >= 1 && code <= 3) { desc = "Partly Cloudy"; icon = "cloud_queue"; }
+        else if (code == 45 || code == 48) { desc = "Foggy"; icon = "blur_on"; }
+        else if (code >= 51 && code <= 55) { desc = "Light Drizzle"; icon = "grain"; }
+        else if (code >= 61 && code <= 65) { desc = "Rainy"; icon = "umbrella"; }
+        else if (code >= 80 && code <= 82) { desc = "Rain Showers"; icon = "beach_access"; }
+        else if (code == 95) { desc = "Thunderstorm"; icon = "flash_on"; }
+        else { desc = "Overcast"; icon = "cloud"; }
+
+        document.getElementById("weather-desc").innerText = desc;
+        document.getElementById("weather-icon").innerText = icon;
+
+        // Switch panels
+        document.getElementById("weather-loader").classList.add("d-none");
+        document.getElementById("weather-content").classList.remove("d-none");
+        })
+        .catch(err => {
+        console.error(err);
+        document.getElementById("weather-loader").innerHTML =
+        `<span class="material-icons-round text-danger">report_problem</span><p class="small text-danger mb-0">Weather services unavailable</p>`;
+        });
+        });
+    </script>
+}

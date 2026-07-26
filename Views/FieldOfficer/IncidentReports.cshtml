@@ -1,0 +1,200 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Incident & Field Escalate Reports";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center">
+        <h2 class="dash-card-title"><span class="material-icons-round">report_problem</span> Incident &amp; Field Escalation Reports</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#ID</th>
+                        <th>Farmer</th>
+                        <th>Crop Cycle</th>
+                        <th>Title</th>
+                        <th>Priority</th>
+                        <th>Reported Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No incident reports assigned.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var ticket in Model)
+                        {
+                            <tr>
+                                <td>#@ticket.PestCaseId</td>
+                                <td><strong>@(ticket.CropCycle?.LandPlot?.Farm?.Farmer?.FullName ?? "Member Farmer")</strong></td>
+                                <td>@(ticket.CropCycle?.Crop?.CropName ?? "N/A")</td>
+                                <td>@ticket.Title</td>
+                                <td>
+                                    <span class="badge @(ticket.Priority == "High" ? "bg-danger" : "bg-info text-dark")">@ticket.Priority</span>
+                                </td>
+                                <td>@ticket.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td>
+                                    <span class="badge @(ticket.Status == "Resolved" ? "bg-success" : ticket.Status == "Pending Farmer Approval" ? "bg-info text-white" : ticket.Status == "Field Visit Scheduled" || ticket.Status == "Field Visit Confirmed" ? "bg-primary" : "bg-warning text-dark")">@ticket.Status</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="/FieldOfficer/IncidentDetails/@ticket.PestCaseId" class="btn btn-sm btn-primary" style="background-color: #2D6A4F; border-color: #2D6A4F;">
+                                        <i class="fas fa-eye me-1"></i> Inspect / Resolve
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@{
+    var supportQueries = ViewBag.AssignedSupportQueries as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery> 
+        ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery>();
+}
+
+@if (supportQueries.Any())
+{
+    <div class="dash-card mb-4">
+        <div class="dash-card-header d-flex justify-content-between align-items-center">
+            <h2 class="dash-card-title"><span class="material-icons-round">help_outline</span> Assigned Farmer Support Queries</h2>
+            <span class="badge bg-primary">@supportQueries.Count Tickets</span>
+        </div>
+        <div class="dash-card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Farmer</th>
+                            <th>Query Type</th>
+                            <th>Title &amp; Issue</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sq in supportQueries)
+                        {
+                            <tr>
+                                <td>#@sq.QueryId</td>
+                                <td><strong>@(sq.Farmer?.FullName ?? "Farmer")</strong></td>
+                                <td><span class="badge bg-secondary">@sq.QueryType</span></td>
+                                <td>
+                                    <div class="fw-bold">@sq.Title</div>
+                                    <small class="text-muted">@sq.Description</small>
+                                </td>
+                                <td>
+                                    <span class="badge @(sq.Priority == "High" ? "bg-danger" : "bg-info text-dark")">@sq.Priority</span>
+                                </td>
+                                <td>@sq.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td>
+                                    <span class="badge @(sq.Status == "Resolved" ? "bg-success" : sq.Status == "Field Visit Scheduled" ? "bg-primary" : "bg-warning text-dark")">@sq.Status</span>
+                                    @if (sq.VisitDate.HasValue)
+                                    {
+                                        <small class="text-primary fw-semibold d-block mt-1" style="font-size: 0.75rem;">
+                                            <i class="far fa-calendar-alt me-1"></i> Visit: @sq.VisitDate.Value.ToString("dd-MM-yyyy HH:mm")
+                                        </small>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (sq.Status != "Resolved")
+                                    {
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <!-- Schedule Visit Button -->
+                                            <button type="button" class="btn btn-sm btn-outline-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#scheduleModal-@sq.QueryId">
+                                                <i class="far fa-calendar-plus me-1"></i> @(sq.VisitDate.HasValue ? "Reschedule Visit" : "Schedule Visit")
+                                            </button>
+
+                                            <!-- Resolve Ticket Button -->
+                                            <button type="button" class="btn btn-sm btn-success text-nowrap" data-bs-toggle="modal" data-bs-target="#resolveModal-@sq.QueryId">
+                                                <i class="fas fa-check-circle me-1"></i> Submit Report &amp; Resolve
+                                            </button>
+                                        </div>
+
+                                        <!-- Schedule Visit Modal -->
+                                        <div class="modal fade" id="scheduleModal-@sq.QueryId" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered text-start">
+                                                <div class="modal-content rounded-4 border-0 shadow">
+                                                    <form method="post" action="~/FieldOfficer/ScheduleSupportQueryVisit">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="queryId" value="@sq.QueryId" />
+                                                        <div class="modal-header bg-primary text-white rounded-top-4">
+                                                            <h5 class="modal-header-title text-white mb-0">Schedule Field Visit - Ticket #@sq.QueryId</h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p class="text-muted small mb-3">Set a date &amp; time for your farm inspection visit. The farmer (@(sq.Farmer?.FullName ?? "Farmer")) will be notified automatically.</p>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold small text-dark">Field Visit Date &amp; Time</label>
+                                                                <input type="datetime-local" name="visitDate" class="form-control rounded-3"
+                                                                       value="@(sq.VisitDate?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddDays(1).ToString("yyyy-MM-ddTHH:mm"))"
+                                                                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary rounded-3">Save Visit &amp; Notify Farmer</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Resolve Modal -->
+                                        <div class="modal fade" id="resolveModal-@sq.QueryId" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered text-start">
+                                                <div class="modal-content rounded-4 border-0 shadow">
+                                                    <form method="post" action="~/FieldOfficer/ResolveSupportQuery">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="queryId" value="@sq.QueryId" />
+                                                        <div class="modal-header bg-success text-white rounded-top-4">
+                                                            <h5 class="modal-header-title text-white mb-0">Submit Visit Report &amp; Resolve Ticket #@sq.QueryId</h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold small text-dark">Field Inspection Findings / Observations</label>
+                                                                <textarea name="fieldObservation" class="form-control rounded-3" rows="3" placeholder="Describe soil compaction, pest symptoms, or crop health observations..." required>@(sq.FieldObservation ?? "")</textarea>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold small text-dark">Action Taken &amp; Guidance Provided</label>
+                                                                <textarea name="actionTaken" class="form-control rounded-3" rows="3" placeholder="Describe recommendations, treatment advice, or actions taken..." required>@(sq.ActionTaken ?? "")</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-success rounded-3">Submit Report &amp; Mark Resolved</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success small fw-semibold"><i class="fas fa-check-circle me-1"></i> Resolved</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,43 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.CooperativeManager
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Cooperative Manager Profile";
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3 p-4 text-center" style="background:#ffffff;">
+            <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:80px; height:80px; background:#7c3aed; font-size:32px; font-weight:bold;">
+                @(Model != null && !string.IsNullOrEmpty(Model.FullName) ? Model.FullName.Substring(0,1).ToUpper() : "C")
+            </div>
+            <h4 class="fw-bold mb-1">@(Model?.FullName ?? "Cooperative Manager")</h4>
+            <p class="text-purple fw-semibold mb-2" style="color:#7c3aed;">Cooperative Manager</p>
+            <p class="text-muted small mb-0">@(Model?.CooperativeName ?? "District Farmer Cooperative")</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-3 p-4" style="background:#ffffff;">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Profile &amp; Contact Information</h5>
+
+            <div class="row g-3 fs-7">
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Full Name</label>
+                    <span class="fw-bold text-dark fs-6">@(Model?.FullName ?? "Vinayak Deshmukh")</span>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Mobile Number</label>
+                    <span class="fw-bold text-dark fs-6">@(Model?.MobileNumber ?? "9876543210")</span>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Cooperative Federation</label>
+                    <span class="fw-bold text-dark fs-6">@(Model?.CooperativeName ?? "Wardha Farmers Co-Op Federation")</span>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">Assigned Region</label>
+                    <span class="fw-bold text-dark fs-6">@(Model?.Region ?? "Wardha / Pune District")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

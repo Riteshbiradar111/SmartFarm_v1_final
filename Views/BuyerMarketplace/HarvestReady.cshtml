@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Harvest>
+@{
+    Layout = "_BuyerLayout";
+    ViewData["Title"] = "Pre-Order Harvest Crops";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/BuyerMarketplace" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span> Back to Marketplace
+        </a>
+        <h2 class="text-success">Harvest Ready Crops (Prebook)</h2>
+        <p class="text-muted">Crops harvested by cooperative farmers that have not yet been listed on the open marketplace. Reserve yours now!</p>
+
+        <div class="alert alert-info border-0 small d-flex align-items-start gap-2 mt-3">
+            <span class="material-icons-round text-info">info</span>
+            <div>
+                <strong>How Prebook Works:</strong> Once you prebook a harvest, the farmer will receive a notification. 
+                You'll see <span class="badge bg-warning-subtle text-warning px-2 py-1">Awaiting Approval</span> status until the farmer accepts or responds to your request. 
+                You cannot place multiple prebook requests for the same harvest.
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="text-dark fw-bold mb-0">Available Prebook Stock</h5>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <span class="material-icons-round text-muted mb-2" style="font-size: 3rem;">inventory_2</span>
+                <p class="mb-1 fw-bold">No Ready Harvests Found</p>
+                <p class="small">All recent farmer harvests are already listed or reserved.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4">Harvest ID</th>
+                            <th>Date</th>
+                            <th>Crop Name</th>
+                            <th>Available Yield</th>
+                            <th>Farmer Profile</th>
+                            <th>Location</th>
+                            <th>Est. Price</th>
+                            <th class="pe-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model)
+                        {
+                            var isPrebooked = ViewBag.BuyerPrebookHarvestIds != null && ((HashSet<int>)ViewBag.BuyerPrebookHarvestIds).Contains(h.HarvestId);
+                            var isFullyReserved = h.ActualQuantity <= 0;
+
+                            <tr class="@(isPrebooked ? "table-secondary" : "")">
+                                <td class="ps-4 fw-bold text-muted">#@h.HarvestId</td>
+                                <td class="small text-muted">@h.HarvestDate.ToString("dd-MM-yyyy")</td>
+                                <td class="fw-bold">@h.CropCycle.Crop.CropName</td>
+                                <td>
+                                    @if (isFullyReserved)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small">Out of Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@h.ActualQuantity @h.Unit</span>
+                                    }
+                                </td>
+                                <td>@h.CropCycle.LandPlot.Farm.Farmer.FullName</td>
+                                <td>@h.CropCycle.LandPlot.Farm.Village, @h.CropCycle.LandPlot.Farm.District</td>
+                                <td class="fw-bold text-success">₹35.00 / @h.Unit</td>
+                                <td class="pe-4 text-end">
+                                    @if (isPrebooked)
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1">
+                                            <span class="material-icons-round" style="font-size: 16px;">schedule</span>
+                                            Awaiting Approval
+                                        </span>
+                                    }
+                                    else if (isFullyReserved)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">
+                                            Fully Reserved
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="PlaceOrder" asp-controller="BuyerOrder" method="get" class="d-inline-flex gap-2 justify-content-end align-items-center">
+                                            <input type="hidden" name="harvestId" value="@h.HarvestId" />
+                                            <input type="number" step="0.01" min="0.01" max="@h.ActualQuantity" name="quantity" value="@(h.ActualQuantity > 10 ? 10 : h.ActualQuantity)" class="form-control text-center fw-bold form-control-sm rounded-3" style="width: 80px;" required />
+                                            <button type="submit" class="btn btn-sm btn-success rounded-3 px-3 py-1.5 fw-bold d-flex align-items-center gap-1">
+                                                <span class="material-icons-round font-size-sm">lock_clock</span> Prebook
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

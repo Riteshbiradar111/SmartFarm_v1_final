@@ -1,0 +1,246 @@
+@{
+    Layout = "_BuyerLayout";
+    ViewData["Title"] = "Buyer Dashboard";
+    var recentOrders = ViewBag.RecentOrders as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
+    var notifications = ViewBag.Notifications as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Notification> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Notification>();
+    var highlights = ViewBag.Highlights as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropListing> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropListing>();
+    var orderMapDash = ViewBag.OrderNumberMap as Dictionary<int, int>;
+}
+
+<!-- Welcome Banner Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 text-white p-4" style="background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold mb-1">Welcome back, @ViewBag.BuyerName!</h2>
+                    <p class="mb-0 opacity-90">Sourcing raw materials and managing logistics for <strong>@ViewBag.CompanyName</strong>.</p>
+                </div>
+                <a href="~/BuyerMarketplace" class="btn btn-light text-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-1">
+                    <span class="material-icons-round">search</span> Search Marketplace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT PANEL: Active Stepper Widget, Recent Orders, Highlights -->
+    <div class="col-lg-8">
+
+        <!-- Active Shipment Tracker Widget -->
+        @{
+            var latestActiveOrder = recentOrders.FirstOrDefault(o => o.Status != "Request Sent" && o.Status != "Delivered");
+        }
+        @if (latestActiveOrder != null)
+        {
+            string cropName = latestActiveOrder.CropListing != null
+                ? latestActiveOrder.CropListing.Harvest.CropCycle.Crop.CropName
+                : latestActiveOrder.Harvest.CropCycle.Crop.CropName;
+
+            int activeStep = 1;
+            if (latestActiveOrder.Status == "Preparing Produce") activeStep = 2;
+            else if (latestActiveOrder.Status == "Ready for Pickup") activeStep = 3;
+            else if (latestActiveOrder.Status == "In Transit") activeStep = 4;
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-dark fw-bold mb-0 d-flex align-items-center gap-2">
+                        <span class="material-icons-round text-primary animate-pulse">local_shipping</span>
+                        Active Dispatch Tracker
+                    </h5>
+                    <a href="~/BuyerOrder/Details/@latestActiveOrder.OrderId" class="btn btn-sm btn-outline-primary rounded-pill px-3">Track Full Timeline</a>
+                </div>
+                @{
+                    var latestSeqNo = orderMapDash != null && latestActiveOrder != null && orderMapDash.ContainsKey(latestActiveOrder.OrderId) ? orderMapDash[latestActiveOrder.OrderId] : latestActiveOrder?.OrderId;
+                }
+                <div class="p-3 bg-light rounded-3 mb-3 small d-flex justify-content-between flex-wrap gap-2">
+                    <span>Order: <strong>#@latestSeqNo</strong></span>
+                    <span>Produce: <strong>@cropName</strong></span>
+                    <span>Est. Volume: <strong>@latestActiveOrder.Quantity kg</strong></span>
+                    <span>Status: <span class="badge bg-primary rounded-pill">@latestActiveOrder.Status</span></span>
+                </div>
+
+                <!-- Horizontal stepper representation -->
+                <div class="row text-center position-relative g-0 mt-3">
+                    <div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -12px;"></div>
+                    <div class="position-absolute start-0 top-50 translate-middle-y bg-primary" style="height: 4px; z-index: 0; margin-top: -12px; width: @(activeStep * 33.3)%;"></div>
+
+                    <div class="col-3 position-relative" style="z-index: 1;">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle border-3 @(activeStep >= 1 ? "bg-primary text-white border-primary" : "bg-white text-muted border-light")" style="width: 28px; height: 28px; font-size: 11px;">1</span>
+                        <span class="d-block small text-muted mt-1" style="font-size: 10px;">Accepted</span>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 1;">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle border-3 @(activeStep >= 2 ? "bg-primary text-white border-primary" : "bg-white text-muted border-light")" style="width: 28px; height: 28px; font-size: 11px;">2</span>
+                        <span class="d-block small text-muted mt-1" style="font-size: 10px;">Preparing</span>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 1;">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle border-3 @(activeStep >= 3 ? "bg-primary text-white border-primary" : "bg-white text-muted border-light")" style="width: 28px; height: 28px; font-size: 11px;">3</span>
+                        <span class="d-block small text-muted mt-1" style="font-size: 10px;">Ready</span>
+                    </div>
+                    <div class="col-3 position-relative" style="z-index: 1;">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle border-3 @(activeStep >= 4 ? "bg-primary text-white border-primary" : "bg-white text-muted border-light")" style="width: 28px; height: 28px; font-size: 11px;">4</span>
+                        <span class="d-block small text-muted mt-1" style="font-size: 10px;">In Transit</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Recent Orders Summary Log -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="text-dark fw-bold mb-3 d-flex align-items-center gap-2">
+                <span class="material-icons-round text-primary">receipt_long</span>
+                Recent Purchase Log
+            </h5>
+
+            @if (recentOrders.Count() == 0)
+            {
+                <div class="text-center py-4 text-muted">
+                    <span class="material-icons-round text-muted" style="font-size: 2.5rem;">shopping_bag</span>
+                    <p class="small mb-0 mt-2">No purchases placed yet. Open the marketplace to find fresh yields.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-dark">
+                        <thead class="table-light text-muted small">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Produce</th>
+                                <th>Date</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="text-end">Track</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in recentOrders)
+                            {
+                                string cropName = order.CropListing != null
+                                    ? order.CropListing.Harvest.CropCycle.Crop.CropName
+                                    : order.Harvest.CropCycle.Crop.CropName;
+
+                                string badgeColor = order.Status == "Delivered" ? "bg-success" : (order.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary");
+
+                                <tr>
+                                    @{
+                                        var seqNoLog = orderMapDash != null && orderMapDash.ContainsKey(order.OrderId) ? orderMapDash[order.OrderId] : order.OrderId;
+                                    }
+                                    <td class="fw-bold">#@seqNoLog</td>
+                                    <td>@cropName</td>
+                                    <td class="small text-muted">@order.OrderDate.ToString("dd-MM-yyyy")</td>
+                                    <td>@order.Quantity.ToString("0.00") kg</td>
+                                    <td class="fw-bold">₹@order.TotalAmount.ToString("N2")</td>
+                                    <td><span class="badge @badgeColor rounded-pill px-2.5 py-1">@order.Status</span></td>
+                                    <td class="text-end">
+                                        <a href="~/BuyerOrder/Details/@order.OrderId" class="btn btn-sm btn-outline-light text-primary border-primary rounded-3">Track</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Marketplace Highlights (New Arrivals) -->
+        <h5 class="text-dark fw-bold mb-3 d-flex align-items-center gap-2">
+            <span class="material-icons-round text-success">local_fire_department</span>
+            Fresh Marketplace Arrivals
+        </h5>
+
+        @if (highlights.Count() == 0)
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center text-muted">
+                <p class="small mb-0">No active listings available. Check back soon for fresh farmer harvests.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var item in highlights)
+                {
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 highlight-card">
+                            <div class="position-relative bg-light text-center py-4" style="height: 120px; overflow: hidden;">
+                                <img src="@(string.IsNullOrEmpty(item.ImagePath) ? "/uploads/defaults/crop.jpg" : item.ImagePath)" 
+                                     class="img-fluid opacity-90" 
+                                     style="object-fit: cover; width: 100%; height: 100%;" 
+                                     alt="@item.Harvest.CropCycle.Crop.CropName" />
+                                <span class="position-absolute top-0 end-0 bg-success text-white badge m-2 px-2.5 py-1 rounded-pill">Verified</span>
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                <div>
+                                    <h6 class="text-dark fw-bold mb-1">@item.Harvest.CropCycle.Crop.CropName</h6>
+                                    <span class="text-muted small d-block mb-2">Farmer: @item.Harvest.CropCycle.LandPlot.Farm.Farmer.FullName (@item.Harvest.CropCycle.LandPlot.Farm.Village)</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-light">
+                                    <div>
+                                        <span class="text-muted small d-block">Price</span>
+                                        <strong class="text-success fs-5">₹@item.PricePerUnit / @item.Unit</strong>
+                                    </div>
+                                    <a href="~/BuyerMarketplace/Details/@item.ListingId" class="btn btn-sm btn-success rounded-3 px-3">Buy Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- RIGHT PANEL: Notification feed, quick actions -->
+    <div class="col-lg-4">
+        <!-- Smart Notification Feed -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="text-dark fw-bold mb-3 d-flex align-items-center gap-2">
+                <span class="material-icons-round text-warning">notifications_active</span>
+                Logistics Notifications
+            </h5>
+
+            @if (notifications.Count() == 0)
+            {
+                <div class="text-center py-4 text-muted small">
+                    <span class="material-icons-round text-muted" style="font-size: 2rem;">notifications_none</span>
+                    <p class="mb-0 mt-2">No active notifications found.</p>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var notif in notifications)
+                    {
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="fw-bold text-dark small d-block">@notif.Title</span>
+                            <p class="text-muted small mb-1 mt-0.5">@notif.Message</p>
+                            <small class="text-muted font-monospace" style="font-size: 10px;">@notif.CreatedDate.ToString("dd-MM HH:mm")</small>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Quick Links Panel -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="text-dark fw-bold mb-3">Quick Navigation Shortcuts</h5>
+            <div class="d-flex flex-column gap-2">
+                <a href="~/BuyerMarketplace" class="btn btn-outline-light text-dark text-start rounded-3 p-3 border d-flex align-items-center gap-2">
+                    <span class="material-icons-round text-primary">storefront</span>
+                    <div>
+                        <span class="fw-bold small d-block">Browse Marketplace</span>
+                        <small class="text-muted" style="font-size: 10px;">Find &amp; buy listed crops directly from farmers</small>
+                    </div>
+                </a>
+                <a href="~/Buyer/Transactions" class="btn btn-outline-light text-dark text-start rounded-3 p-3 border d-flex align-items-center gap-2">
+                    <span class="material-icons-round text-success">receipt_long</span>
+                    <div>
+                        <span class="fw-bold small d-block">View Transactions</span>
+                        <small class="text-muted" style="font-size: 10px;">Complete order history & payments</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

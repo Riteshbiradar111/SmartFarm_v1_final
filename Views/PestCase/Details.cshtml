@@ -1,0 +1,458 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Pest Case Details";
+	var userRole = ViewData["UserRole"] as string ?? "";
+
+	// Determine dynamic timeline steps based on workflow path
+	bool showFieldVisitInTimeline = Model.FarmerResponseToReport == "NeedsAssistance" || Model.FarmerResponseToReport == "Not Approved" || Model.FieldVisitRequested || Model.Status == "ESCALATED TO OFFICER" || Model.Status == "EscalatedToFieldOfficer";
+	bool isReportUploaded = Model.Status == "Report Uploaded" || Model.ReportUploadedDate.HasValue;
+	bool isFieldVisitComplete = Model.FieldVisitCompletedDate.HasValue;
+	bool isResolved = Model.Status == "Resolved";
+}
+
+<div class="row mb-4">
+	<div class="col-12">
+		<a href="~/PestCase" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+			<span class="material-icons-round">arrow_back</span>
+			Back to Cases
+		</a>
+		<h2 class="text-success mb-1">Pest Incident Details</h2>
+		<p class="text-muted">Case #@Model.PestCaseId | Reported on @Model.CreatedDate.ToString("dd-MM-yyyy HH:mm")</p>
+	</div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+	<div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger mb-4">@TempData["ErrorMessage"]</div>
+}
+
+<!-- Dynamic Visual Timeline -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+	<h5 class="text-dark mb-4 fw-semibold">Pest Incident Status Timeline</h5>
+
+	@if (!showFieldVisitInTimeline)
+	{
+		<!-- Timeline WITHOUT Field Visit (3 steps) -->
+		<div class="row position-relative text-center g-0">
+			<!-- Connecting Line -->
+			<div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -15px;"></div>
+
+			@{
+				int currentStep3 = 1; // Pending
+				if (isReportUploaded) currentStep3 = 2;
+				if (isResolved) currentStep3 = 3;
+
+				double progressPercent3 = (currentStep3 - 1) * 50.0; // 0%, 50%, or 100%
+			}
+
+			<div class="position-absolute start-0 top-50 translate-middle-y bg-success" style="height: 4px; z-index: 0; margin-top: -15px; width: @(progressPercent3)%; transition: width 0.4s ease-in-out;"></div>
+
+			<!-- Step 1: Pending -->
+			<div class="col-4 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep3 >= 1 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 50px; height: 50px;">
+					<span class="material-icons-round" style="font-size: 1.5rem;">report_problem</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep3 >= 1 ? "text-success" : "text-muted")">Pending</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Reported &amp; Filed</small>
+				</div>
+			</div>
+
+			<!-- Step 2: Agro Report -->
+			<div class="col-4 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep3 >= 2 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 50px; height: 50px;">
+					<span class="material-icons-round" style="font-size: 1.5rem;">assignment</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep3 >= 2 ? "text-success" : "text-muted")">Agro Report</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Expert Analysis</small>
+				</div>
+			</div>
+
+			<!-- Step 3: Resolved -->
+			<div class="col-4 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep3 >= 3 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 50px; height: 50px;">
+					<span class="material-icons-round" style="font-size: 1.5rem;">check_circle</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep3 >= 3 ? "text-success" : "text-muted")">Resolved</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Advisory Issued</small>
+				</div>
+			</div>
+		</div>
+	}
+	else
+	{
+		<!-- Timeline WITH Field Visit (4 steps) -->
+		<div class="row position-relative text-center g-0">
+			<!-- Connecting Line -->
+			<div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -15px;"></div>
+
+			@{
+				int currentStep4 = 1; // Pending
+				if (isReportUploaded) currentStep4 = 2;
+				if (Model.Status == "Field Visit" || Model.Status == "Field Visit Requested" || isFieldVisitComplete) currentStep4 = 3;
+				if (isResolved) currentStep4 = 4;
+
+				double progressPercent4 = (currentStep4 - 1) * 33.33; // 0%, 33.33%, 66.66%, or 100%
+			}
+
+			<div class="position-absolute start-0 top-50 translate-middle-y bg-success" style="height: 4px; z-index: 0; margin-top: -15px; width: @(progressPercent4)%; transition: width 0.4s ease-in-out;"></div>
+
+			<!-- Step 1: Pending -->
+			<div class="col-3 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep4 >= 1 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 45px; height: 45px;">
+					<span class="material-icons-round" style="font-size: 1.3rem;">report_problem</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep4 >= 1 ? "text-success" : "text-muted")">Pending</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Reported &amp; Filed</small>
+				</div>
+			</div>
+
+			<!-- Step 2: Agro Report -->
+			<div class="col-3 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep4 >= 2 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 45px; height: 45px;">
+					<span class="material-icons-round" style="font-size: 1.3rem;">assignment</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep4 >= 2 ? "text-success" : "text-muted")">Agro Report</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Expert Analysis</small>
+				</div>
+			</div>
+
+			<!-- Step 3: Field Visit -->
+			<div class="col-3 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep4 >= 3 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 45px; height: 45px;">
+					<span class="material-icons-round" style="font-size: 1.3rem;">person_search</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep4 >= 3 ? "text-success" : "text-muted")">Field Visit</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Officer Dispatched</small>
+				</div>
+			</div>
+
+			<!-- Step 4: Resolved -->
+			<div class="col-3 position-relative" style="z-index: 1;">
+				<div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep4 >= 4 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 45px; height: 45px;">
+					<span class="material-icons-round" style="font-size: 1.3rem;">check_circle</span>
+				</div>
+				<div class="mt-2">
+					<span class="fw-bold small d-block @(currentStep4 >= 4 ? "text-success" : "text-muted")">Resolved</span>
+					<small class="text-muted d-none d-sm-block" style="font-size: 10px;">Advisory Issued</small>
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+<div class="row g-4">
+	<!-- Left panel: Case info, image, status -->
+	<div class="col-lg-6">
+		<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+			<div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+				<div>
+					<h4 class="text-dark fw-bold mb-1">@Model.Title</h4>
+					<span class="text-muted small">Crop: @Model.CropCycle.Crop.CropName | Plot: @Model.CropCycle.LandPlot.PlotName</span>
+				</div>
+				<span class="badge @(Model.Priority == "High" ? "bg-danger" : Model.Priority == "Medium" ? "bg-warning text-dark" : "bg-info") px-3 py-1">@Model.Priority Priority</span>
+			</div>
+
+			<div class="mb-3">
+				<label class="text-muted small d-block">Status</label>
+				<span class="badge @(Model.Status == "Pending" ? "bg-secondary" : Model.Status == "Resolved" ? "bg-success" : "bg-warning text-dark") rounded-pill px-3 py-1 fs-6 mt-1">
+					@Model.Status @(Model.IsClosed ? " (Closed)" : "")
+				</span>
+			</div>
+
+			<div class="mb-3">
+				<label class="text-muted small d-block">Description</label>
+				<p class="text-dark">@Model.Description</p>
+			</div>
+
+			@if (!string.IsNullOrEmpty(Model.ImagePath))
+			{
+				<div class="mb-3">
+					<label class="text-muted small d-block mb-2">Plant Photo</label>
+					<img src="@Model.ImagePath" alt="Pest Case Image" class="img-fluid rounded-3 shadow-sm" />
+				</div>
+			}
+
+			<div class="mb-2">
+				<label class="text-muted small d-block">Farmer Details</label>
+				<p class="mb-0 text-dark">
+					<strong>@Model.CropCycle.LandPlot.Farm.Farmer.FullName</strong><br />
+					@Model.CropCycle.LandPlot.Farm.Farmer.Village, @Model.CropCycle.LandPlot.Farm.Farmer.District<br />
+					@Model.CropCycle.LandPlot.Farm.Farmer.MobileNumber
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Right panel: Actions & Timeline -->
+	<div class="col-lg-6">
+
+		<!-- 1. Agronomist Report Submission Form -->
+		@if (userRole == "Agronomist" && Model.Status == "Pending")
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-success border-4">
+				<h4 class="text-success mb-3 fw-semibold">Submit Report & Recommendation</h4>
+				<p class="text-muted small">Provide your expert analysis and treatment recommendation for the farmer.</p>
+
+				<form asp-action="SubmitReport" asp-route-id="@Model.PestCaseId" method="post">
+					@Html.AntiForgeryToken()
+					<div class="mb-3">
+						<label for="reportText" class="form-label fw-semibold text-dark">Analysis Report *</label>
+						<textarea name="reportText" id="reportText" class="form-control rounded-3" rows="4" placeholder="Enter your detailed analysis of the pest/disease issue..." required></textarea>
+					</div>
+					<div class="mb-3">
+						<label for="recommendationText" class="form-label fw-semibold text-dark">Treatment Recommendation *</label>
+						<textarea name="recommendationText" id="recommendationText" class="form-control rounded-3" rows="4" placeholder="Provide specific treatment recommendations, pesticides, dosage, etc..." required></textarea>
+					</div>
+					<button type="submit" class="btn btn-success rounded-3 w-100">Upload Report & Send to Farmer</button>
+				</form>
+			</div>
+		}
+
+		<!-- 2. Farmer Report Review & Action Buttons -->
+		@if (userRole == "Farmer" && Model.Status == "Report Uploaded" && string.IsNullOrEmpty(Model.FarmerResponseToReport))
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-primary border-4">
+				<h4 class="text-primary mb-3 fw-semibold">Review Agronomist Report & Take Action</h4>
+				<p class="text-muted small">The agronomist has analyzed your case. Please review the report and recommendation below, then approve or request a field visit if needed.</p>
+
+				@if (!string.IsNullOrEmpty(Model.FieldReport))
+				{
+					<div class="mb-3">
+						<label class="text-muted small d-block fw-semibold">Analysis Report:</label>
+						<div class="p-3 bg-light rounded-3 border">@Model.FieldReport</div>
+					</div>
+				}
+
+				@if (!string.IsNullOrEmpty(Model.Recommendation))
+				{
+					<div class="mb-3">
+						<label class="text-muted small d-block fw-semibold">Treatment Recommendation:</label>
+						<div class="p-3 bg-success-subtle rounded-3 border border-success">@Model.Recommendation</div>
+					</div>
+				}
+
+				<div class="d-grid gap-2 mt-3">
+					<form asp-action="ApproveAdvisory" asp-route-id="@Model.PestCaseId" method="post" class="d-inline">
+						@Html.AntiForgeryToken()
+						<button type="submit" class="btn btn-success rounded-3 w-100">
+							<span class="material-icons-round align-middle" style="font-size: 1.2rem;">check_circle</span>
+							Approve Advisory
+						</button>
+					</form>
+					<form asp-action="RejectAdvisory" asp-route-id="@Model.PestCaseId" method="post" class="d-inline">
+						@Html.AntiForgeryToken()
+						<button type="submit" class="btn btn-outline-danger rounded-3 w-100">
+							<span class="material-icons-round align-middle" style="font-size: 1.2rem;">cancel</span>
+							Not Approved - Escalate to Field Officer
+						</button>
+					</form>
+				</div>
+			</div>
+		}
+
+		<!-- 3. Cooperative Manager Officer Assignment -->
+		@if (userRole == "Cooperative Manager" && Model.Status == "Field Visit Requested" && Model.AssignedOfficerId == null)
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-warning border-4">
+				<h4 class="text-warning mb-3 fw-semibold">Assign Field Officer</h4>
+				<p class="text-muted small">Farmer has requested on-site assistance. Please assign a field officer for visit.</p>
+
+				<form asp-action="AssignOfficer" asp-route-id="@Model.PestCaseId" method="post">
+					@Html.AntiForgeryToken()
+					<div class="mb-3">
+						<label for="officerId" class="form-label fw-semibold text-dark">Select Field Officer *</label>
+						<select name="officerId" id="officerId" class="form-select rounded-3" required>
+							<option value="">-- Choose Officer --</option>
+							@foreach (var officer in ViewBag.FieldOfficers as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.User>)
+							{
+								<option value="@officer.UserId">@officer.Username</option>
+							}
+						</select>
+					</div>
+					<button type="submit" class="btn btn-warning rounded-3 w-100">Assign &amp; Dispatch</button>
+				</form>
+			</div>
+		}
+
+		<!-- 4. Field Officer Visit Completion Form -->
+		@if (userRole == "Field Officer" && (Model.Status == "Field Visit" || Model.Status == "ESCALATED TO OFFICER" || Model.Status == "EscalatedToFieldOfficer") && !Model.FieldVisitCompletedDate.HasValue)
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-primary border-4">
+				<h4 class="text-primary mb-3 fw-semibold">Complete Field Visit</h4>
+				<p class="text-muted small">Log your on-site findings and guidance provided to the farmer.</p>
+
+				<form asp-action="CompleteFieldVisit" asp-route-id="@Model.PestCaseId" method="post">
+					@Html.AntiForgeryToken()
+					<div class="mb-3">
+						<label for="visitNotes" class="form-label fw-semibold text-dark">Visit Notes *</label>
+						<textarea name="visitNotes" id="visitNotes" class="form-control rounded-3" rows="5" placeholder="Enter details of your visit, observations, and guidance provided..." required></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary rounded-3 w-100">Mark Visit as Completed</button>
+				</form>
+			</div>
+		}
+
+		<!-- 5. Farmer Scheduled Visit Confirmation Card -->
+		@if (userRole == "Farmer" && (Model.Status == "Field Visit Scheduled" || Model.Status == "Field Visit" || Model.Status == "Field Visit Confirmed"))
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-info border-4">
+				<h4 class="text-info mb-2 fw-semibold">Field Inspection Scheduled</h4>
+				<p class="text-muted small mb-3">Field Officer <strong>@(Model.AssignedOfficer?.FullName ?? Model.AssignedOfficer?.Username ?? "Officer")</strong> has scheduled a visit for your farm inspection.</p>
+				@if (Model.Status == "Field Visit Confirmed")
+				{
+					<div class="alert alert-success border-0 small mb-0 d-flex align-items-center gap-2">
+						<span class="material-icons-round text-success">check_circle</span>
+						<span>You have accepted and confirmed this visit schedule.</span>
+					</div>
+				}
+				else
+				{
+					<form asp-action="AcceptVisitSchedule" asp-route-id="@Model.PestCaseId" method="post">
+						@Html.AntiForgeryToken()
+						<button type="submit" class="btn btn-info text-white rounded-3 w-100 fw-bold">
+							<span class="material-icons-round align-middle me-1">event_available</span>
+							Accept &amp; Confirm Visit Date
+						</button>
+					</form>
+				}
+			</div>
+		}
+
+		<!-- 6. Farmer Field Officer Report Review & Approval Card -->
+		@if (userRole == "Farmer" && (Model.Status == "Pending Farmer Approval" || (Model.FieldVisitCompletedDate.HasValue && !Model.IsClosed)))
+		{
+			<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-success border-4">
+				<h4 class="text-success mb-2 fw-semibold">Review Field Officer's Report &amp; Resolution</h4>
+				<p class="text-muted small mb-3">The Field Officer has completed the farm visit and submitted their field report below. Please approve to resolve or reject to request a re-visit.</p>
+
+				@if (!string.IsNullOrEmpty(Model.FieldReport))
+				{
+					<div class="mb-3">
+						<label class="text-muted small d-block fw-semibold">Field Officer Report &amp; Observations:</label>
+						<div class="p-3 bg-light rounded-3 border">@Model.FieldReport</div>
+					</div>
+				}
+
+				<div class="d-grid gap-2 mt-3">
+					<form asp-action="ApproveFieldReport" asp-route-id="@Model.PestCaseId" method="post" class="d-inline">
+						@Html.AntiForgeryToken()
+						<button type="submit" class="btn btn-success rounded-3 w-100">
+							<span class="material-icons-round align-middle me-1" style="font-size: 1.2rem;">check_circle</span>
+							Approve Field Report — Mark Issue Resolved
+						</button>
+					</form>
+					<form asp-action="RejectFieldReport" asp-route-id="@Model.PestCaseId" method="post" class="d-inline">
+						@Html.AntiForgeryToken()
+						<div class="mb-2">
+							<input type="text" name="rejectionReason" class="form-control form-control-sm rounded-3" placeholder="Reason for requesting re-visit..." required />
+						</div>
+						<button type="submit" class="btn btn-outline-danger rounded-3 w-100">
+							<span class="material-icons-round align-middle me-1" style="font-size: 1.2rem;">thumb_down</span>
+							Reject &amp; Request Re-visit
+						</button>
+					</form>
+				</div>
+			</div>
+		}
+
+		<!-- 6. Display Reports & Timeline (Visible to all based on status) -->
+		<div class="card border-0 shadow-sm rounded-4 p-4">
+			<h4 class="text-dark mb-3 fw-semibold">Case Timeline &amp; Findings</h4>
+
+			<!-- Show report after uploaded -->
+			@if (isReportUploaded && !string.IsNullOrEmpty(Model.FieldReport))
+			{
+				<div class="mb-3">
+					<div class="p-3 bg-light rounded-3 border-start border-3 border-success">
+						<h6 class="fw-bold mb-1 text-success">
+							<span class="material-icons-round align-middle" style="font-size: 1.1rem;">assignment</span>
+							Agronomist Analysis Report
+						</h6>
+						<small class="text-muted d-block mb-2">Uploaded: @Model.ReportUploadedDate?.ToString("dd-MM-yyyy HH:mm")</small>
+						<p class="mb-0 small text-dark bg-white p-2 border rounded-3">@Model.FieldReport</p>
+					</div>
+				</div>
+			}
+
+			<!-- Show recommendation -->
+			@if (!string.IsNullOrEmpty(Model.Recommendation))
+			{
+				<div class="mb-3">
+					<div class="p-3 bg-success-subtle rounded-3 border-start border-success border-3">
+						<h6 class="fw-bold mb-1 text-success">
+							<span class="material-icons-round align-middle" style="font-size: 1.1rem;">medical_services</span>
+							Treatment Recommendation
+						</h6>
+						<p class="mb-0 small text-dark bg-white p-2 border rounded-3 mt-2">@Model.Recommendation</p>
+					</div>
+				</div>
+			}
+
+			<!-- Field Visit Information -->
+			@if (showFieldVisitInTimeline)
+			{
+				<div class="mb-3">
+					<div class="p-3 @(isFieldVisitComplete ? "bg-light" : "bg-warning-subtle") rounded-3 border-start border-3 @(isFieldVisitComplete ? "border-success" : "border-warning")">
+						<h6 class="fw-bold mb-1 @(isFieldVisitComplete ? "text-success" : "text-warning")">
+							<span class="material-icons-round align-middle" style="font-size: 1.1rem;">person_search</span>
+							Field Visit
+						</h6>
+						<p class="small text-muted mb-2">
+							Assigned Officer: @(Model.AssignedOfficer != null ? Model.AssignedOfficer.Username : "Assigning in progress...")
+						</p>
+						@if (isFieldVisitComplete)
+						{
+							<small class="text-muted d-block mb-2">Completed: @Model.FieldVisitCompletedDate?.ToString("dd-MM-yyyy HH:mm")</small>
+							<label class="text-muted small d-block">Visit Notes:</label>
+							<p class="mb-0 small text-dark bg-white p-2 border rounded-3 mt-1">@Model.FieldReport</p>
+						}
+						else if (Model.AssignedOfficerId.HasValue)
+						{
+							<span class="text-warning small d-flex align-items-center gap-1">
+								<span class="material-icons-round" style="font-size: 1rem;">hourglass_empty</span>
+								Officer assigned. Awaiting visit completion...
+							</span>
+						}
+						else
+						{
+							<span class="text-warning small d-flex align-items-center gap-1">
+								<span class="material-icons-round" style="font-size: 1rem;">hourglass_empty</span>
+								Awaiting officer assignment...
+							</span>
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Resolved / Closed Status -->
+			@if (Model.IsClosed)
+			{
+				<div class="alert alert-success mb-0">
+					<h6 class="fw-bold mb-1">
+						<span class="material-icons-round align-middle">check_circle</span>
+						Query Closed
+					</h6>
+					<small class="text-muted">Closed on: @Model.ClosedDate?.ToString("dd-MM-yyyy HH:mm")</small>
+				</div>
+			}
+			else if (!isReportUploaded)
+			{
+				<div class="text-center py-3 text-muted small">
+					<span class="material-icons-round" style="font-size: 2rem;">hourglass_empty</span>
+					<p class="mb-0 mt-1">Awaiting agronomist review and report...</p>
+				</div>
+			}
+		</div>
+	</div>
+</div>

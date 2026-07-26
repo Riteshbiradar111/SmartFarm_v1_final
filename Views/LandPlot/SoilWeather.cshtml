@@ -1,0 +1,633 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.Farm
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Soil & Weather";
+	var farms = ViewBag.Farms as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Farm>;
+	var plotReadings = ViewBag.PlotReadings as System.Collections.Generic.Dictionary<int, Smart_Farm_and_Crop_Yeild_Management_System.Models.SensorReading>;
+	var plotWeather = ViewBag.PlotWeather as System.Collections.Generic.Dictionary<int, Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.WeatherViewModel>;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+	<div class="col-12">
+		<div class="d-flex align-items-center gap-3">
+			<div class="header-icon-badge">
+				<span class="material-icons-round">terrain</span>
+			</div>
+			<div>
+				<h2 class="mb-1 fw-bold text-dark">Soil & Weather Monitoring</h2>
+				<p class="text-muted mb-0">Live environmental insights across all your farms and plots</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Farms Grid -->
+@if (farms != null && farms.Any())
+{
+	foreach (var farm in farms)
+	{
+		<div class="farm-section mb-5">
+			<!-- Farm Header Card -->
+			<div class="farm-header-card">
+				<div class="row align-items-center">
+					<div class="col-md-8">
+						<div class="d-flex align-items-center gap-3">
+							<div class="farm-icon">
+								<span class="material-icons-round">agriculture</span>
+							</div>
+							<div>
+								<h4 class="mb-1 fw-bold text-success">@farm.FarmName</h4>
+								<p class="text-muted mb-0 small">
+									<span class="material-icons-round me-1" style="font-size: 16px; vertical-align: middle;">location_on</span>
+									@farm.Village, @farm.Taluka, @farm.District
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="farm-stats">
+							<div class="stat-item">
+								<span class="material-icons-round">landscape</span>
+								<div>
+									<div class="stat-value">@farm.LandPlots.Count()</div>
+									<div class="stat-label">Total Plots</div>
+								</div>
+							</div>
+							<div class="stat-item">
+								<span class="material-icons-round">spa</span>
+								<div>
+									<div class="stat-value">@farm.LandPlots.SelectMany(p => p.CropCycles).Count(c => c.Status == "Active")</div>
+									<div class="stat-label">Active Cycles</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Plots Grid -->
+			@if (farm.LandPlots != null && farm.LandPlots.Any())
+			{
+				<div class="plots-grid">
+					@foreach (var plot in farm.LandPlots)
+					{
+						var reading = plotReadings != null && plotReadings.ContainsKey(plot.PlotId) ? plotReadings[plot.PlotId] : null;
+						var weather = plotWeather != null && plotWeather.ContainsKey(plot.PlotId) ? plotWeather[plot.PlotId] : null;
+
+						<div class="plot-card">
+							<!-- Plot Header -->
+							<div class="plot-header">
+								<div class="d-flex justify-content-between align-items-start">
+									<div>
+										<h6 class="plot-name">@plot.PlotName</h6>
+										<span class="plot-code">@plot.PlotCode</span>
+									</div>
+									<div class="plot-actions">
+										<form asp-controller="LandPlot" asp-action="RefreshWeather" method="post" class="d-inline">
+											@Html.AntiForgeryToken()
+											<input type="hidden" name="id" value="@plot.PlotId" />
+											<button class="action-btn" type="submit" title="Refresh Weather">
+												<span class="material-icons-round">cloud_sync</span>
+											</button>
+										</form>
+										<form asp-controller="LandPlot" asp-action="RefreshSoilData" method="post" class="d-inline">
+											@Html.AntiForgeryToken()
+											<input type="hidden" name="id" value="@plot.PlotId" />
+											<button class="action-btn" type="submit" title="Refresh Soil Data">
+												<span class="material-icons-round">sensors</span>
+											</button>
+										</form>
+									</div>
+								</div>
+							</div>
+
+							<!-- Weather Section -->
+							<div class="weather-section">
+								@if (weather != null && weather.ErrorMessage == null && weather.Current != null)
+								{
+									var cur = weather.Current;
+									<div class="weather-main">
+										<div class="weather-icon-wrapper">
+											@if (cur.Condition != null && cur.Condition.Contains("Clear"))
+											{
+												<span class="material-icons-round weather-icon sunny">wb_sunny</span>
+											}
+											else if (cur.Condition != null && cur.Condition.Contains("Cloud"))
+											{
+												<span class="material-icons-round weather-icon cloudy">cloud</span>
+											}
+											else if (cur.Condition != null && cur.Condition.Contains("Rain"))
+											{
+												<span class="material-icons-round weather-icon rainy">umbrella</span>
+											}
+											else
+											{
+												<span class="material-icons-round weather-icon">cloud_queue</span>
+											}
+										</div>
+										<div class="weather-temp">
+											<div class="temp-value">@((cur.Temperature.HasValue) ? Math.Round(cur.Temperature.Value, 1) : 0)°C</div>
+											<div class="temp-desc">@(cur.Condition ?? "N/A")</div>
+										</div>
+									</div>
+									<div class="weather-details">
+										<div class="weather-detail-item">
+											<span class="material-icons-round">water_drop</span>
+											<span>@((cur.Humidity.HasValue) ? cur.Humidity.Value + "%" : "N/A")</span>
+										</div>
+										<div class="weather-detail-item">
+											<span class="material-icons-round">air</span>
+											<span>@((cur.WindSpeed.HasValue) ? cur.WindSpeed.Value + " m/s" : "N/A")</span>
+										</div>
+									</div>
+								}
+								else
+								{
+									<div class="no-data-message">
+										<span class="material-icons-round">cloud_off</span>
+										<p>Weather data unavailable</p>
+									</div>
+								}
+							</div>
+
+							<!-- Soil Section -->
+							<div class="soil-section">
+								<h6 class="section-title">
+									<span class="material-icons-round">science</span>
+									Soil Analysis
+								</h6>
+
+								@if (reading != null)
+								{
+									<div class="soil-metrics">
+										<div class="metric-card moisture">
+											<div class="metric-icon">
+												<span class="material-icons-round">opacity</span>
+											</div>
+											<div class="metric-content">
+												<div class="metric-value">@reading.SoilMoisture%</div>
+												<div class="metric-label">Moisture</div>
+											</div>
+										</div>
+
+										<div class="metric-card ph">
+											<div class="metric-icon">
+												<span class="material-icons-round">science</span>
+											</div>
+											<div class="metric-content">
+												<div class="metric-value">@reading.SoilPH</div>
+												<div class="metric-label">pH Level</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="npk-section">
+										<div class="npk-header">NPK Nutrients (ppm)</div>
+										<div class="npk-values">
+											<div class="npk-item nitrogen">
+												<div class="npk-badge">N</div>
+												<div class="npk-value">@reading.Nitrogen</div>
+											</div>
+											<div class="npk-item phosphorus">
+												<div class="npk-badge">P</div>
+												<div class="npk-value">@reading.Phosphorus</div>
+											</div>
+											<div class="npk-item potassium">
+												<div class="npk-badge">K</div>
+												<div class="npk-value">@reading.Potassium</div>
+											</div>
+										</div>
+									</div>
+								}
+								else
+								{
+									<div class="no-data-message">
+										<span class="material-icons-round">sensors_off</span>
+										<p>No soil data available</p>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			}
+			else
+			{
+				<div class="alert alert-info">
+					<span class="material-icons-round">info</span>
+					No plots available for this farm. Add plots to see environmental data.
+				</div>
+			}
+		</div>
+	}
+}
+else
+{
+	<div class="empty-state">
+		<span class="material-icons-round">agriculture</span>
+		<h4>No Farms Available</h4>
+		<p>Create a farm and add plots to start monitoring soil and weather conditions.</p>
+		<a href="@Url.Action("Create", "Farm")" class="btn btn-success">
+			<span class="material-icons-round me-2">add</span>
+			Create Your First Farm
+		</a>
+	</div>
+}
+
+<style>
+/* Page Header */
+.header-icon-badge {
+	width: 64px;
+	height: 64px;
+	background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
+	border-radius: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 12px rgba(82, 183, 136, 0.3);
+}
+
+.header-icon-badge .material-icons-round {
+	font-size: 32px;
+	color: white;
+}
+
+/* Farm Section */
+.farm-section {
+	background: #f8f9fa;
+	border-radius: 20px;
+	padding: 1.5rem;
+}
+
+/* Farm Header Card */
+.farm-header-card {
+	background: white;
+	border-radius: 16px;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+	border-left: 4px solid #52b788;
+}
+
+.farm-icon {
+	width: 56px;
+	height: 56px;
+	background: linear-gradient(135deg, #d8f3dc 0%, #b7e4c7 100%);
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.farm-icon .material-icons-round {
+	font-size: 28px;
+	color: #2d6a4f;
+}
+
+.farm-stats {
+	display: flex;
+	gap: 1.5rem;
+	justify-content: flex-end;
+}
+
+.farm-stats .stat-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	background: #f8f9fa;
+	border-radius: 10px;
+}
+
+.farm-stats .stat-item .material-icons-round {
+	font-size: 24px;
+	color: #52b788;
+}
+
+.farm-stats .stat-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #2d6a4f;
+	line-height: 1;
+}
+
+.farm-stats .stat-label {
+	font-size: 0.75rem;
+	color: #6c757d;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Plots Grid */
+.plots-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+	gap: 1.5rem;
+}
+
+@@media (max-width: 768px) {
+	.plots-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Plot Card */
+.plot-card {
+	background: white;
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plot-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Plot Header */
+.plot-header {
+	background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+	color: white;
+	padding: 1.25rem;
+}
+
+.plot-name {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.plot-code {
+	font-size: 0.85rem;
+	opacity: 0.8;
+}
+
+.plot-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.action-btn {
+	width: 36px;
+	height: 36px;
+	background: rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+	background: rgba(255, 255, 255, 0.3);
+	transform: scale(1.1);
+}
+
+.action-btn .material-icons-round {
+	font-size: 20px;
+	color: white;
+}
+
+/* Weather Section */
+.weather-section {
+	padding: 1.25rem;
+	background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.weather-main {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.weather-icon-wrapper .weather-icon {
+	font-size: 48px;
+}
+
+.weather-icon.sunny {
+	color: #ffa726;
+}
+
+.weather-icon.cloudy {
+	color: #90caf9;
+}
+
+.weather-icon.rainy {
+	color: #42a5f5;
+}
+
+.temp-value {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #1565c0;
+	line-height: 1;
+}
+
+.temp-desc {
+	font-size: 0.875rem;
+	color: #1976d2;
+	margin-top: 0.25rem;
+}
+
+.weather-details {
+	display: flex;
+	gap: 1.5rem;
+}
+
+.weather-detail-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: #1976d2;
+}
+
+.weather-detail-item .material-icons-round {
+	font-size: 20px;
+}
+
+/* Soil Section */
+.soil-section {
+	padding: 1.25rem;
+}
+
+.section-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #2d6a4f;
+	margin-bottom: 1rem;
+}
+
+.section-title .material-icons-round {
+	font-size: 20px;
+}
+
+.soil-metrics {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.metric-card {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-radius: 10px;
+}
+
+.metric-card.moisture {
+	background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.metric-card.ph {
+	background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.metric-icon {
+	width: 40px;
+	height: 40px;
+	background: rgba(255, 255, 255, 0.7);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.metric-card.moisture .metric-icon .material-icons-round {
+	color: #1976d2;
+}
+
+.metric-card.ph .metric-icon .material-icons-round {
+	color: #f57c00;
+}
+
+.metric-value {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #212529;
+	line-height: 1;
+}
+
+.metric-label {
+	font-size: 0.75rem;
+	color: #6c757d;
+	text-transform: uppercase;
+}
+
+/* NPK Section */
+.npk-section {
+	background: #f8f9fa;
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+.npk-header {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #6c757d;
+	margin-bottom: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.npk-values {
+	display: flex;
+	gap: 1rem;
+}
+
+.npk-item {
+	flex: 1;
+	text-align: center;
+}
+
+.npk-badge {
+	width: 40px;
+	height: 40px;
+	margin: 0 auto 0.5rem;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 1rem;
+	color: white;
+}
+
+.npk-item.nitrogen .npk-badge {
+	background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+}
+
+.npk-item.phosphorus .npk-badge {
+	background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+}
+
+.npk-item.potassium .npk-badge {
+	background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%);
+}
+
+.npk-value {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #212529;
+}
+
+/* No Data Message */
+.no-data-message {
+	text-align: center;
+	padding: 2rem 1rem;
+	color: #6c757d;
+}
+
+.no-data-message .material-icons-round {
+	font-size: 48px;
+	opacity: 0.3;
+	margin-bottom: 0.5rem;
+}
+
+.no-data-message p {
+	margin: 0;
+	font-size: 0.875rem;
+}
+
+/* Empty State */
+.empty-state {
+	text-align: center;
+	padding: 4rem 2rem;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state .material-icons-round {
+	font-size: 80px;
+	color: #52b788;
+	opacity: 0.3;
+	margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+	color: #2d6a4f;
+	margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+	color: #6c757d;
+	margin-bottom: 1.5rem;
+}
+
+.empty-state .btn {
+	display: inline-flex;
+	align-items: center;
+}
+</style>

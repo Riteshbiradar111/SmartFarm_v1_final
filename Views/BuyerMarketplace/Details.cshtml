@@ -1,0 +1,142 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.CropListing
+@{
+    Layout = "_BuyerLayout";
+    ViewData["Title"] = "Produce Details";
+    bool isSaved = ViewBag.IsSaved;
+    bool isSubscribed = ViewBag.IsSubscribed;
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/BuyerMarketplace" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span> Back to Marketplace
+        </a>
+        <h2 class="text-success">Produce Specifications</h2>
+        <p class="text-muted mb-0">Review yield metrics and farmer profile before placing purchase orders.</p>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <span class="material-icons-round align-middle me-1">error</span> @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="row g-4">
+    <!-- LEFT SIDE: Crop Image Frame -->
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-light text-center" style="height: 350px;">
+            <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/uploads/defaults/crop.jpg" : Model.ImagePath)" 
+                 class="img-fluid" 
+                 style="object-fit: cover; width: 100%; height: 100%;" 
+                 alt="@Model.Harvest.CropCycle.Crop.CropName" />
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Crop Details & Order panel -->
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <!-- Wishlist heart toggle -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 mb-2">Verified Fresh Yield</span>
+                        <h2 class="text-dark fw-bold mb-1">@Model.Harvest.CropCycle.Crop.CropName</h2>
+                        <span class="text-muted d-block small">Category: @(Model.Harvest.CropCycle.Crop.Season ?? "All Season")</span>
+                    </div>
+
+                    <!-- Heart toggle action -->
+                    <form asp-action="ToggleWishlist" asp-controller="BuyerMarketplace" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="cropId" value="@Model.Harvest.CropCycle.CropId" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                        <button type="submit" class="btn btn-outline-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            @if (isSaved)
+                            {
+                                <span class="material-icons-round text-danger">favorite</span>
+                            }
+                            else
+                            {
+                                <span class="material-icons-round text-muted">favorite_border</span>
+                            }
+                        </button>
+                    </form>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 my-3">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Price Per Unit</span>
+                            <strong class="text-success fs-3">₹@Model.PricePerUnit / @Model.Unit</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted small d-block">Available Stock</span>
+                            <strong class="text-dark fs-3">@Model.AvailableQuantity @Model.Unit</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Farmer Profile Card -->
+                <div class="border rounded-3 p-3 mb-4">
+                    <h6 class="fw-bold text-dark mb-2 d-flex align-items-center gap-1">
+                        <span class="material-icons-round text-success font-size-sm">person</span>
+                        Farmer Profile
+                    </h6>
+                    <div class="small">
+                        <p class="mb-1 text-dark">Name: <strong>@Model.Harvest.CropCycle.LandPlot.Farm.Farmer.FullName</strong></p>
+                        <p class="mb-1 text-muted">Mobile: <strong>@Model.Harvest.CropCycle.LandPlot.Farm.Farmer.MobileNumber</strong></p>
+                        <p class="mb-0 text-muted">Village: <strong>@Model.Harvest.CropCycle.LandPlot.Farm.Village, @Model.Harvest.CropCycle.LandPlot.Farm.District</strong></p>
+                    </div>
+                </div>
+
+                <!-- Technical yield spec details -->
+                <div class="row g-3 mb-4 small text-muted">
+                    <div class="col-6">Sowing Date: <strong>@Model.Harvest.CropCycle.SowingDate.ToString("dd MMMM yyyy")</strong></div>
+                    <div class="col-6">Harvest Date: <strong>@Model.Harvest.HarvestDate.ToString("dd MMMM yyyy")</strong></div>
+                    <div class="col-6">Expected Quality Grade: <strong>Grade A (Premium)</strong></div>
+                    <div class="col-6">Listed On: <strong>@Model.ListedDate.ToString("dd-MM-yyyy")</strong></div>
+                </div>
+            </div>
+
+            <!-- ORDER FORM PANEL -->
+            <div class="border-top pt-4">
+                @if (Model.AvailableQuantity == 0)
+                {
+                    <div class="p-3 bg-danger-subtle text-danger rounded-3 small mb-3">
+                        This item is currently out of stock. You can subscribe to be notified when the farmer lists new inventory.
+                    </div>
+                    <form asp-action="ToggleNotifyMe" asp-controller="BuyerMarketplace" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="cropId" value="@Model.Harvest.CropCycle.CropId" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                        <button type="submit" class="btn @(isSubscribed ? "btn-secondary" : "btn-warning") w-100 rounded-pill py-2.5 fw-bold d-flex align-items-center justify-content-center gap-1">
+                            <span class="material-icons-round">notifications</span>
+                            @(isSubscribed ? "Cancel Stock Notification" : "Notify Me When Available")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="PlaceOrder" asp-controller="BuyerOrder" method="get" class="row g-2 align-items-center">
+                        <input type="hidden" name="listingId" value="@Model.ListingId" />
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-dark fw-bold border-end-0 rounded-start-3">Quantity</span>
+                                <input type="number" step="0.01" min="0.01" max="@Model.AvailableQuantity" name="quantity" value="10.00" class="form-control text-center fw-bold rounded-end-3" required />
+                            </div>
+                        </div>
+                        <div class="col-sm-2 text-center text-muted small fw-bold uppercase">
+                            @Model.Unit
+                        </div>
+                        <div class="col-sm-5">
+                            <button type="submit" class="btn btn-success w-100 rounded-pill py-2.5 fw-bold d-flex align-items-center justify-content-center gap-1">
+                                <span class="material-icons-round">shopping_cart</span> Buy Now
+                            </button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

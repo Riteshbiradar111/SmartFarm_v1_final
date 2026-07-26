@@ -1,0 +1,329 @@
+@model SmartFarmMVC.Models.ViewModels.FarmerProfileViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "My Profile";
+}
+
+@section Styles {
+	<style>
+		.profile-container {
+			padding: 2rem;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		.profile-header {
+			margin-bottom: 2rem;
+		}
+
+		.profile-header h1 {
+			font-size: 1.75rem;
+			font-weight: 600;
+			color: #1e293b;
+			margin-bottom: 0.5rem;
+		}
+
+		.profile-header p {
+			color: #64748b;
+			font-size: 0.95rem;
+		}
+
+		.profile-grid {
+			display: grid;
+			grid-template-columns: 450px 1fr;
+			gap: 2rem;
+		}
+
+		.profile-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+			padding: 2rem;
+		}
+
+		.profile-picture-section {
+			text-align: center;
+			margin-bottom: 2rem;
+			padding-bottom: 2rem;
+			border-bottom: 1px solid #f1f5f9;
+		}
+
+		.profile-avatar {
+			width: 140px;
+			height: 140px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 3rem;
+			font-weight: 600;
+			margin: 0 auto 1rem;
+			box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+		}
+
+		.profile-upload {
+			margin-top: 1rem;
+		}
+
+		.profile-upload-label {
+			display: inline-block;
+			padding: 0.5rem 1rem;
+			background: #f8fafc;
+			border: 1px dashed #cbd5e1;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 0.85rem;
+			color: #475569;
+			transition: all 0.2s;
+		}
+
+		.profile-upload-label:hover {
+			background: #f1f5f9;
+			border-color: #10b981;
+			color: #10b981;
+		}
+
+		.profile-upload input {
+			display: none;
+		}
+
+		.upload-hint {
+			font-size: 0.75rem;
+			color: #94a3b8;
+			margin-top: 0.5rem;
+		}
+
+		.card-section-title {
+			font-size: 1.15rem;
+			font-weight: 600;
+			color: #1e293b;
+			margin-bottom: 1.5rem;
+			padding-bottom: 0.75rem;
+			border-bottom: 1px solid #f1f5f9;
+		}
+
+		.form-group {
+			margin-bottom: 1.25rem;
+		}
+
+		.form-label {
+			font-size: 0.85rem;
+			font-weight: 500;
+			color: #475569;
+			margin-bottom: 0.5rem;
+			display: block;
+		}
+
+		.form-required {
+			color: #ef4444;
+		}
+
+		.form-control {
+			width: 100%;
+			padding: 0.75rem;
+			border: 1px solid #e2e8f0;
+			border-radius: 8px;
+			font-size: 0.95rem;
+			transition: all 0.2s;
+		}
+
+		.form-control:focus {
+			outline: none;
+			border-color: #10b981;
+			box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1rem;
+		}
+
+		.form-row-3 {
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr;
+			gap: 1rem;
+		}
+
+		.section-divider {
+			margin: 2rem 0;
+			border-bottom: 1px solid #f1f5f9;
+		}
+
+		.action-buttons {
+			display: flex;
+			gap: 1rem;
+			justify-content: flex-end;
+			margin-top: 2rem;
+			padding-top: 2rem;
+			border-top: 1px solid #f1f5f9;
+		}
+
+		.btn {
+			padding: 0.75rem 2rem;
+			border-radius: 8px;
+			font-size: 0.95rem;
+			font-weight: 500;
+			border: none;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.btn-primary {
+			background: #10b981;
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background: #059669;
+			box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+		}
+
+		.btn-secondary {
+			background: #f1f5f9;
+			color: #475569;
+		}
+
+		.btn-secondary:hover {
+			background: #e2e8f0;
+		}
+
+		.alert {
+			padding: 1rem;
+			border-radius: 8px;
+			margin-bottom: 1.5rem;
+		}
+
+		.alert-success {
+			background: #ecfdf5;
+			color: #065f46;
+			border: 1px solid #a7f3d0;
+		}
+
+		.alert-danger {
+			background: #fef2f2;
+			color: #991b1b;
+			border: 1px solid #fecaca;
+		}
+
+		@@media (max-width: 1024px) {
+			.profile-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+}
+
+<div class="profile-container">
+	<div class="profile-header">
+		<h1>My Profile</h1>
+		<p>Manage your personal information, specialization, and contact details</p>
+	</div>
+
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success">
+			@TempData["SuccessMessage"]
+		</div>
+	}
+	@if (TempData["ErrorMessage"] != null)
+	{
+		<div class="alert alert-danger">
+			@TempData["ErrorMessage"]
+		</div>
+	}
+
+	<form asp-action="Profile" method="post">
+		@Html.AntiForgeryToken()
+
+		<div class="profile-grid">
+			<!-- Left Column -->
+			<div>
+				<div class="profile-card">
+					<div class="profile-picture-section">
+						<h3 class="card-section-title" style="border: none; padding: 0; margin-bottom: 1.5rem;">Profile Picture</h3>
+						<div class="profile-avatar">
+							@ViewData["UserInitials"]
+						</div>
+					</div>
+
+					<h3 class="card-section-title">Change Password</h3>
+					<p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">
+						Leave blank if you do not want to change your password.
+					</p>
+
+					<div class="form-group">
+						<label class="form-label">Current Password</label>
+						<input type="password" class="form-control" placeholder="Enter current password" />
+					</div>
+
+					<div class="form-group">
+						<label asp-for="NewPassword" class="form-label">New Password</label>
+						<input asp-for="NewPassword" type="password" class="form-control" placeholder="Min. 6 characters" />
+						<span asp-validation-for="NewPassword" class="text-danger" style="font-size: 0.8rem;"></span>
+					</div>
+
+					<div class="form-group">
+						<label asp-for="ConfirmNewPassword" class="form-label">Confirm New Password</label>
+						<input asp-for="ConfirmNewPassword" type="password" class="form-control" placeholder="Re-enter new password" />
+						<span asp-validation-for="ConfirmNewPassword" class="text-danger" style="font-size: 0.8rem;"></span>
+					</div>
+
+					<div class="action-buttons">
+						<button type="button" class="btn btn-secondary" onclick="window.location.reload()">
+							Reset Fields
+						</button>
+						<button type="submit" class="btn btn-primary">
+							Update Profile
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Column -->
+			<div>
+				<div class="profile-card">
+					<h3 class="card-section-title">Basic Information</h3>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label asp-for="FullName" class="form-label">
+								Full Name <span class="form-required">*</span>
+							</label>
+							<input asp-for="FullName" class="form-control" required />
+							<span asp-validation-for="FullName" class="text-danger" style="font-size: 0.8rem;"></span>
+						</div>
+
+						<div class="form-group">
+							<label asp-for="MobileNumber" class="form-label">
+								Mobile Number <span class="form-required">*</span>
+							</label>
+							<input asp-for="MobileNumber" class="form-control" required />
+							<span asp-validation-for="MobileNumber" class="text-danger" style="font-size: 0.8rem;"></span>
+						</div>
+					</div>
+
+					<div class="section-divider"></div>
+					<h4 style="font-size: 1rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem;">Expertise & Qualifications</h4>
+
+					<div class="form-group">
+						<label for="Specialization" class="form-label">
+							Specialization & Certifications <span class="form-required">*</span>
+						</label>
+						<input type="text" id="Specialization" name="Specialization" class="form-control" value="@ViewBag.Specialization" placeholder="e.g. Soil Science, Crop Pathology, Integrated Pest Management" required />
+						<div style="margin-top: 0.5rem; padding: 0.75rem; background: #ecfdf5; border-left: 3px solid #10b981; border-radius: 4px; font-size: 0.85rem; color: #065f46;">
+							<strong>Note:</strong> Your specialization helps in matching you with relevant farmer requests and crop advisory assignments.
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+@section Scripts {
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

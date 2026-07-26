@@ -1,0 +1,42 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.LandPlot
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Delete Land Plot";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/LandPlot" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Plots
+        </a>
+        <h2 class="text-danger">Delete Plot Confirmation</h2>
+        <p class="text-muted">Are you sure you want to delete this plot? This action cannot be undone.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600 border-start border-danger border-4">
+    <div class="card-body p-4">
+        <h4 class="text-danger mb-3 fw-semibold">Delete Warning</h4>
+        <p class="text-dark">
+            Deleting the plot <strong>"@Model.PlotName"</strong> will delete all crop cycle history and reports recorded for this plot.
+        </p>
+
+        <div class="mt-4 border-top pt-3">
+            <h5 class="text-muted small mb-2">Plot Specifications:</h5>
+            <ul class="text-muted small ps-3">
+                <li>Associated Farm: @Model.Farm.FarmName (@Model.Farm.Village)</li>
+                <li>Size: @Model.Area @Model.AreaUnit</li>
+                <li>Coordinates: @Model.Latitude, @Model.Longitude</li>
+            </ul>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.PlotId" method="post" class="mt-4">
+            @Html.AntiForgeryToken()
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/LandPlot" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-3 px-4">Confirm Delete</button>
+            </div>
+        </form>
+    </div>
+</div>

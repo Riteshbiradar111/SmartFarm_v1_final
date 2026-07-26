@@ -1,0 +1,712 @@
+﻿@{
+    ViewData["Title"] = "Smart Farm & Crop Yield Management System";
+    ViewData["Description"] = "Manage farms, crop planning, weather insights, disease tracking, harvest management and produce sales through one integrated platform.";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+}
+
+<!-- Sticky Header Navigation -->
+<partial name="_Header" />
+
+<!-- ============================================================
+     HERO SECTION
+============================================================ -->
+<section class="hero" id="home">
+    <!-- Full-width background image -->
+    <div class="hero-bg">
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=90"
+             alt="Green farm fields aerial view" />
+        <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Centered hero content -->
+    <div class="hero-center">
+        <div class="hero-badge">
+            <span class="material-icons">verified</span>
+            Trusted by 1500+ Farmers Across India
+        </div>
+        <h1 class="hero-title">
+            Smart Farming <br />
+            <span class="hero-highlight">Through Technology</span>
+        </h1>
+        <p class="hero-subtitle">
+            Manage farms, crop planning, weather insights, disease tracking,
+            harvest management and produce sales through one integrated platform.
+        </p>
+        <div class="hero-actions">
+            <a href="@Url.Action("ChooseType", "Register")" class="btn btn-hero-primary" id="btn-get-started">
+                <span class="material-icons">rocket_launch</span>
+                Get Started
+            </a>
+            <a href="#features" class="btn btn-hero-outline">
+                <span class="material-icons">explore</span>
+                Explore Features
+            </a>
+        </div>
+
+        <!-- Quick sensor info strip -->
+        <div class="hero-sensor-strip">
+            <div class="sensor-item">
+                <span class="material-icons">water_drop</span>
+                <span>Soil Moisture <strong>72%</strong></span>
+            </div>
+            <div class="sensor-sep"></div>
+            <div class="sensor-item">
+                <span class="material-icons">thermostat</span>
+                <span>Temperature <strong>28°C</strong></span>
+            </div>
+            <div class="sensor-sep"></div>
+            <div class="sensor-item">
+                <span class="material-icons">grain</span>
+                <span>Soil pH <strong>6.8</strong></span>
+            </div>
+            <div class="sensor-sep"></div>
+            <div class="sensor-item">
+                <span class="material-icons">sensors</span>
+                <span>IoT Status <strong class="status-live">● Live</strong></span>
+            </div>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="stat-number">1500+</span>
+                <span class="stat-label">Active Farmers</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+                <span class="stat-number">5000+</span>
+                <span class="stat-label">Acres Managed</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+                <span class="stat-number">3000+</span>
+                <span class="stat-label">Harvests Recorded</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+                <span class="stat-number">1000+</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f8faf7" />
+        </svg>
+    </div>
+</section>
+
+<!-- ============================================================
+     FEATURES SECTION
+============================================================ -->
+<section class="features" id="features">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-badge">Core Modules</span>
+            <h2 class="section-title">Everything You Need to Manage Your Farm</h2>
+            <p class="section-subtitle">
+                Six powerful modules designed specifically for modern agriculture —
+                from land mapping to produce sales.
+            </p>
+        </div>
+        <div class="features-grid">
+
+            <!-- Card 1 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500&q=80" alt="Farm land mapping" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">map</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-1">
+                        <span class="material-icons">landscape</span>
+                    </div>
+                    <h3>Farm Registration &amp; Land Plot Mapping</h3>
+                    <p>Register farms, define land plots with GPS coordinates, soil type, and area in acres. Full land ownership tracking.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500&q=80" alt="Crop planning" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">event_note</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-2">
+                        <span class="material-icons">grass</span>
+                    </div>
+                    <h3>Crop Planning &amp; Sowing Schedule</h3>
+                    <p>Plan crop cycles, schedule sowing and expected harvest dates. Track crop stages and manage variety selections.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=500&q=80" alt="Soil and weather monitoring" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">sensors</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-3">
+                        <span class="material-icons">cloud</span>
+                    </div>
+                    <h3>Soil &amp; Weather Monitoring</h3>
+                    <p>Real-time IoT sensor data for soil moisture, temperature, pH levels, and rainfall. Automated alerts for anomalies.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500&q=80" alt="Pest and disease tracking" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">pest_control</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-4">
+                        <span class="material-icons">bug_report</span>
+                    </div>
+                    <h3>Pest &amp; Disease Tracking</h3>
+                    <p>Report, track and manage pest incidents by severity. Get agronomist recommendations and treatment logs.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=500&q=80" alt="Harvest and produce sales" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">shopping_cart</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-5">
+                        <span class="material-icons">storefront</span>
+                    </div>
+                    <h3>Harvest Yield &amp; Produce Sales</h3>
+                    <p>Log harvest quantities, list produce for sale, manage buyer transactions, and track market pricing per unit.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80" alt="Reports and analytics" />
+                    <div class="feature-img-overlay">
+                        <span class="material-icons feature-overlay-icon">analytics</span>
+                    </div>
+                </div>
+                <div class="feature-card-body">
+                    <div class="feature-icon-wrap green-6">
+                        <span class="material-icons">bar_chart</span>
+                    </div>
+                    <h3>Reports &amp; Analytics</h3>
+                    <p>Comprehensive dashboards with yield predictions, financial summaries, soil health trends and productivity insights.</p>
+                    <a href="@Url.Action("ChooseType", "Register")" class="feature-link">
+                        Learn More <span class="material-icons">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS
+============================================================ -->
+<section class="how-it-works" id="how-it-works">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-badge light">Simple Steps</span>
+            <h2 class="section-title white">How It Works</h2>
+            <p class="section-subtitle white">
+                Get started in minutes. Our platform guides you through every step
+                of the farming journey.
+            </p>
+        </div>
+        <div class="steps-wrap">
+            <div class="steps-line"></div>
+            <div class="steps-grid">
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">how_to_reg</span>
+                        <span class="step-number">1</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Register</h3>
+                        <p>Create your account as Farmer — Farmer.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">add_location_alt</span>
+                        <span class="step-number">2</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Add Farm Information</h3>
+                        <p>Register your farm details, land plots, soil types and GPS boundaries on the platform.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">event</span>
+                        <span class="step-number">3</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Plan Crops</h3>
+                        <p>Create crop cycles, select varieties, set sowing schedules and expected harvest timelines.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">monitor_heart</span>
+                        <span class="step-number">4</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Monitor Conditions</h3>
+                        <p>Track real-time soil moisture, temperature, pH, rainfall and receive automated smart alerts.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">agriculture</span>
+                        <span class="step-number">5</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Track Harvest</h3>
+                        <p>Log your harvest records, actual yields versus forecasted, and manage post-harvest storage.</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle">
+                        <span class="material-icons">sell</span>
+                        <span class="step-number">6</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Sell Produce</h3>
+                        <p>List your produce in the marketplace, connect with buyers, and track sales transactions.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     BENEFITS SECTION
+============================================================ -->
+<section class="benefits" id="benefits">
+    <div class="section-container">
+        <div class="benefits-layout">
+            <div class="benefits-image-col">
+                <div class="benefits-img-stack">
+                    <img src="https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=600&q=85"
+                         alt="Farmer using tablet in field"
+                         class="benefits-img-main" />
+                    <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=300&q=80"
+                         alt="Smart irrigation system"
+                         class="benefits-img-secondary" />
+                    <div class="benefits-img-badge">
+                        <span class="material-icons">trending_up</span>
+                        <div>
+                            <strong>40% Yield Increase</strong>
+                            <span>Average across users</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="benefits-content-col">
+                <span class="section-badge">Why SmartFarm</span>
+                <h2 class="section-title left">Benefits of Using Our Platform</h2>
+                <p class="section-subtitle left">
+                    Thousands of farmers, agronomists and cooperatives are already
+                    transforming their operations using our integrated system.
+                </p>
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>Increased Productivity</h4>
+                            <p>Streamlined farm workflows reduce manual work by up to 60%, freeing time for critical decisions.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <span class="material-icons">precision_manufacturing</span>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>Smart Farming Technology</h4>
+                            <p>IoT-enabled soil sensors and weather integrations provide data-driven decision support at every stage.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <span class="material-icons">assessment</span>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>Better Yield Prediction</h4>
+                            <p>Historical crop data and sensor analytics forecast expected yields with high accuracy before harvest.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <span class="material-icons">water</span>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>Efficient Resource Usage</h4>
+                            <p>Optimized irrigation schedules, fertilizer recommendations and crop rotation reduce input costs significantly.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <span class="material-icons">wifi_tethering</span>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>Real-Time Monitoring</h4>
+                            <p>Continuous live dashboards for every field — soil health, weather, pest incidents and harvest status.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     STATISTICS SECTION
+============================================================ -->
+<section class="stats-section">
+    <div class="stats-bg-img">
+        <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1400&q=75" alt="Aerial farm view background" />
+        <div class="stats-overlay"></div>
+    </div>
+    <div class="section-container stats-container">
+        <div class="stats-header">
+            <h2>Our Impact in Numbers</h2>
+            <p>Real results from real farmers using the SmartFarm platform every day.</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="material-icons stat-icon">people</span>
+                <div class="stat-value">1,500<span>+</span></div>
+                <div class="stat-label">Active Farmers</div>
+                <div class="stat-desc">Registered across 12 states in India</div>
+            </div>
+            <div class="stat-card">
+                <span class="material-icons stat-icon">crop_square</span>
+                <div class="stat-value">5,000<span>+</span></div>
+                <div class="stat-label">Acres Managed</div>
+                <div class="stat-desc">Land plots registered on the platform</div>
+            </div>
+            <div class="stat-card">
+                <span class="material-icons stat-icon">inventory_2</span>
+                <div class="stat-value">3,000<span>+</span></div>
+                <div class="stat-label">Harvest Records</div>
+                <div class="stat-desc">Season-wise crop yields logged and tracked</div>
+            </div>
+            <div class="stat-card">
+                <span class="material-icons stat-icon">verified_user</span>
+                <div class="stat-value">1,000<span>+</span></div>
+                <div class="stat-label">Active Users</div>
+                <div class="stat-desc">Farmers, agronomists, officers and buyers</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+============================================================ -->
+<section class="testimonials" id="testimonials">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-badge">Success Stories</span>
+            <h2 class="section-title">What Our Farmers Say</h2>
+            <p class="section-subtitle">
+                Real experiences from farmers and agronomists across India who
+                transformed their operations with SmartFarm.
+            </p>
+        </div>
+        <div class="testimonials-grid">
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "SmartFarm changed how I manage my 12-acre cotton farm in Vidarbha.
+                    The soil monitoring alerts helped me save my crop from a drought
+                    situation by triggering irrigation on time."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Ramesh Patil"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Ramesh Patil</strong>
+                        <span>Cotton Farmer · Yavatmal, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card featured">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "The pest incident tracking module helped my agronomist team detect
+                    early signs of leaf blight across 5 farms simultaneously. We
+                    reduced crop loss by 35% compared to last season."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Dr. Anjali Sharma"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Dr. Anjali Sharma</strong>
+                        <span>Senior Agronomist · Nashik, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "Managing produce sales was always a challenge. With SmartFarm's
+                    marketplace, I listed my sugarcane yield and got connected with 3
+                    buyers within 48 hours of harvesting."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Suresh Kumar"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Suresh Kumar Reddy</strong>
+                        <span>Sugarcane Farmer · Kolhapur, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "As a cooperative manager overseeing 80+ member farms, this
+                    platform is a lifesaver. The analytics dashboard gives me a
+                    consolidated view of all farm activities instantly."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Vinayak Deshmukh"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Vinayak Deshmukh</strong>
+                        <span>Cooperative Manager · Pune, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "Crop cycle planning used to be done on paper. Now with SmartFarm
+                    I manage sowing schedules for 6 plots and the system reminds me
+                    automatically of key milestones every season."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Meena Devi"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Meena Devi</strong>
+                        <span>Vegetable Farmer · Nashik, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    <span class="material-icons quote-icon">format_quote</span>
+                </div>
+                <p class="testimonial-text">
+                    "As a field officer visiting 20+ farms each month, having all farm
+                    data in one system with offline logging capability saves hours of
+                    manual reporting every week."
+                </p>
+                <div class="testimonial-author">
+                    <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&h=80&fit=crop&crop=face&q=80"
+                         alt="Arun Nair"
+                         class="testimonial-avatar" />
+                    <div class="author-info">
+                        <strong>Arun Nair</strong>
+                        <span>Field Officer · Wardha, Maharashtra</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FAQ SECTION
+============================================================ -->
+<section class="faq-section" id="faq">
+    <div class="section-container">
+        <div class="faq-layout">
+            <div class="faq-left">
+                <span class="section-badge">Got Questions?</span>
+                <h2 class="section-title left">Frequently Asked Questions</h2>
+                <p class="section-subtitle left">
+                    Everything you need to know about SmartFarm platform before
+                    getting started.
+                </p>
+                <img src="https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=450&q=80"
+                     alt="Farmer in wheat field"
+                     class="faq-image" />
+            </div>
+            <div class="faq-right">
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-1" aria-expanded="false" aria-controls="faq-ans-1">
+                        <span>Who can use the SmartFarm platform?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-1" role="region" aria-labelledby="faq-btn-1">
+                        <p>SmartFarm is designed for Farmers, Agronomists, Field Officers, Cooperative Managers, Buyers, and Administrators. Each role gets a dedicated dashboard with relevant tools and access permissions.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-2" aria-expanded="false" aria-controls="faq-ans-2">
+                        <span>Is this platform available on mobile devices?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-2" role="region" aria-labelledby="faq-btn-2">
+                        <p>Yes, SmartFarm is fully responsive and works on all devices including smartphones, tablets, and desktops.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-3" aria-expanded="false" aria-controls="faq-ans-3">
+                        <span>How does soil and weather monitoring work?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-3" role="region" aria-labelledby="faq-btn-3">
+                        <p>IoT soil sensors installed in your fields continuously send readings to our platform. You can view moisture, temperature, pH, and rainfall data in real-time. Automated alerts notify you when values go outside optimal thresholds.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-4" aria-expanded="false" aria-controls="faq-ans-4">
+                        <span>Can I sell my produce directly through this platform?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-4" role="region" aria-labelledby="faq-btn-4">
+                        <p>Yes! After logging your harvest, you can list your produce in the integrated marketplace. Verified buyers on the platform can browse listings, negotiate, and initiate purchase transactions directly.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-5" aria-expanded="false" aria-controls="faq-ans-5">
+                        <span>Is my farm data secure and private?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-5" role="region" aria-labelledby="faq-btn-5">
+                        <p>Absolutely. All data is stored on secured SQL Server databases with role-based access control. Only you and authorized users in your cooperative or organization can view your farm information.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" id="faq-btn-6" aria-expanded="false" aria-controls="faq-ans-6">
+                        <span>How do I get started?</span>
+                        <span class="material-icons faq-arrow">expand_more</span>
+                    </button>
+                    <div class="faq-answer" id="faq-ans-6" role="region" aria-labelledby="faq-btn-6">
+                        <p>Click the Register button, fill in your details and select your role. Once registered, your account is verified and you can start adding farm information, planning crops, and using all platform features immediately.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     CTA SECTION
+============================================================ -->
+<section class="cta-section">
+    <div class="cta-bg">
+        <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1400&q=75" alt="Farm field sunset" />
+        <div class="cta-overlay"></div>
+    </div>
+    <div class="section-container cta-content">
+        <h2>Ready to Transform Your Farm?</h2>
+        <p>Join 1,500+ farmers already using SmartFarm to increase yields, reduce costs, and manage their operations with confidence.</p>
+        <div class="cta-actions">
+            <a href="@Url.Action("ChooseType", "Register")" class="btn btn-hero-primary" id="btn-start-free">
+                <span class="material-icons">rocket_launch</span>
+                Start for Free
+            </a>
+            <a href="~/Auth/Login" class="btn btn-hero-outline" id="btn-sign-in">
+                <span class="material-icons">login</span>
+                Sign In
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Sticky Footer -->
+<partial name="_Footer" />
+
+@section Scripts {
+    <script src="~/js/main.js" asp-append-version="true"></script>
+}

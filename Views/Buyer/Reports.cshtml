@@ -1,0 +1,116 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>
+@{
+    Layout = "_BuyerLayout";
+    ViewData["Title"] = "Procurement Reports";
+}
+
+<div class="row mb-4 no-print">
+    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="text-success mb-1">Procurement &amp; Financial Reports</h2>
+            <p class="text-muted mb-0">Review historical procurement dispatches, spending indexes, and print billing audits.</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-success d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm">
+            <span class="material-icons-round">print</span> Print Reports Summary
+        </button>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mb-4 no-print">@TempData["ErrorMessage"]</div>
+}
+
+<!-- Printable Report Summary block -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 printable-section">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="text-dark fw-bold mb-0">Procurement Transaction History</h5>
+        <span class="text-muted small">Report generated on: <strong>@DateTime.Now.ToString("dd-MM-yyyy HH:mm")</strong></span>
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <span class="material-icons-round text-muted" style="font-size: 3rem;">receipt_long</span>
+                <p class="mb-0 mt-2 fw-semibold">No Transactions Found</p>
+                <p class="small">Submit an order request first to populate reports.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4">Invoice No</th>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Produce</th>
+                            <th>Volume</th>
+                            <th>Farmer Supplier</th>
+                            <th>Rate</th>
+                            <th>Total Billed</th>
+                            <th>Fulfillment Status</th>
+                            <th class="pe-4 text-end no-print">Invoice Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model)
+                        {
+                            string cropName = o.CropListing != null
+                                ? o.CropListing.Harvest.CropCycle.Crop.CropName
+                                : o.Harvest.CropCycle.Crop.CropName;
+
+                            string unit = o.CropListing != null
+                                ? o.CropListing.Unit
+                                : o.Harvest.Unit;
+
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">@o.InvoiceNumber</td>
+                                <td>#@o.OrderId</td>
+                                <td class="small">@o.OrderDate.ToString("dd-MM-yyyy")</td>
+                                <td class="fw-bold text-primary">@cropName</td>
+                                <td>@o.Quantity.ToString("0.00") @unit</td>
+                                <td>@o.Farmer.FullName</td>
+                                <td>₹@o.PricePerUnit.ToString("0.00") / @unit</td>
+                                <td class="fw-bold text-success">₹@o.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge @(o.Status == "Delivered" ? "bg-success" : (o.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary")) rounded-pill px-2.5 py-1">@o.Status</span>
+                                </td>
+                                <td class="pe-4 text-end no-print">
+                                    <a href="~/BuyerOrder/Invoice/@o.OrderId" target="_blank" class="btn btn-sm btn-outline-success rounded-3 px-3">View PDF</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Print-Only Page Stylesheet helper -->
+<style>
+    @@media print {
+        .no-print, aside, header, .navbar, .sidebar-wrapper, .btn {
+            display: none !important;
+        }
+
+        body {
+            padding: 0;
+            background-color: white;
+            color: black;
+        }
+
+        .printable-section {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .table th {
+            background-color: #f8f9fa !important;
+            color: black !important;
+        }
+    }
+</style>

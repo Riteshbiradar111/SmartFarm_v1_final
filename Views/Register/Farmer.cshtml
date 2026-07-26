@@ -1,0 +1,255 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.FarmerRegistrationViewModel
+@{
+    ViewData["Title"] = "Farmer Registration";
+    ViewData["Description"] = "Register as a farmer on SmartFarm to manage your farms, crops, and connect with buyers.";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
+}
+
+<!-- ===== TOP NAVIGATION BAR ===== -->
+<div class="reg-topbar">
+    <a href="@Url.Action("Index", "Home")" class="reg-topbar-logo">
+        <span class="material-icons">eco</span>
+        <div class="reg-topbar-logo-text">
+            <span class="brand-name">SmartFarm</span>
+            <span class="brand-sub">Crop Yield Management System</span>
+        </div>
+    </a>
+    <a href="@Url.Action("Login", "Auth")" class="reg-topbar-login">
+        <span class="material-icons">login</span>
+        Already registered? Login
+    </a>
+</div>
+
+<!-- ===== FARMER REGISTRATION FORM ===== -->
+<div class="reg-page farmer-bg">
+    <div class="reg-form-card">
+
+        <!-- Back link -->
+        <a href="@Url.Action("ChooseType", "Register")" class="reg-back-link">
+            <span class="material-icons">arrow_back</span>
+            Back to Registration Type
+        </a>
+
+        <!-- Form header -->
+        <div class="reg-form-header">
+            <div class="reg-form-icon green">
+                <span class="material-icons">agriculture</span>
+            </div>
+            <span class="reg-role-badge green">Farmer Account</span>
+            <h2>Create Your Farmer Account</h2>
+            <p>Fill in the details below to get started with SmartFarm</p>
+        </div>
+
+        <!-- Error message (shown when validation fails) -->
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="reg-alert error">
+                <span class="material-icons">error_outline</span>
+                @ViewData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Farmer Registration Form -->
+        <form method="post" asp-action="Farmer" asp-controller="Register" novalidate>
+
+            <!-- Row 1: Full Name + Email -->
+            <div class="form-row-2">
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="FullName">
+                        <span class="material-icons">badge</span>
+                        Full Name
+                    </label>
+                    <input type="text"
+                           asp-for="FullName"
+                           id="fullName"
+                           class="form-input"
+                           placeholder="e.g. Ramesh Patil"
+                           required />
+                    <span asp-validation-for="FullName" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Email">
+                        <span class="material-icons">email</span>
+                        Email Address
+                    </label>
+                    <input type="email"
+                           asp-for="Email"
+                           id="email"
+                           class="form-input"
+                           placeholder="you@example.com"
+                           required />
+                    <span asp-validation-for="Email" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+            </div>
+
+            <!-- Row 2: Phone + Username -->
+            <div class="form-row-2">
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="MobileNumber">
+                        <span class="material-icons">phone_android</span>
+                        Phone Number
+                    </label>
+                    <input type="tel"
+                           asp-for="MobileNumber"
+                           id="phone"
+                           class="form-input"
+                           placeholder="10 digit number"
+                           required
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                    <span asp-validation-for="MobileNumber" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Username">
+                        <span class="material-icons">alternate_email</span>
+                        Username
+                    </label>
+                    <input type="text"
+                           asp-for="Username"
+                           id="username"
+                           class="form-input"
+                           placeholder="e.g. ramesh_farm"
+                           required />
+                    <span asp-validation-for="Username" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+            </div>
+
+            <!-- Row 3: Password + Confirm Password -->
+            <div class="form-row-2">
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Password">
+                        <span class="material-icons">lock_outline</span>
+                        Password
+                    </label>
+                    <div class="input-wrap">
+                        <input type="password"
+                               asp-for="Password"
+                               id="regPassword"
+                               class="form-input"
+                               placeholder="Min. 6 characters"
+                               required />
+                        <button type="button" class="toggle-password" id="toggleRegPassword" aria-label="Show password">
+                            <span class="material-icons" id="regEyeIcon">visibility_off</span>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="ConfirmPassword">
+                        <span class="material-icons">lock</span>
+                        Confirm Password
+                    </label>
+                    <div class="input-wrap">
+                        <input type="password"
+                               asp-for="ConfirmPassword"
+                               id="confirmPassword"
+                               class="form-input"
+                               placeholder="Repeat your password"
+                               required />
+                        <button type="button" class="toggle-password" id="toggleConfirmPassword" aria-label="Show confirm password">
+                            <span class="material-icons" id="confirmEyeIcon">visibility_off</span>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+            </div>
+
+            <!-- Row 4: Address Fields (Village, District, State, Pincode) -->
+            <div class="form-row-2">
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Village">
+                        <span class="material-icons">location_city</span>
+                        Village
+                    </label>
+                    <input type="text"
+                           asp-for="Village"
+                           id="village"
+                           class="form-input"
+                           placeholder="e.g. Satara"
+                           required />
+                    <span asp-validation-for="Village" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="District">
+                        <span class="material-icons">map</span>
+                        District
+                    </label>
+                    <input type="text"
+                           asp-for="District"
+                           id="district"
+                           class="form-input"
+                           placeholder="e.g. Satara"
+                           required />
+                    <span asp-validation-for="District" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+            </div>
+
+            <!-- Row 5: State + Pincode -->
+            <div class="form-row-2">
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="State">
+                        <span class="material-icons">flag</span>
+                        State
+                    </label>
+                    <input type="text"
+                           asp-for="State"
+                           id="state"
+                           class="form-input"
+                           placeholder="e.g. Maharashtra"
+                           required />
+                    <span asp-validation-for="State" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Pincode">
+                        <span class="material-icons">pin_drop</span>
+                        Pincode
+                    </label>
+                    <input type="text"
+                           asp-for="Pincode"
+                           id="pincode"
+                           class="form-input"
+                           placeholder="6-digit pincode"
+                           required
+                           maxlength="6"
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                    <span asp-validation-for="Pincode" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+                </div>
+
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="reg-submit-btn green" id="farmerSubmitBtn">
+                <span class="material-icons">how_to_reg</span>
+                Create Farmer Account
+            </button>
+
+        </form>
+
+        <!-- Bottom note -->
+        <p class="reg-bottom-note">
+            Already have an account?
+            <a href="@Url.Action("Login", "Auth")">Sign in here</a>
+        </p>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

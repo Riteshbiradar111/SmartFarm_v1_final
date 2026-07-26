@@ -1,0 +1,35 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.Farmer
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Farmer Onboarding Verification #{Model?.FarmerId ?? 0}";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title"><span class="material-icons-round">how_to_reg</span> Farmer Onboarding Details: @Model?.FullName</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Full Name</label>
+                <p class="fw-bold">@Model?.FullName</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Mobile Number</label>
+                <p class="fw-bold">@Model?.MobileNumber</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Village &amp; District</label>
+                <p class="fw-bold">@Model?.Village, @Model?.District</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Taluka &amp; State</label>
+                <p class="fw-bold">@Model?.Taluka, @Model?.State</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Account Status</label>
+                <p><span class="badge @(Model?.User != null && Model.User.IsActive ? "bg-success" : "bg-warning text-dark")">@(Model?.User != null && Model.User.IsActive ? "ACTIVE" : "PENDING")</span></p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,189 @@
+﻿@model SmartFarmMVC.Models.ViewModels.FarmerProfileViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-success mb-1">My Digital Profile</h2>
+        <p class="text-muted">Manage your personal details, address information, and account security settings.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible show fade mb-4" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<form asp-action="Profile" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+
+    <div class="row g-4">
+        <!-- Left: Profile picture upload & security -->
+        <div class="col-lg-4 d-flex flex-column gap-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                <h5 class="text-dark fw-bold mb-3 border-bottom pb-2">Profile Picture</h5>
+
+                <div class="mb-3 d-flex justify-content-center">
+                    @if (ViewBag.ProfilePicturePath != null)
+                    {
+                        <img src="@ViewBag.ProfilePicturePath" class="rounded-circle border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" id="profile-preview" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow-sm fs-1" style="width: 150px; height: 150px;">
+                            @ViewData["UserInitials"]
+                        </div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label for="ProfilePicture" class="form-label small text-muted">Upload JPG, PNG or WEBP</label>
+                    <input type="file" asp-for="ProfilePicture" class="form-control rounded-3" accept="image/*" onchange="previewImage(event)" />
+                    <span asp-validation-for="ProfilePicture" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- Password Change Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="text-dark fw-bold mb-3 border-bottom pb-2">Change Password</h5>
+                <p class="text-muted small mb-3">Leave blank if you do not want to change your password.</p>
+
+                <div class="mb-3">
+                    <label asp-for="CurrentPassword" class="form-label fw-semibold text-dark">Current Password</label>
+                    <input asp-for="CurrentPassword" type="password" class="form-control rounded-3" placeholder="Enter current password" />
+                    <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NewPassword" class="form-label fw-semibold text-dark">New Password</label>
+                    <input asp-for="NewPassword" type="password" class="form-control rounded-3" placeholder="Min. 6 characters" />
+                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmNewPassword" class="form-label fw-semibold text-dark">Confirm New Password</label>
+                    <input asp-for="ConfirmNewPassword" type="password" class="form-control rounded-3" placeholder="Re-enter new password" />
+                    <span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Demographic details -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h5 class="text-dark fw-bold mb-3 border-bottom pb-2">Demographic &amp; Address Information</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label fw-semibold text-dark">Full Name *</label>
+                        <input asp-for="FullName" class="form-control rounded-3" required />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MobileNumber" class="form-label fw-semibold text-dark">Mobile Number *</label>
+                        <input asp-for="MobileNumber" class="form-control rounded-3" required />
+                        <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Gender" class="form-label fw-semibold text-dark">Gender</label>
+                        <select asp-for="Gender" class="form-select rounded-3">
+                            <option value="">-- Choose Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="DateOfBirth" class="form-label fw-semibold text-dark">Date of Birth</label>
+                        <input asp-for="DateOfBirth" class="form-control rounded-3" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="EmergencyContact" class="form-label fw-semibold text-dark">Emergency Contact</label>
+                        <input asp-for="EmergencyContact" class="form-control rounded-3" placeholder="Backup phone number" />
+                        <span asp-validation-for="EmergencyContact" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 mt-3 border-top pt-3">
+                        <h6 class="text-success fw-bold mb-2">Address Details</h6>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label fw-semibold text-dark">Address (House / Street / Lane)</label>
+                        <input asp-for="Address" class="form-control rounded-3" placeholder="e.g. Near Shiv Mandir, Main Road" />
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Village" class="form-label fw-semibold text-dark">Village</label>
+                        <input asp-for="Village" class="form-control rounded-3" />
+                        <span asp-validation-for="Village" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Taluka" class="form-label fw-semibold text-dark">Taluka</label>
+                        <input asp-for="Taluka" class="form-control rounded-3" />
+                        <span asp-validation-for="Taluka" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="District" class="form-label fw-semibold text-dark">District</label>
+                        <input asp-for="District" class="form-control rounded-3" />
+                        <span asp-validation-for="District" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="State" class="form-label fw-semibold text-dark">State</label>
+                        <input asp-for="State" class="form-control rounded-3" />
+                        <span asp-validation-for="State" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PinCode" class="form-label fw-semibold text-dark">Pincode</label>
+                        <input asp-for="PinCode" class="form-control rounded-3" maxlength="6" />
+                        <span asp-validation-for="PinCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <button type="reset" class="btn btn-light rounded-3 px-4">Reset Fields</button>
+                    <button type="submit" class="btn btn-success rounded-3 px-4">Update Profile</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var preview = document.getElementById('profile-preview');
+                if (preview) {
+                    preview.src = reader.result;
+                } else {
+                    // Replace fallback avatar div with img element
+                    var container = document.getElementById('ProfilePicture').parentElement.previousElementSibling;
+                    container.innerHTML = `<img src="${reader.result}" class="rounded-circle border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" id="profile-preview" />`;
+                }
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+}

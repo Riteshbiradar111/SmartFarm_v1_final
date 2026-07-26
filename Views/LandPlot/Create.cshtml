@@ -1,0 +1,245 @@
+﻿@model SmartFarmMVC.Models.ViewModels.LandPlotViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Add Land Plot";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/LandPlot" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Plots
+        </a>
+        <h2 class="text-success">Map New Land Plot</h2>
+        <p class="text-muted">Fill in the details and click on the interactive map below to capture the plot's GPS coordinates.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="FarmId" class="form-label fw-semibold text-dark">Associated Farm *</label>
+                    <select asp-for="FarmId" class="form-select rounded-3" required>
+                        <option value="">-- Select Farm --</option>
+                    @foreach (var farm in ViewBag.Farms as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Farm>)
+                    {
+                            // Embed address parts in data- attributes to allow client-side geocoding
+                            <option value="@farm.FarmId" data-village="@farm.Village" data-district="@farm.District" data-state="@farm.State" data-pincode="@farm.Pincode">@farm.FarmName (@farm.Village)</option>
+                    }
+                    </select>
+                    <span asp-validation-for="FarmId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PlotName" class="form-label fw-semibold text-dark">Plot Name / Number *</label>
+                    <input asp-for="PlotName" class="form-control rounded-3" placeholder="e.g. Plot A-1 (Sugarcane)" required />
+                    <span asp-validation-for="PlotName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PlotCode" class="form-label fw-semibold text-dark">Plot Code *</label>
+                    <input asp-for="PlotCode" class="form-control rounded-3" placeholder="e.g. PLT-001" required />
+                    <span asp-validation-for="PlotCode" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Area" class="form-label fw-semibold text-dark">Area Size *</label>
+                        <input asp-for="Area" type="number" step="0.01" class="form-control rounded-3" placeholder="e.g. 2.5" required />
+                        <span asp-validation-for="Area" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="AreaUnit" class="form-label fw-semibold text-dark">Area Unit *</label>
+                        <select asp-for="AreaUnit" class="form-select rounded-3" required>
+                            <option value="Acres">Acres</option>
+                            <option value="Hectares">Hectares</option>
+                            <option value="Bigha">Bigha</option>
+                        </select>
+                        <span asp-validation-for="AreaUnit" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Latitude" class="form-label fw-semibold text-dark">Latitude *</label>
+                        <input asp-for="Latitude" id="Latitude" class="form-control rounded-3 bg-light" placeholder="Click on map" required readonly />
+                        <span asp-validation-for="Latitude" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Longitude" class="form-label fw-semibold text-dark">Longitude *</label>
+                        <input asp-for="Longitude" id="Longitude" class="form-control rounded-3 bg-light" placeholder="Click on map" required readonly />
+                        <span asp-validation-for="Longitude" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SoilType" class="form-label fw-semibold text-dark">Soil Type *</label>
+                        <select asp-for="SoilType" class="form-select rounded-3" required>
+                            <option value="">-- Select Soil --</option>
+                            <option value="Black Cotton Soil">Black Cotton Soil</option>
+                            <option value="Alluvial Soil">Alluvial Soil</option>
+                            <option value="Red Sandy Soil">Red Sandy Soil</option>
+                            <option value="Clayey Soil">Clayey Soil</option>
+                            <option value="Loamy Soil">Loamy Soil</option>
+                        </select>
+                        <span asp-validation-for="SoilType" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="IrrigationType" class="form-label fw-semibold text-dark">Irrigation Type *</label>
+                        <select asp-for="IrrigationType" class="form-select rounded-3" required>
+                            <option value="">-- Select Irrigation --</option>
+                            <option value="Drip Irrigation">Drip Irrigation</option>
+                            <option value="Sprinkler Irrigation">Sprinkler Irrigation</option>
+                            <option value="Flood Irrigation">Flood Irrigation</option>
+                            <option value="Rainfed">Rainfed (Natural)</option>
+                            <option value="Well/Pump">Well/Pump System</option>
+                        </select>
+                        <span asp-validation-for="IrrigationType" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <a href="~/LandPlot" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" class="btn btn-success rounded-3 px-4">Save Plot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet map card -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+            <h4 class="text-dark mb-2 fw-semibold">Interactive GPS Mapping</h4>
+            <p class="text-muted small mb-3">Zoom in on your farm location and click to automatically capture and lock your coordinates.</p>
+            <div id="map" class="flex-grow-1 border rounded-4 shadow-sm" style="min-height: 400px; z-index: 1;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Map (will be recentered by geocode result if available)
+        var map = L.map('map').setView([19.3900, 74.6500], 10);
+
+        // Load OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var marker;
+
+        // Click Handler to capture Lat/Lng
+        map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        // Populate read-only inputs (formatted to 6 decimals)
+        document.getElementById("Latitude").value = lat.toFixed(6);
+        document.getElementById("Longitude").value = lng.toFixed(6);
+
+        // Add or move marker
+        if (marker) {
+        marker.setLatLng(e.latlng);
+        } else {
+        marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+        marker.on('dragend', function(event){
+        var position = marker.getLatLng();
+        document.getElementById("Latitude").value = position.lat.toFixed(6);
+        document.getElementById("Longitude").value = position.lng.toFixed(6);
+        });
+        }
+        });
+
+        // Geocode helper using Nominatim (OpenStreetMap)
+        async function geocodeAndCenter(village, district, state, pincode) {
+            // Try multiple query combinations to increase match chance
+            var candidates = [];
+            if (village && district && state && pincode) candidates.push([village, district, state, pincode].join(', '));
+            if (village && district && state) candidates.push([village, district, state].join(', '));
+            if (village && state) candidates.push([village, state].join(', '));
+            if (district && state && pincode) candidates.push([district, state, pincode].join(', '));
+            if (pincode) candidates.push(pincode.toString());
+            if (state && district) candidates.push([district, state].join(', '));
+
+            // Remove empty and duplicates
+            candidates = candidates.filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+
+            for (var i = 0; i < candidates.length; i++) {
+                var query = candidates[i];
+                console.log('Geocode query:', query);
+                try {
+                    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(query) + '&countrycodes=in';
+                    var resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    if (!resp.ok) {
+                        console.warn('Nominatim responded with', resp.status);
+                        continue;
+                    }
+                    var data = await resp.json();
+                    if (data && data.length > 0) {
+                        var lat = parseFloat(data[0].lat);
+                        var lon = parseFloat(data[0].lon);
+                        // center map and place/move marker
+                        map.setView([lat, lon], 13);
+                        if (!marker) {
+                            marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+                            marker.on('dragend', function (event) {
+                                var position = marker.getLatLng();
+                                document.getElementById('Latitude').value = position.lat.toFixed(6);
+                                document.getElementById('Longitude').value = position.lng.toFixed(6);
+                            });
+                        } else {
+                            marker.setLatLng([lat, lon]);
+                        }
+                        return; // success
+                    }
+                }
+                catch (e) {
+                    console.warn('Geocode attempt failed for query', query, e);
+                }
+            }
+
+            console.warn('Geocoding returned no results for provided address parts.');
+        }
+
+        // On page load, try to center map using selected farm's address
+        var farmSelect = document.querySelector('select[name="FarmId"]');
+        function tryCenterFromSelectedFarm() {
+            if (!farmSelect) return;
+            var opt = farmSelect.options[farmSelect.selectedIndex];
+            if (!opt) return;
+            var village = opt.getAttribute('data-village');
+            var district = opt.getAttribute('data-district');
+            var state = opt.getAttribute('data-state');
+            var pincode = opt.getAttribute('data-pincode');
+            geocodeAndCenter(village, district, state, pincode);
+        }
+
+        // Recenter when farm selection changes
+        if (farmSelect) {
+            farmSelect.addEventListener('change', function () {
+                tryCenterFromSelectedFarm();
+            });
+        }
+
+        // Run on initial load
+        tryCenterFromSelectedFarm();
+        });
+    </script>
+}

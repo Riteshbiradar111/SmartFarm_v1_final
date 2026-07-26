@@ -1,0 +1,194 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.LoginViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Login";
+    ViewData["Description"] = "Login to SmartFarm — your integrated smart farming and crop yield management platform.";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-layout">
+
+    <!-- ===== LEFT PANEL — Image & Branding ===== -->
+    <div class="auth-left">
+        <!-- Background image -->
+        <div class="auth-left-bg">
+            <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1000&q=85"
+                 alt="Lush green crop fields" />
+            <div class="auth-left-overlay"></div>
+        </div>
+
+        <!-- Branding content -->
+        <div class="auth-left-content">
+            <a href="~/Home/Index" class="auth-logo">
+                <span class="material-icons">eco</span>
+                <div>
+                    <span class="auth-logo-name">SmartFarm</span>
+                    <span class="auth-logo-tagline">Crop Yield Management System</span>
+                </div>
+            </a>
+
+            <div class="auth-left-headline">
+                <h1>Welcome Back to<br /><span>SmartFarm</span></h1>
+                <p>Log in to manage your farms, monitor soil conditions, plan crop cycles, and track harvest records — all in one place.</p>
+            </div>
+
+            <!-- Feature highlights -->
+            <div class="auth-left-features">
+                <div class="auth-feature-item">
+                    <span class="material-icons">landscape</span>
+                    <span>Farm &amp; Plot Management</span>
+                </div>
+                <div class="auth-feature-item">
+                    <span class="material-icons">sensors</span>
+                    <span>Real-Time Soil &amp; Weather Data</span>
+                </div>
+                <div class="auth-feature-item">
+                    <span class="material-icons">bar_chart</span>
+                    <span>Yield Analytics &amp; Reports</span>
+                </div>
+                <div class="auth-feature-item">
+                    <span class="material-icons">storefront</span>
+                    <span>Produce Marketplace</span>
+                </div>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="auth-left-stats">
+                <div class="auth-stat">
+                    <strong>1500+</strong>
+                    <span>Farmers</span>
+                </div>
+                <div class="auth-stat-sep"></div>
+                <div class="auth-stat">
+                    <strong>5000+</strong>
+                    <span>Acres</span>
+                </div>
+                <div class="auth-stat-sep"></div>
+                <div class="auth-stat">
+                    <strong>3000+</strong>
+                    <span>Harvests</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL — Login Form ===== -->
+    <div class="auth-right">
+        <div class="auth-form-wrap">
+
+            <!-- Back to home -->
+            <a href="~/Home/Index" class="auth-back-link">
+                <span class="material-icons">arrow_back</span>
+                Back to Home
+            </a>
+
+            <!-- Form header -->
+            <div class="auth-form-header">
+                <div class="auth-form-icon">
+                    <span class="material-icons">lock</span>
+                </div>
+                <h2>Sign In to Your Account</h2>
+                <p>Enter your credentials to access your dashboard</p>
+            </div>
+
+            <!-- Success / Error Messages -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div style="padding:12px 16px; background:#d1fae5; border:1px solid #6ee7b7; border-radius:8px; color:#065f46; font-size:0.85rem; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="font-size:18px;">check_circle</span>
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (ViewData["ErrorMessage"] != null)
+            {
+                <div style="padding:12px 16px; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; color:#991b1b; font-size:0.85rem; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons" style="font-size:18px;">error_outline</span>
+                    @ViewData["ErrorMessage"]
+                </div>
+            }
+
+            <!-- Login Form -->
+            <form class="auth-form" id="loginForm" method="post" asp-action="Login" asp-controller="Auth" novalidate>
+
+                <!-- Email / Username -->
+                <div class="form-group">
+                    <label asp-for="EmailOrUsername" class="form-label">
+                        <span class="material-icons">person</span>
+                        Email or Username
+                    </label>
+                    <div class="input-wrap">
+                        <input type="text"
+                               asp-for="EmailOrUsername"
+                               id="emailOrUsername"
+                               class="form-input"
+                               placeholder="Enter your email or username"
+                               required
+                               autocomplete="username" />
+                    </div>
+                    <span asp-validation-for="EmailOrUsername" class="text-danger" style="font-size:0.8rem; margin-top:4px; display:block;"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">
+                        <span class="material-icons">lock_outline</span>
+                        Password
+                    </label>
+                    <div class="input-wrap input-with-toggle">
+                        <input type="password"
+                               asp-for="Password"
+                               id="password"
+                               class="form-input"
+                               placeholder="Enter your password"
+                               required
+                               autocomplete="current-password" />
+                        <button type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                                aria-label="Show or hide password">
+                            <span class="material-icons" id="eyeIcon">visibility_off</span>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger" style="font-size:0.8rem; margin-top:4px; display:block;"></span>
+                </div>
+
+                <!-- Forgot Password link -->
+                <div class="form-row-between" style="justify-content: flex-end;">
+                    <a href="~/Auth/ForgotPassword" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
+                    <span class="material-icons">login</span>
+                    Sign In
+                </button>
+
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider">
+                <span>Don't have an account?</span>
+            </div>
+
+            <!-- Go to Register -->
+            <a href="@Url.Action("ChooseType", "Register")" class="auth-alt-btn">
+                <span class="material-icons">person_add</span>
+                Create New Account
+            </a>
+
+            <p class="auth-footer-note">
+                By signing in, you agree to our
+                <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

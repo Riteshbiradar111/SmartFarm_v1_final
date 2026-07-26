@@ -1,0 +1,233 @@
+@{
+	Layout = "_BuyerLayout";
+	ViewData["Title"] = "Payment Details";
+}
+
+<div class="row mb-4">
+	<div class="col-12">
+		<a href="javascript:history.back()" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+			<span class="material-icons-round">arrow_back</span> Back
+		</a>
+		<h2 class="text-success mb-1">Complete Your Payment</h2>
+		<p class="text-muted mb-0">Review order details and complete payment to farmer</p>
+	</div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+		<span class="material-icons-round align-middle me-1">error</span> @TempData["ErrorMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
+}
+
+<div class="row g-4">
+	<!-- LEFT SIDE: Payment Details & QR Code -->
+	<div class="col-lg-7">
+		<!-- Order Summary Card -->
+		<div class="card border-0 shadow-sm rounded-4 mb-4">
+			<div class="card-header bg-white border-0 py-3">
+				<h5 class="text-dark fw-bold mb-0 d-flex align-items-center gap-2">
+					<span class="material-icons-round text-success">receipt</span>
+					Order Summary
+				</h5>
+			</div>
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-sm-4 text-muted small">Product:</div>
+					<div class="col-sm-8 fw-bold">@ViewBag.ItemTitle</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-sm-4 text-muted small">Farmer:</div>
+					<div class="col-sm-8">@ViewBag.FarmerName</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-sm-4 text-muted small">Quantity:</div>
+					<div class="col-sm-8 fw-bold">@ViewBag.Quantity @ViewBag.Unit</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-sm-4 text-muted small">Rate per @ViewBag.Unit:</div>
+					<div class="col-sm-8 text-success fw-bold">₹@ViewBag.PricePerUnit</div>
+				</div>
+				<hr />
+				<div class="row mb-2">
+					<div class="col-sm-4 text-muted small">Subtotal:</div>
+					<div class="col-sm-8">₹@(((decimal)ViewBag.Subtotal).ToString("N2"))</div>
+				</div>
+				<div class="row mb-2">
+					<div class="col-sm-4 text-muted small">GST (5%):</div>
+					<div class="col-sm-8">₹@(((decimal)ViewBag.GST).ToString("N2"))</div>
+				</div>
+				<div class="row mb-0">
+					<div class="col-sm-4 fw-bold">Total Amount:</div>
+					<div class="col-sm-8 fw-bold text-success fs-4">₹@(((decimal)ViewBag.Total).ToString("N2"))</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Payment Methods Card -->
+		<div class="card border-0 shadow-sm rounded-4 mb-4">
+			<div class="card-header bg-white border-0 py-3">
+				<h5 class="text-dark fw-bold mb-0 d-flex align-items-center gap-2">
+					<span class="material-icons-round text-success">payment</span>
+					Farmer Payment Details
+				</h5>
+			</div>
+			<div class="card-body">
+				<!-- Demo Alert -->
+				<div class="alert alert-info border-0 rounded-3 mb-4">
+					<div class="d-flex align-items-start gap-2">
+						<span class="material-icons-round">info</span>
+						<div class="small">
+							<strong>Demo Mode:</strong> This is a project demonstration. In production, payment would be processed through a secure payment gateway. For demo purposes, use the mock payment details below.
+						</div>
+					</div>
+				</div>
+
+				<!-- Payment Options Tabs -->
+				<ul class="nav nav-tabs mb-3" id="paymentTabs" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="upi-tab" data-bs-toggle="tab" data-bs-target="#upi" type="button" role="tab">
+							<span class="d-flex align-items-center gap-2">
+								<span class="material-icons-round">qr_code_2</span>
+								UPI / QR Code
+							</span>
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank" type="button" role="tab">
+							<span class="d-flex align-items-center gap-2">
+								<span class="material-icons-round">account_balance</span>
+								Bank Transfer
+							</span>
+						</button>
+					</li>
+				</ul>
+
+				<div class="tab-content" id="paymentTabContent">
+					<!-- UPI/QR Tab -->
+					<div class="tab-pane fade show active" id="upi" role="tabpanel">
+						<div class="text-center p-4">
+							<div class="mb-3">
+								<img src="~/uploads/defaults/sample-qr-code.png" 
+									 alt="Payment QR Code" 
+									 class="img-fluid rounded-3 border shadow-sm"
+									 style="max-width: 250px;"
+									 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+								<div style="display: none;" class="bg-light rounded-3 d-inline-block p-5">
+									<span class="material-icons-round text-muted" style="font-size: 120px;">qr_code_2</span>
+									<p class="text-muted small mt-2 mb-0">Demo QR Code</p>
+								</div>
+							</div>
+							<p class="fw-bold text-dark mb-2">Scan QR Code to Pay</p>
+							<p class="text-muted small mb-3">Use any UPI app (Google Pay, PhonePe, Paytm, etc.)</p>
+
+							<div class="bg-light rounded-3 p-3 text-start">
+								<p class="small text-muted mb-1">UPI ID:</p>
+								<p class="fw-bold text-dark mb-0">farmer@upi <span class="material-icons-round align-middle text-success" style="font-size: 16px;">verified</span></p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Bank Transfer Tab -->
+					<div class="tab-pane fade" id="bank" role="tabpanel">
+						<div class="p-3">
+							<p class="small text-muted mb-3">Transfer funds directly to farmer's bank account:</p>
+
+							<div class="row g-3">
+								<div class="col-md-6">
+									<div class="bg-light rounded-3 p-3">
+										<p class="small text-muted mb-1">Account Holder Name</p>
+										<p class="fw-bold text-dark mb-0">@ViewBag.FarmerName</p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="bg-light rounded-3 p-3">
+										<p class="small text-muted mb-1">Bank Name</p>
+										<p class="fw-bold text-dark mb-0">State Bank of India</p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="bg-light rounded-3 p-3">
+										<p class="small text-muted mb-1">Account Number</p>
+										<p class="fw-bold text-dark mb-0">1234 5678 9012</p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="bg-light rounded-3 p-3">
+										<p class="small text-muted mb-1">IFSC Code</p>
+										<p class="fw-bold text-dark mb-0">SBIN0001234</p>
+									</div>
+								</div>
+								<div class="col-12">
+									<div class="bg-light rounded-3 p-3">
+										<p class="small text-muted mb-1">Branch</p>
+										<p class="fw-bold text-dark mb-0">Main Branch, Agricultural District</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- RIGHT SIDE: Payment Action -->
+	<div class="col-lg-5">
+		<div class="card border-0 shadow-sm rounded-4 bg-light sticky-top" style="top: 20px;">
+			<div class="card-body p-4">
+				<div class="text-center mb-4">
+					<div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+						<span class="material-icons-round text-success" style="font-size: 48px;">account_balance_wallet</span>
+					</div>
+					<h5 class="text-dark fw-bold mb-2">Ready to Complete Payment?</h5>
+					<p class="text-muted small mb-0">Amount to pay: <span class="fs-4 fw-bold text-success">₹@(((decimal)ViewBag.Total).ToString("N2"))</span></p>
+				</div>
+
+				<hr class="my-4" />
+
+				<h6 class="fw-bold text-dark mb-3 small">Payment Instructions:</h6>
+				<ol class="small text-muted ps-3 mb-4">
+					<li class="mb-2">Scan the QR code or use bank transfer details</li>
+					<li class="mb-2">Complete payment using your preferred method</li>
+					<li class="mb-2">Click "Complete Payment" button below</li>
+					<li class="mb-0">You'll receive order confirmation instantly</li>
+				</ol>
+
+				<!-- Demo Notice -->
+				<div class="alert alert-warning border-0 rounded-3 small mb-4">
+					<strong>Demo Note:</strong> In this demonstration, clicking the button below will simulate a successful payment without actual transaction.
+				</div>
+
+				<!-- Payment Confirmation Form -->
+				<form asp-action="ConfirmPayment" method="post">
+					@Html.AntiForgeryToken()
+					@if (ViewBag.OrderId != null)
+					{
+						<input type="hidden" name="orderId" value="@ViewBag.OrderId" />
+					}
+
+					<div class="form-check mb-3">
+						<input class="form-check-input" type="checkbox" id="confirmPayment" required>
+						<label class="form-check-label small" for="confirmPayment">
+							I confirm that I have completed the payment to the farmer's account
+						</label>
+					</div>
+
+					<button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold d-flex align-items-center justify-content-center gap-2">
+						<span class="material-icons-round">check_circle</span>
+						@(ViewBag.OrderId != null ? "Complete Payment" : "Complete Payment & Place Order")
+					</button>
+				</form>
+
+				<div class="text-center mt-3">
+					<a href="javascript:history.back()" class="text-muted small text-decoration-none">
+						<span class="material-icons-round align-middle" style="font-size: 16px;">arrow_back</span>
+						Go Back
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

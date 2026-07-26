@@ -1,0 +1,88 @@
+﻿@model SmartFarmMVC.Models.ViewModels.HarvestViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Record Harvest Yield";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/Harvest" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Harvests
+        </a>
+        <h2 class="text-success">Record Harvest Yield</h2>
+        <p class="text-muted">Select completed crop cycles and log the actual weight or quantity harvested.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="CropCycleId" class="form-label fw-semibold text-dark">Harvested Crop Cycle *</label>
+                <select asp-for="CropCycleId" class="form-select rounded-3" required>
+                    <option value="">-- Select Completed Crop Cycle --</option>
+                    @foreach (var cycle in (ViewBag.Cycles as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle>) ?? Enumerable.Empty<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle>())
+                    {
+                        <option value="@cycle.CropCycleId">@cycle.Crop.CropName (@cycle.LandPlot.PlotName - @cycle.LandPlot.Farm.FarmName)</option>
+                    }
+                </select>
+                <span asp-validation-for="CropCycleId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HarvestDate" class="form-label fw-semibold text-dark">Harvest Date *</label>
+                <input asp-for="HarvestDate" type="date" class="form-control rounded-3" required />
+                <span asp-validation-for="HarvestDate" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ExpectedQuantity" class="form-label fw-semibold text-dark">Expected Yield *</label>
+                    <input asp-for="ExpectedQuantity" type="number" step="0.01" class="form-control rounded-3" placeholder="e.g. 50" required />
+                    <span asp-validation-for="ExpectedQuantity" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ActualQuantity" class="form-label fw-semibold text-dark">Actual Yield *</label>
+                    <input asp-for="ActualQuantity" type="number" step="0.01" class="form-control rounded-3" placeholder="e.g. 55" required />
+                    <span asp-validation-for="ActualQuantity" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Unit" class="form-label fw-semibold text-dark">Measurement Unit *</label>
+                    <select asp-for="Unit" class="form-select rounded-3" required>
+                        <option value="Quintal">Quintal</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Ton">Ton</option>
+                        <option value="Liter">Liter</option>
+                    </select>
+                    <span asp-validation-for="Unit" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Status" class="form-label fw-semibold text-dark">Storage Status *</label>
+                    <select asp-for="Status" class="form-select rounded-3" required>
+                        <option value="Ready">Ready for Sale (Stored)</option>
+                        <option value="Harvested">Harvested (In Process)</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+                <a href="~/Harvest" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-success rounded-3 px-4">Log Harvest</button>
+            </div>
+        </form>
+    </div>
+</div>

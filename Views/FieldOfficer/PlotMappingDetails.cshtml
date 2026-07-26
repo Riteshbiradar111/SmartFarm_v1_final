@@ -1,0 +1,27 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.LandPlot
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Plot Mapping Details #{Model?.PlotId ?? 0}";
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title"><span class="material-icons-round">map</span> Plot Mapping: @Model?.PlotName (@Model?.PlotCode)</h2>
+    </div>
+    <div class="dash-card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Plot Area</label>
+                <p class="fw-bold">@Model?.Area @Model?.AreaUnit</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Soil Type</label>
+                <p class="fw-bold">@Model?.SoilType</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small d-block">Irrigation Source</label>
+                <p class="fw-bold">@Model?.IrrigationType</p>
+            </div>
+        </div>
+    </div>
+</div>

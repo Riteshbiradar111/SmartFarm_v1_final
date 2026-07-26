@@ -1,0 +1,173 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Farmer>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Member Farms Directory";
+    var assignments = ViewBag.Assignments as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Assignment> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Assignment>();
+    var agronomists = ViewBag.Agronomists as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Agronomist> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.Agronomist>();
+    var officers = ViewBag.FieldOfficers as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.FieldOfficer> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.FieldOfficer>();
+    var staffLookup = ViewBag.StaffLookup as Dictionary<int, string> ?? new Dictionary<int, string>();
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-blue mb-4">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+
+<!-- Search & Filter Controls -->
+<div class="dash-card mb-4">
+    <div class="dash-card-body">
+        <form method="get" asp-action="MemberFarms" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label font-weight-bold">Search Farmer</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><span class="material-icons-round fs-5 text-muted">search</span></span>
+                    <input type="text" name="searchFarmer" class="form-control" placeholder="Name or mobile number..." value="@Context.Request.Query["searchFarmer"]" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label font-weight-bold">District</label>
+                <select name="district" class="form-select">
+                    <option value="">All Districts</option>
+                    @if (ViewBag.Districts != null)
+                    {
+                        foreach (var d in (List<string>)ViewBag.Districts)
+                        {
+                            <option value="@d" selected="@(Context.Request.Query["district"] == d ? "selected" : null)">@d</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label font-weight-bold">Village</label>
+                <select name="village" class="form-select">
+                    <option value="">All Villages</option>
+                    @if (ViewBag.Villages != null)
+                    {
+                        foreach (var v in (List<string>)ViewBag.Villages)
+                        {
+                            <option value="@v" selected="@(Context.Request.Query["village"] == v ? "selected" : null)">@v</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"><span class="material-icons-round fs-6">search</span> Filter</button>
+                <a href="/CooperativeManager/MemberFarms" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Farmers Grid Cards -->
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <span class="material-icons-round text-muted" style="font-size: 48px;">sentiment_dissatisfied</span>
+            <h5 class="text-muted mt-2">No registered member farmers found</h5>
+        </div>
+    }
+    else
+    {
+        foreach (var farmer in Model)
+        {
+            var assignment = assignments.FirstOrDefault(a => a.FarmerId == farmer.FarmerId);
+            bool isAssigned = assignment != null;
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 p-3 position-relative" style="background:#ffffff;">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle text-white d-flex align-items-center justify-content-center me-3" style="width:48px; height:48px; background:#7c3aed; font-weight:bold; font-size:18px;">
+                            @(string.IsNullOrEmpty(farmer.FullName) ? "F" : farmer.FullName.Substring(0,1).ToUpper())
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark">@farmer.FullName</h6>
+                            <small class="text-muted">@farmer.Village, @farmer.District</small>
+                        </div>
+                    </div>
+
+                    <div class="border-top border-bottom py-2 my-2 fs-7">
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted"><span class="material-icons-round fs-6 align-middle">phone</span> Mobile:</span>
+                            <span class="fw-bold">@farmer.MobileNumber</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted"><span class="material-icons-round fs-6 align-middle">place</span> Location:</span>
+                            <span class="fw-bold">@farmer.Taluka, @farmer.State</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted"><span class="material-icons-round fs-6 align-middle">assignment_ind</span> Assignment:</span>
+                            @if (isAssigned)
+                            {
+                                var staffName = staffLookup.ContainsKey(assignment.OfficerId) ? staffLookup[assignment.OfficerId] : "Assigned";
+                                <span class="badge bg-success">@staffName</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Pending Staff</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-2 d-flex gap-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#assignModal-@farmer.FarmerId">
+                            <span class="material-icons-round fs-6 align-middle">person_add</span> Assign Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assign Staff Modal for this Farmer -->
+            <div class="modal fade" id="assignModal-@farmer.FarmerId" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" asp-action="AssignStaff">
+                            <input type="hidden" name="farmerId" value="@farmer.FarmerId" />
+                            <div class="modal-header bg-purple text-white" style="background:#7c3aed;">
+                                <h5 class="modal-title text-white"><span class="material-icons-round align-middle">badge</span> Assign Staff for @farmer.FullName</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold">Select Staff (Agronomist / Field Officer)</label>
+                                    <select name="officerId" class="form-select">
+                                        <option value="">-- Select Staff --</option>
+                                        @if (agronomists.Any())
+                                        {
+                                            <optgroup label="Agronomists">
+                                                @foreach (var ag in agronomists)
+                                                {
+                                                    <option value="@ag.UserId" selected="@(assignment?.OfficerId == ag.UserId ? "selected" : null)">@ag.FullName (@ag.Specialization)</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                        @if (officers.Any())
+                                        {
+                                            <optgroup label="Field Officers">
+                                                @foreach (var off in officers)
+                                                {
+                                                    <option value="@off.UserId" selected="@(assignment?.OfficerId == off.UserId ? "selected" : null)">@off.FullName (@off.AssignedDistrict)</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold">Task Notes / Instructions</label>
+                                    <textarea name="notes" class="form-control" rows="3" placeholder="Specify monitoring notes or region tasks...">@(assignment?.Task)</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" style="background:#7c3aed; border:none;">Save Assignment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

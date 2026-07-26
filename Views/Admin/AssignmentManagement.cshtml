@@ -1,0 +1,845 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.AssignmentManagementViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Assignment Management";
+}
+
+
+<div class="dash-content">
+
+	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+		<div>
+			<h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">Assignment Management</h1>
+			<p style="color: #7a9a8a; font-size: 14px; margin: 4px 0 0 0;">Monitor and assign field tasks to officers.</p>
+		</div>
+		<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAssignmentModal" style="background: #2D6A4F; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500;">
+			<i class="fas fa-user-plus" style="margin-right: 6px;"></i> Assign Officer
+		</button>
+	</div>
+
+
+	<div class="stats-row" style="margin-bottom: 24px;">
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-clipboard-list" style="color: #2D6A4F; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">TOTAL ASSIGNMENTS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.TotalAssignments</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #fff3cd; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-hourglass-half" style="color: #ffc107; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">PENDING ASSIGNMENTS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.PendingAssignments</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #d1f2eb; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-check-circle" style="color: #28a745; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">COMPLETED ASSIGNMENTS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.CompletedAssignments</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #f8d7da; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-exclamation-circle" style="color: #dc3545; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">OVERDUE ASSIGNMENTS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.OverdueAssignments</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Search and Filters -->
+	<div class="dash-card" style="margin-bottom: 0;">
+		<div class="dash-card-body">
+			<form method="get" asp-action="AssignmentManagement" id="filterForm">
+				<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+					<!-- Search Box -->
+					<div style="flex: 1; position: relative;">
+						<i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #7a9a8a;"></i>
+						<input type="text" 
+							   id="searchInput"
+							   name="searchTerm" 
+							   value="@Model.SearchTerm" 
+							   placeholder="Search by farmer, farm, task or officer" 
+							   style="width: 100%; padding: 10px 14px 10px 40px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px;" />
+					</div>
+
+					<!-- Search Button -->
+					<button type="submit" 
+							style="padding: 10px 20px; background: #2D6A4F; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+						<i class="fas fa-search"></i> Search
+					</button>
+
+					<!-- Status Filter -->
+					<select name="statusFilter" id="statusFilter"
+							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
+						<option value="">All Status</option>
+					</select>
+
+					<!-- Officer Filter -->
+					<select name="officerFilter" id="officerFilter"
+							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
+						<option value="">All Officers</option>
+					</select>
+
+					<!-- Refresh Button -->
+					<button type="button" onclick="refreshData()" 
+							style="padding: 10px 16px; background: white; color: #2D6A4F; border: 1px solid #2D6A4F; border-radius: 8px; cursor: pointer;">
+						<i class="fas fa-sync-alt"></i>
+					</button>
+				</div>
+			</form>
+
+			<!-- Assignments Table Container (Scrollable) -->
+			<div style="max-height: 500px; overflow-y: auto; margin-top: 20px;">
+				<table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+					<thead style="position: sticky; top: 0; background: #f8f9fa; z-index: 10;">
+						<tr>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Farmer</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Officer</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Farm</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Task</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Assigned Date</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Due Date</th>
+							<th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Priority</th>
+							<th style="padding: 12px; text-align: center; font-size: 13px; font-weight: 600; color: #7a9a8a; border-bottom: 2px solid #e2ede8;">Actions</th>
+						</tr>
+					</thead>
+					<tbody id="assignmentTableBody">
+						@if (Model.Assignments != null && Model.Assignments.Any())
+						{
+							foreach (var assignment in Model.Assignments)
+							{
+								<tr class="assignment-row" data-id="@assignment.AssignmentId">
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<div style="display: flex; align-items: center; gap: 10px;">
+											<div style="width: 36px; height: 36px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #2D6A4F; font-size: 13px;">
+												@assignment.FarmerInitials
+											</div>
+											<span style="font-weight: 500; color: #1a1a1a;">@assignment.FarmerName</span>
+										</div>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<div style="display: flex; align-items: center; gap: 10px;">
+											<div style="width: 36px; height: 36px; background: #e3f2fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #1976d2; font-size: 13px;">
+												@assignment.OfficerInitials
+											</div>
+											<span style="font-weight: 500; color: #1a1a1a;">@assignment.OfficerName</span>
+										</div>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<span style="color: #555;">@assignment.FarmName</span>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<span style="color: #555;">@assignment.Task</span>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<span style="color: #555;">@assignment.AssignedDateFormatted</span>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<span style="color: #555;">@assignment.DueDateFormatted</span>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0;">
+										<span class="badge @assignment.PriorityBadgeClass" style="padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+											@assignment.Priority.ToUpper()
+										</span>
+									</td>
+									<td style="padding: 14px 12px; border-bottom: 1px solid #f0f0f0; text-align: center;">
+										<button onclick="viewAssignment(@assignment.AssignmentId)" class="btn btn-sm" title="View" style="background: #e3f2fd; color: #1976d2; border: none; padding: 6px 10px; border-radius: 6px; margin-right: 4px;">
+											<i class="fas fa-eye"></i>
+										</button>
+										<button onclick="deleteAssignment(@assignment.AssignmentId)" class="btn btn-sm" title="Delete" style="background: #f8d7da; color: #dc3545; border: none; padding: 6px 10px; border-radius: 6px;">
+											<i class="fas fa-trash"></i>
+										</button>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr>
+								<td colspan="8" style="text-align: center; padding: 40px; color: #7a9a8a;">
+									<i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+									No assignments found
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== CREATE ASSIGNMENT MODAL ===== -->
+<div class="modal fade" id="createAssignmentModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header" style="background: #2D6A4F; color: white;">
+				<h5 class="modal-title">Assign Officer</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<form id="createAssignmentForm">
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Farmer <span style="color: red;">*</span></label>
+							<select id="createFarmerId" class="form-control" required>
+								<option value="">Select Farmer</option>
+							</select>
+							<div class="invalid-feedback">Please select a farmer</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Farm <span style="color: red;">*</span></label>
+							<select id="createFarmId" class="form-control" required>
+								<option value="">Select Farm</option>
+							</select>
+							<div class="invalid-feedback">Please select a farm</div>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Officer <span style="color: red;">*</span></label>
+						<select id="createOfficerId" class="form-control" required>
+							<option value="">Select Officer</option>
+						</select>
+						<div class="invalid-feedback">Please select an officer</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Task Description <span style="color: red;">*</span></label>
+						<input type="text" id="createTask" class="form-control" placeholder="e.g., Soil Sampling, Pest Inspection" maxlength="200" required />
+						<div class="invalid-feedback">Please enter a task description</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Assigned Date <span style="color: red;">*</span></label>
+							<input type="date" id="createAssignedDate" class="form-control" required />
+							<div class="invalid-feedback">Please select assigned date</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Due Date <span style="color: red;">*</span></label>
+							<input type="date" id="createDueDate" class="form-control" required />
+							<div class="invalid-feedback">Please select due date</div>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Priority <span style="color: red;">*</span></label>
+						<select id="createPriority" class="form-control" required>
+							<option value="High">High</option>
+							<option value="Medium" selected>Medium</option>
+							<option value="Low">Low</option>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Notes (Optional)</label>
+						<textarea id="createNotes" class="form-control" rows="3" maxlength="500"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" onclick="createAssignment()" style="background: #2D6A4F; border: none;">Save Assignment</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== VIEW ASSIGNMENT MODAL ===== -->
+<div class="modal fade" id="viewAssignmentModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header" style="background: #1976d2; color: white;">
+				<h5 class="modal-title">Assignment Details</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body" id="viewAssignmentContent">
+				<!-- Content loaded dynamically -->
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== EDIT ASSIGNMENT MODAL ===== -->
+<div class="modal fade" id="editAssignmentModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header" style="background: #ffc107; color: white;">
+				<h5 class="modal-title">Edit Assignment</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<form id="editAssignmentForm">
+					<input type="hidden" id="editAssignmentId" />
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Farmer <span style="color: red;">*</span></label>
+							<select id="editFarmerId" class="form-control" required>
+								<option value="">Select Farmer</option>
+							</select>
+							<div class="invalid-feedback">Please select a farmer</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Farm <span style="color: red;">*</span></label>
+							<select id="editFarmId" class="form-control" required>
+								<option value="">Select Farm</option>
+							</select>
+							<div class="invalid-feedback">Please select a farm</div>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Officer <span style="color: red;">*</span></label>
+						<select id="editOfficerId" class="form-control" required>
+							<option value="">Select Officer</option>
+						</select>
+						<div class="invalid-feedback">Please select an officer</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Task Description <span style="color: red;">*</span></label>
+						<input type="text" id="editTask" class="form-control" maxlength="200" required />
+						<div class="invalid-feedback">Please enter a task description</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Assigned Date <span style="color: red;">*</span></label>
+							<input type="date" id="editAssignedDate" class="form-control" required />
+							<div class="invalid-feedback">Please select assigned date</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Due Date <span style="color: red;">*</span></label>
+							<input type="date" id="editDueDate" class="form-control" required />
+							<div class="invalid-feedback">Please select due date</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Priority <span style="color: red;">*</span></label>
+							<select id="editPriority" class="form-control" required>
+								<option value="High">High</option>
+								<option value="Medium">Medium</option>
+								<option value="Low">Low</option>
+							</select>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Status <span style="color: red;">*</span></label>
+							<select id="editStatus" class="form-control" required>
+								<option value="Pending">Pending</option>
+								<option value="In Progress">In Progress</option>
+								<option value="Completed">Completed</option>
+								<option value="Overdue">Overdue</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Notes (Optional)</label>
+						<textarea id="editNotes" class="form-control" rows="3" maxlength="500"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-warning" onclick="updateAssignment()" style="background: #ffc107; border: none; color: white;">Update Assignment</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== TOAST NOTIFICATION ===== -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+	<div id="assignmentToast" class="toast align-items-center text-white border-0" role="alert">
+		<div class="d-flex">
+			<div class="toast-body" id="toastMessage"></div>
+			<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+<script>
+	// Page initialization
+	$(document).ready(function () {
+		// Set today's date as default for create form
+		const today = new Date().toISOString().split('T')[0];
+		$('#createAssignedDate').val(today);
+
+		// Load dropdown options
+		loadOfficers();
+		loadFarmers();
+		loadStatuses();
+
+		// Farmer change event for create modal
+		$('#createFarmerId').on('change', function () {
+			const farmerId = $(this).val();
+			loadFarms(farmerId, 'create');
+		});
+
+		// Farmer change event for edit modal
+		$('#editFarmerId').on('change', function () {
+			const farmerId = $(this).val();
+			loadFarms(farmerId, 'edit');
+		});
+	});
+
+	// Load Officers dropdown
+	async function loadOfficers() {
+		try {
+			const response = await fetch('/Admin/GetAssignmentOfficers');
+			const officers = await response.json();
+
+			// Populate create modal
+			let createOptions = '<option value="">Select Officer</option>';
+			officers.forEach(officer => {
+				createOptions += `<option value="${officer.officerId}">${officer.officerName}</option>`;
+			});
+			$('#createOfficerId').html(createOptions);
+
+			// Populate edit modal
+			$('#editOfficerId').html(createOptions);
+
+			// Populate filter dropdown
+			let filterOptions = '<option value="">All Officers</option>';
+			officers.forEach(officer => {
+				filterOptions += `<option value="${officer.officerId}" ${officer.officerId == '@Model.OfficerFilter' ? 'selected' : ''}>${officer.officerName}</option>`;
+			});
+			$('#officerFilter').html(filterOptions);
+
+		} catch (error) {
+			console.error('Error loading officers:', error);
+		}
+	}
+
+	// Load Farmers dropdown
+	async function loadFarmers() {
+		try {
+			const response = await fetch('/Admin/GetAssignmentFarmers');
+			const farmers = await response.json();
+
+			let options = '<option value="">Select Farmer</option>';
+			farmers.forEach(farmer => {
+				options += `<option value="${farmer.farmerId}">${farmer.farmerName}</option>`;
+			});
+
+			$('#createFarmerId').html(options);
+			$('#editFarmerId').html(options);
+
+		} catch (error) {
+			console.error('Error loading farmers:', error);
+		}
+	}
+
+	// Load Farms for selected farmer
+	async function loadFarms(farmerId, mode) {
+		const dropdownId = mode === 'create' ? '#createFarmId' : '#editFarmId';
+
+		if (!farmerId) {
+			$(dropdownId).html('<option value="">Select Farmer First</option>');
+			return;
+		}
+
+		try {
+			const response = await fetch(`/Admin/GetAssignmentFarms?farmerId=${farmerId}`);
+			const farms = await response.json();
+
+			let options = '<option value="">Select Farm</option>';
+			farms.forEach(farm => {
+				options += `<option value="${farm.farmId}">${farm.farmName}</option>`;
+			});
+
+			$(dropdownId).html(options);
+
+		} catch (error) {
+			console.error('Error loading farms:', error);
+			$(dropdownId).html('<option value="">Error loading farms</option>');
+		}
+	}
+
+	// Load Status filter
+	async function loadStatuses() {
+		try {
+			const response = await fetch('/Admin/GetAssignmentStatuses');
+			const statuses = await response.json();
+
+			let options = '<option value="">All Status</option>';
+			statuses.forEach(status => {
+				options += `<option value="${status}" ${status == '@Model.StatusFilter' ? 'selected' : ''}>${status}</option>`;
+			});
+
+			$('#statusFilter').html(options);
+
+		} catch (error) {
+			console.error('Error loading statuses:', error);
+		}
+	}
+
+	// Create Assignment
+	async function createAssignment() {
+		// Clear previous validation
+		$('#createAssignmentForm .is-invalid').removeClass('is-invalid');
+
+		// Validate form
+		const form = document.getElementById('createAssignmentForm');
+		if (!form.checkValidity()) {
+			form.classList.add('was-validated');
+			return;
+		}
+
+		const data = {
+			farmerId: parseInt($('#createFarmerId').val()),
+			farmId: parseInt($('#createFarmId').val()),
+			officerId: parseInt($('#createOfficerId').val()),
+			task: $('#createTask').val().trim(),
+			assignedDate: $('#createAssignedDate').val(),
+			dueDate: $('#createDueDate').val(),
+			priority: $('#createPriority').val(),
+			notes: $('#createNotes').val().trim()
+		};
+
+		try {
+			const response = await fetch('/Admin/CreateAssignment', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				$('#createAssignmentModal').modal('hide');
+				showToast(result.message, 'success');
+				setTimeout(() => location.reload(), 1500);
+			} else {
+				showToast(result.message, 'danger');
+			}
+
+		} catch (error) {
+			console.error('Error creating assignment:', error);
+			showToast('An error occurred while creating the assignment', 'danger');
+		}
+	}
+
+	// View Assignment
+	async function viewAssignment(id) {
+		try {
+			const response = await fetch(`/Admin/ViewAssignment?id=${id}`);
+			const result = await response.json();
+
+			if (result.success) {
+				const assignment = result.assignment;
+
+				const html = `
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Farmer:</strong><br/>
+							<span>${assignment.farmerName}</span><br/>
+							<small style="color: #7a9a8a;">Phone: ${assignment.farmerPhone}</small>
+						</div>
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Officer:</strong><br/>
+							<span>${assignment.officerName}</span><br/>
+							<small style="color: #7a9a8a;">Email: ${assignment.officerEmail}</small>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 mb-3">
+							<strong style="color: #7a9a8a;">Farm:</strong><br/>
+							<span>${assignment.farmName}</span><br/>
+							<small style="color: #7a9a8a;">${assignment.farmLocation}</small>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 mb-3">
+							<strong style="color: #7a9a8a;">Task:</strong><br/>
+							<span>${assignment.task}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Assigned Date:</strong><br/>
+							<span>${assignment.assignedDateFormatted}</span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Due Date:</strong><br/>
+							<span>${assignment.dueDateFormatted}</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Priority:</strong><br/>
+							<span class="badge badge-${assignment.priority.toLowerCase() === 'high' ? 'danger' : assignment.priority.toLowerCase() === 'medium' ? 'warning' : 'info'}">${assignment.priority}</span>
+						</div>
+						<div class="col-md-6 mb-3">
+							<strong style="color: #7a9a8a;">Status:</strong><br/>
+							<span class="badge badge-${assignment.status.toLowerCase() === 'completed' ? 'success' : assignment.status.toLowerCase() === 'pending' ? 'warning' : assignment.status.toLowerCase() === 'overdue' ? 'danger' : 'primary'}">${assignment.status}</span>
+						</div>
+					</div>
+					${assignment.notes ? `
+					<div class="row">
+						<div class="col-md-12 mb-3">
+							<strong style="color: #7a9a8a;">Notes:</strong><br/>
+							<span>${assignment.notes}</span>
+						</div>
+					</div>
+					` : ''}
+					${assignment.completedDateFormatted ? `
+					<div class="row">
+						<div class="col-md-12 mb-3">
+							<strong style="color: #7a9a8a;">Completed Date:</strong><br/>
+							<span>${assignment.completedDateFormatted}</span>
+						</div>
+					</div>
+					` : ''}
+					<hr/>
+					<div style="text-align: right;">
+						<small style="color: #7a9a8a;">Created: ${assignment.createdDateFormatted}</small>
+					</div>
+				`;
+
+				$('#viewAssignmentContent').html(html);
+				$('#viewAssignmentModal').modal('show');
+
+			} else {
+				showToast('Assignment not found', 'danger');
+			}
+
+		} catch (error) {
+			console.error('Error viewing assignment:', error);
+			showToast('An error occurred while loading assignment details', 'danger');
+		}
+	}
+
+	// Edit Assignment Modal
+	async function editAssignmentModal(id) {
+		try {
+			const response = await fetch(`/Admin/EditAssignment?id=${id}`);
+			const result = await response.json();
+
+			if (result.success) {
+				const assignment = result.assignment;
+
+				$('#editAssignmentId').val(assignment.assignmentId);
+				$('#editFarmerId').val(assignment.farmerId).trigger('change');
+
+				// Wait for farms to load before setting farm value
+				setTimeout(() => {
+					$('#editFarmId').val(assignment.farmId);
+				}, 500);
+
+				$('#editOfficerId').val(assignment.officerId);
+				$('#editTask').val(assignment.task);
+				$('#editAssignedDate').val(assignment.assignedDate.split('T')[0]);
+				$('#editDueDate').val(assignment.dueDate.split('T')[0]);
+				$('#editPriority').val(assignment.priority);
+				$('#editStatus').val(assignment.status);
+				$('#editNotes').val(assignment.notes || '');
+
+				$('#editAssignmentModal').modal('show');
+
+			} else {
+				showToast('Assignment not found', 'danger');
+			}
+
+		} catch (error) {
+			console.error('Error loading assignment:', error);
+			showToast('An error occurred while loading assignment data', 'danger');
+		}
+	}
+
+	// Update Assignment
+	async function updateAssignment() {
+		// Clear previous validation
+		$('#editAssignmentForm .is-invalid').removeClass('is-invalid');
+
+		// Validate form
+		const form = document.getElementById('editAssignmentForm');
+		if (!form.checkValidity()) {
+			form.classList.add('was-validated');
+			return;
+		}
+
+		const data = {
+			assignmentId: parseInt($('#editAssignmentId').val()),
+			farmerId: parseInt($('#editFarmerId').val()),
+			farmId: parseInt($('#editFarmId').val()),
+			officerId: parseInt($('#editOfficerId').val()),
+			task: $('#editTask').val().trim(),
+			assignedDate: $('#editAssignedDate').val(),
+			dueDate: $('#editDueDate').val(),
+			priority: $('#editPriority').val(),
+			status: $('#editStatus').val(),
+			notes: $('#editNotes').val().trim()
+		};
+
+		try {
+			const response = await fetch('/Admin/EditAssignment', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				$('#editAssignmentModal').modal('hide');
+				showToast(result.message, 'success');
+				setTimeout(() => location.reload(), 1500);
+			} else {
+				showToast(result.message, 'danger');
+			}
+
+		} catch (error) {
+			console.error('Error updating assignment:', error);
+			showToast('An error occurred while updating the assignment', 'danger');
+		}
+	}
+
+	// Delete Assignment
+	async function deleteAssignment(id) {
+		if (!confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+			return;
+		}
+
+		try {
+			const response = await fetch('/Admin/DeleteAssignment', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(id)
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				showToast(result.message, 'success');
+				// Remove the row from table immediately
+				$(`.assignment-row[data-id="${id}"]`).fadeOut(400, function() {
+					$(this).remove();
+					// Check if table is now empty
+					if ($('#assignmentTableBody tr').length === 0) {
+						location.reload();
+					}
+				});
+			} else {
+				showToast(result.message, 'danger');
+			}
+
+		} catch (error) {
+			console.error('Error deleting assignment:', error);
+			showToast('An error occurred while deleting the assignment', 'danger');
+		}
+	}
+
+	// Refresh Data
+	function refreshData() {
+		location.reload();
+	}
+
+	// Show Toast
+	function showToast(message, type = 'success') {
+		const toastEl = document.getElementById('assignmentToast');
+		const toast = new bootstrap.Toast(toastEl);
+
+		$('#toastMessage').text(message);
+		$('#assignmentToast').removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+
+		toast.show();
+	}
+</script>
+
+<style>
+	.stats-row {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 16px;
+	}
+
+	.badge-danger {
+		background-color: #dc3545;
+		color: white;
+	}
+
+	.badge-warning {
+		background-color: #ffc107;
+		color: #1a1a1a;
+	}
+
+	.badge-info {
+		background-color: #17a2b8;
+		color: white;
+	}
+
+	.badge-success {
+		background-color: #28a745;
+		color: white;
+	}
+
+	.badge-primary {
+		background-color: #007bff;
+		color: white;
+	}
+
+	.badge-secondary {
+		background-color: #6c757d;
+		color: white;
+	}
+
+	.table tbody tr:hover {
+		background-color: #f8f9fa;
+	}
+
+	/* Scrollbar styling */
+	::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 4px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: #c1c1c1;
+		border-radius: 4px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: #a8a8a8;
+	}
+</style>
+}

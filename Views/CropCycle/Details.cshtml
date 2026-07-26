@@ -1,0 +1,440 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Manage Crop Cycle";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/CropCycle" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Crop Cycles
+        </a>
+        <h2 class="text-success mb-1">Crop Cycle: @Model.Crop.CropName</h2>
+        <p class="text-muted">Plot: @Model.LandPlot.PlotName | Farm: @Model.LandPlot.Farm.FarmName</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible show fade mb-4" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Left Column: Summary, Calendar, Telemetry -->
+    <div class="col-lg-4 d-flex flex-column gap-4">
+        <!-- Cycle Summary Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold border-bottom pb-2">Overview</h4>
+            <div class="mb-3">
+                <label class="text-muted small d-block">Sowing Date</label>
+                <span class="fw-semibold text-dark">@Model.SowingDate.ToString("dd MMMM yyyy")</span>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted small d-block">Expected Harvest Date</label>
+                <span class="fw-semibold text-dark text-success">@Model.ExpectedHarvestDate.ToString("dd MMMM yyyy")</span>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted small d-block">Growth Stage</label>
+                <span class="badge bg-success text-white rounded-pill px-3 py-1 mt-1">@Model.CurrentStage</span>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted small d-block">Cycle Status</label>
+                <span class="badge @(Model.Status == "Active" ? "bg-success-subtle text-success" : Model.Status == "Completed" ? "bg-info-subtle text-info" : "bg-danger-subtle text-danger") rounded-pill px-3 py-1 mt-1">@Model.Status</span>
+            </div>
+
+            @if (Model.Status == "Active")
+            {
+                <div class="mt-4 d-grid gap-2">
+                    <a href="~/CropMonitoring/Create?cycleId=@Model.CropCycleId" class="btn btn-success rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <span class="material-icons-round">analytics</span>
+                        Log Growth Observation
+                    </a>
+                    <a href="~/PestCase/Create?cycleId=@Model.CropCycleId" class="btn btn-outline-danger rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <span class="material-icons-round">bug_report</span>
+                        Report Pest Incident
+                    </a>
+                    <a href="~/Harvest/Create?cycleId=@Model.CropCycleId" class="btn btn-outline-success rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <span class="material-icons-round">agriculture</span>
+                        Record Harvest Yield
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Crop Calendar Widget -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold border-bottom pb-2">Crop Calendar</h4>
+            <div class="position-relative ps-4 border-start border-2 border-success border-opacity-50 ms-2 py-2">
+                <div class="mb-4 position-relative">
+                    <div class="position-absolute bg-success rounded-circle" style="width: 12px; height: 12px; left: -28px; top: 4px;"></div>
+                    <label class="text-muted small d-block">Sown Date</label>
+                    <span class="fw-semibold text-dark">@Model.SowingDate.ToString("dd MMM yyyy")</span>
+                </div>
+
+                @{
+                    var totalDays = (Model.ExpectedHarvestDate - Model.SowingDate).TotalDays;
+                    var elapsedDays = (DateTime.Today - Model.SowingDate).TotalDays;
+                    var pct = totalDays > 0 ? Math.Clamp((elapsedDays / totalDays) * 100, 0, 100) : 0;
+                }
+
+                <div class="mb-4 position-relative">
+                    <div class="position-absolute bg-primary rounded-circle" style="width: 12px; height: 12px; left: -28px; top: 4px;"></div>
+                    <label class="text-muted small d-block">Current Date (Progress: @(Math.Round(pct))%)</label>
+                    <span class="fw-semibold text-dark">@DateTime.Today.ToString("dd MMM yyyy")</span>
+                    <div class="progress mt-1" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @(pct)%"></div>
+                    </div>
+                </div>
+
+                <div class="position-relative">
+                    <div class="position-absolute bg-success rounded-circle" style="width: 12px; height: 12px; left: -28px; top: 4px;"></div>
+                    <label class="text-muted small d-block">Expected Harvest</label>
+                    <span class="fw-semibold text-success fw-bold">@Model.ExpectedHarvestDate.ToString("dd MMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sensor Telemetry Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold border-bottom pb-2 d-flex align-items-center gap-2">
+                <span class="material-icons-round text-success">sensors</span>
+                IoT Plot Telemetry
+            </h4>
+            @if (ViewBag.SensorReading == null)
+            {
+                <div class="text-center py-4 text-muted small">
+                    <span class="material-icons-round text-muted" style="font-size: 2.5rem;">sensors_off</span>
+                    <p class="mb-0 mt-1">No telemetry record found for this plot.</p>
+                    <a href="~/LandPlot/Details/@Model.PlotId" class="btn btn-sm btn-outline-success mt-2">Go to Plot Details</a>
+                </div>
+            }
+            else
+            {
+                var reading = ViewBag.SensorReading as Smart_Farm_and_Crop_Yeild_Management_System.Models.SensorReading;
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Soil Moisture</span>
+                            <span class="fw-bold text-success" id="telemetry-moisture" data-val="@reading.SoilMoisture">@reading.SoilMoisture%</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Soil pH</span>
+                            <span class="fw-bold text-success" id="telemetry-ph" data-val="@reading.SoilPH">@reading.SoilPH</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 10px;">Nitrogen</span>
+                            <span class="fw-bold text-dark" id="telemetry-n" data-val="@reading.Nitrogen">@reading.Nitrogen ppm</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 10px;">Phosphorus</span>
+                            <span class="fw-bold text-dark" id="telemetry-p" data-val="@reading.Phosphorus">@reading.Phosphorus ppm</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 10px;">Potassium</span>
+                            <span class="fw-bold text-dark" id="telemetry-k" data-val="@reading.Potassium">@reading.Potassium ppm</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Electrical Cond.</span>
+                            <span class="fw-bold text-dark small">@reading.ElectricalConductivity dS/m</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 border rounded-3 text-center bg-light">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Organic Carbon</span>
+                            <span class="fw-bold text-dark small">@reading.OrganicCarbon%</span>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center pt-2">
+                        <span class="text-muted" style="font-size: 10px;">Synced: @reading.LastUpdated.ToString("dd-MM-yyyy HH:mm")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right Column: Advisories, Chart, Logs, Pest Cases -->
+    <div class="col-lg-8 d-flex flex-column gap-4">
+        <!-- Weather & Agronomic Advisory Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold d-flex align-items-center gap-2">
+                <span class="material-icons-round text-success">psychology</span>
+                Smart Weather &amp; Soil Advisories
+            </h4>
+            <div id="advisory-loading" class="text-center py-3">
+                <div class="spinner-border text-success spinner-border-sm" role="status"></div>
+                <span class="ms-2 text-muted small">Generating live weather advisories...</span>
+            </div>
+            <div id="advisory-list" class="d-flex flex-column gap-3 d-none">
+                <!-- Advisories injected via JS -->
+            </div>
+            <div id="no-advisory" class="alert alert-success d-flex align-items-center gap-2 mb-0 d-none">
+                <span class="material-icons-round">check_circle</span>
+                <div><strong>Optimal Conditions:</strong> No critical weather or soil issues detected for this crop cycle.</div>
+            </div>
+        </div>
+
+        <!-- Plant Growth Chart Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold d-flex align-items-center gap-2">
+                <span class="material-icons-round text-success">show_chart</span>
+                Plant Growth Chart
+            </h4>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Growth Observations Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold">Growth Observation Logs (@Model.CropMonitorings.Count)</h4>
+            @if (!Model.CropMonitorings.Any())
+            {
+                <div class="text-center py-4 text-muted small">
+                    <span class="material-icons-round fs-2">eco</span>
+                    <p class="mb-0 mt-1">No growth measurements logged yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var log in Model.CropMonitorings.OrderByDescending(m => m.ObservationDate))
+                    {
+                        <div class="list-group-item px-0 border-light py-3 d-flex gap-3 align-items-start">
+                            @if (!string.IsNullOrEmpty(log.ImagePath))
+                            {
+                                <img src="@log.ImagePath" style="width: 60px; height: 60px; object-fit: cover;" class="rounded-3 shadow-sm" />
+                            }
+                            else
+                            {
+                                <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-3 shadow-sm" style="width: 60px; height: 60px;">
+                                    <span class="material-icons-round">image_not_supported</span>
+                                </div>
+                            }
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-1 text-dark fw-bold">Stage: @log.GrowthStage</h6>
+                                    <small class="text-muted">@log.ObservationDate.ToString("dd-MM-yyyy")</small>
+                                </div>
+                                <p class="text-muted mb-1 small">Height: @($"{log.PlantHeight} cm") | Health: <span class="fw-semibold text-success">@log.CropHealth</span></p>
+                                <p class="text-dark mb-0 small">@log.Remarks</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Pest reports Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="text-dark mb-3 fw-semibold">Reported Pest Cases (@Model.PestCases.Count)</h4>
+            @if (!Model.PestCases.Any())
+            {
+                <p class="text-muted small">No pest incidents reported during this crop cycle.</p>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var pest in Model.PestCases.OrderByDescending(p => p.CreatedDate))
+                    {
+                        <a href="~/PestCase/Details/@pest.PestCaseId" class="list-group-item list-group-item-action px-0 border-light py-3 d-flex gap-3 align-items-start text-decoration-none">
+                            @if (!string.IsNullOrEmpty(pest.ImagePath))
+                            {
+                                <img src="@pest.ImagePath" style="width: 60px; height: 60px; object-fit: cover;" class="rounded-3 shadow-sm" />
+                            }
+                            else
+                            {
+                                <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-3 shadow-sm" style="width: 60px; height: 60px;">
+                                    <span class="material-icons-round">bug_report</span>
+                                </div>
+                            }
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-1 text-danger fw-bold">@pest.Title</h6>
+                                    <small class="text-muted">@pest.CreatedDate.ToString("dd-MM-yyyy")</small>
+                                </div>
+                                <p class="text-muted mb-1 small">Priority: <span class="badge bg-danger">@pest.Priority</span> | Status: <span class="badge bg-warning text-dark">@pest.Status</span></p>
+                                <p class="text-dark mb-0 small text-truncate" style="max-width: 400px;">@pest.Description</p>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Load Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        // 1. Build Growth Chart
+        var growthData = [
+        @foreach (var log in Model.CropMonitorings.OrderBy(m => m.ObservationDate))
+        {
+            <text>{ date: '@log.ObservationDate.ToString("dd MMM")', height: @log.PlantHeight },</text>
+        }
+        ];
+
+        if (growthData.length > 0) {
+        var labels = growthData.map(d => d.date);
+        var values = growthData.map(d => d.height);
+
+        var ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: labels,
+        datasets: [{
+        label: 'Plant Height (cm)',
+        data: values,
+        borderColor: '#2d6a4f',
+        backgroundColor: 'rgba(45, 106, 79, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#2d6a4f',
+        pointRadius: 4
+        }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+        y: {
+        beginAtZero: true,
+        title: {
+        display: true,
+        text: 'Height (cm)'
+        }
+        }
+        }
+        }
+        });
+        } else {
+        document.getElementById('growthChart').parentElement.innerHTML =
+        '<div class="text-center py-5 text-muted small"><span class="material-icons-round fs-2 text-muted mb-2">trending_flat</span><p>No observations recorded yet. Add observations to plot height progression.</p></div>';
+        }
+
+        // 2. Fetch live weather and evaluate advisory warnings
+        var lat = @Model.LandPlot.Latitude;
+        var lng = @Model.LandPlot.Longitude;
+        var weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,rain&daily=precipitation_probability_max&timezone=auto`;
+
+        fetch(weatherUrl)
+        .then(response => {
+        if (!response.ok) throw new Error("Weather request failed");
+        return response.json();
+        })
+        .then(data => {
+        var temp = data.current.temperature_2m;
+        var rain = data.current.rain;
+        var rainProb = (data.daily && data.daily.precipitation_probability_max) ? data.daily.precipitation_probability_max[0] : 0;
+
+        var moistureEl = document.getElementById("telemetry-moisture");
+        var phEl = document.getElementById("telemetry-ph");
+        var nEl = document.getElementById("telemetry-n");
+        var pEl = document.getElementById("telemetry-p");
+        var kEl = document.getElementById("telemetry-k");
+
+        var moisture = moistureEl ? parseFloat(moistureEl.dataset.val) : 50.0;
+        var ph = phEl ? parseFloat(phEl.dataset.val) : 7.0;
+        var n = nEl ? parseFloat(nEl.dataset.val) : 50.0;
+        var p = pEl ? parseFloat(pEl.dataset.val) : 50.0;
+        var k = kEl ? parseFloat(kEl.dataset.val) : 50.0;
+
+        var advisories = [];
+
+        // Rule 1: High Temp (> 35°C) & Low Moisture (< 30%)
+        if (temp > 35 && moisture < 30) {
+        advisories.push({
+        type: 'danger',
+        icon: 'wb_sunny',
+        title: 'Irrigation Increase Advisory',
+        desc: 'High temperatures (' + temp + '°C) and low soil moisture (' + moisture + '%) detected. Increase irrigation frequency.'
+        });
+        }
+
+        // Rule 2: Nutrient Deficiencies (N < 20 or P < 20 or K < 20)
+        if (n < 20 || p < 20 || k < 20) {
+        advisories.push({
+        type: 'warning',
+        icon: 'science',
+        title: 'NPK Advisory',
+        desc: 'Soil nitrogen (' + n + ' ppm), phosphorus (' + p + ' ppm), or potassium (' + k + ' ppm) levels are below 20%. Apply balanced fertilizer.'
+        });
+        }
+
+        // Rule 3: Acidic Soil (pH < 6.0)
+        if (ph < 6.0) {
+        advisories.push({
+        type: 'warning',
+        icon: 'opacity',
+        title: 'pH Neutralization Advisory',
+        desc: 'Acidic soil detected (pH ' + ph + ' < 6.0). Apply agricultural lime.'
+        });
+        }
+
+        // Rule 4: High Rain (> 70% probability or > 5mm) & Sowing/Harvesting/Maturity stage
+        var stage = "@Model.CurrentStage";
+        var isHarvestingStage = (stage.toLowerCase() === "maturity" || stage.toLowerCase() === "harvesting" || stage.toLowerCase() === "harvest");
+        if ((rainProb > 70 || rain > 5) && isHarvestingStage) {
+        advisories.push({
+        type: 'danger',
+        icon: 'umbrella',
+        title: 'Harvest Delay Warning',
+        desc: 'Heavy rain forecasted (' + rainProb + '% probability, ' + rain + 'mm) during harvesting stage. Delay harvest to protect yield quality.'
+        });
+        }
+
+        document.getElementById("advisory-loading").classList.add("d-none");
+        var listDiv = document.getElementById("advisory-list");
+
+        if (advisories.length > 0) {
+        listDiv.innerHTML = "";
+        advisories.forEach(adv => {
+        var alertClass = adv.type === 'danger' ? 'alert-danger' : 'alert-warning';
+        var borderClass = adv.type === 'danger' ? 'border-danger' : 'border-warning';
+        var html = `
+        <div class="alert ${alertClass} border-start border-4 ${borderClass} d-flex align-items-start gap-3 mb-0 shadow-sm">
+        <span class="material-icons-round fs-4 mt-1">${adv.icon}</span>
+        <div>
+        <h5 class="alert-heading fw-bold mb-1 fs-6">${adv.title}</h5>
+        <p class="mb-0 small">${adv.desc}</p>
+        </div>
+        </div>
+        `;
+        listDiv.innerHTML += html;
+        });
+        listDiv.classList.remove("d-none");
+        } else {
+        document.getElementById("no-advisory").classList.remove("d-none");
+        }
+        })
+        .catch(err => {
+        console.error(err);
+        document.getElementById("advisory-loading").innerHTML =
+        '<span class="text-danger small"><span class="material-icons-round align-middle me-1">report_problem</span>Unable to fetch live weather recommendations.</span>';
+        });
+        });
+    </script>
+}

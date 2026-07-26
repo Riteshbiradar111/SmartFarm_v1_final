@@ -1,0 +1,77 @@
+﻿@model SmartFarmMVC.Models.ViewModels.PestCaseViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Report Pest Incident";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="~/PestCase" class="text-success d-inline-flex align-items-center gap-1 mb-2 text-decoration-none">
+            <span class="material-icons-round">arrow_back</span>
+            Back to Pest Cases
+        </a>
+        <h2 class="text-danger">Report Pest / Crop Disease</h2>
+        <p class="text-muted">Report visual symptoms of crop damage or disease to request an agronomist review.</p>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible show fade mb-4" role="alert">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 max-width-600">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="CropCycleId" class="form-label fw-semibold text-dark">Affected Crop Cycle *</label>
+                <select asp-for="CropCycleId" class="form-select rounded-3" required>
+                    <option value="">-- Select Crop --</option>
+                    @foreach (var cycle in ViewBag.Cycles as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropCycle>)
+                    {
+                        <option value="@cycle.CropCycleId">@cycle.Crop.CropName (@cycle.LandPlot.PlotName - @cycle.LandPlot.Farm.FarmName)</option>
+                    }
+                </select>
+                <span asp-validation-for="CropCycleId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label fw-semibold text-dark">Pest / Disease Name or Symptoms *</label>
+                <input asp-for="Title" class="form-control rounded-3" placeholder="e.g. Yellowing leaf edges, Whitefly attack" required />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-semibold text-dark">Symptom Details / Observations *</label>
+                <textarea asp-for="Description" class="form-control rounded-3" rows="4" placeholder="Describe the damage, spread rate, or patterns..." required></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Priority" class="form-label fw-semibold text-dark">Damage Priority *</label>
+                <select asp-for="Priority" class="form-select rounded-3" required>
+                    <option value="Low">Low - Minor spot damage</option>
+                    <option value="Medium">Medium - Spreading localized damage</option>
+                    <option value="High">High - Severe crop loss threat</option>
+                </select>
+                <span asp-validation-for="Priority" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ImageFile" class="form-label fw-semibold text-dark">Upload Damage Picture *</label>
+                <input asp-for="ImageFile" type="file" accept="image/*" class="form-control rounded-3" required />
+                <span class="text-muted small d-block mt-1">Please upload a clear, close-up photo of the affected plant.</span>
+                <span asp-validation-for="ImageFile" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="~/PestCase" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-danger rounded-3 px-4">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>

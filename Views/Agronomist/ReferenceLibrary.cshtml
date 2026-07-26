@@ -1,0 +1,854 @@
+@{
+	ViewData["Title"] = "Reference Library";
+	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@section Styles {
+	<style>
+		.reference-container {
+			padding: 2.5rem;
+			max-width: 1400px;
+			margin: 0 auto;
+			background: #f8fafc;
+			min-height: 100vh;
+		}
+
+		.page-header {
+			margin-bottom: 2.5rem;
+		}
+
+		.page-title {
+			font-size: 1.5rem;
+			font-weight: 600;
+			color: #1e293b;
+			margin-bottom: 0.75rem;
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.page-title-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 36px;
+			height: 36px;
+			background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+			border-radius: 8px;
+			font-size: 1.25rem;
+		}
+
+		.page-subtitle {
+			color: #64748b;
+			font-size: 0.95rem;
+			margin-left: 48px;
+		}
+
+		.search-filter-bar {
+			background: white;
+			padding: 1.5rem;
+			border-radius: 8px;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			margin-bottom: 2rem;
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.search-box {
+			flex: 1;
+			min-width: 280px;
+			position: relative;
+		}
+
+		.search-box input {
+			width: 100%;
+			padding: 0.7rem 1rem 0.7rem 3rem;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 0.9rem;
+			color: #64748b;
+		}
+
+		.search-box input::placeholder {
+			color: #9ca3af;
+		}
+
+		.search-box input:focus {
+			outline: none;
+			border-color: #0891b2;
+		}
+
+		.search-icon {
+			position: absolute;
+			left: 1rem;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #9ca3af;
+			font-size: 1.25rem;
+		}
+
+		.filter-group {
+			display: flex;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+		}
+
+		.filter-btn {
+			padding: 0.65rem 1.5rem;
+			border: none;
+			background: #f1f5f9;
+			border-radius: 6px;
+			cursor: pointer;
+			font-size: 0.9rem;
+			font-weight: 500;
+			transition: all 0.2s;
+			color: #64748b;
+		}
+
+		.filter-btn:hover {
+			background: #e2e8f0;
+			color: #475569;
+		}
+
+		.filter-btn.active {
+			background: #0891b2;
+			color: white;
+		}
+
+		.reference-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+			gap: 1.5rem;
+		}
+
+		.reference-card {
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			overflow: hidden;
+			transition: all 0.2s;
+			cursor: pointer;
+			border: 1px solid #f1f5f9;
+		}
+
+		.reference-card:hover {
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+			transform: translateY(-2px);
+		}
+
+		.card-header {
+			padding: 1.5rem;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		.crop-icon {
+			width: 54px;
+			height: 54px;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.75rem;
+			flex-shrink: 0;
+			background: #fef3c7;
+		}
+
+		.card-title-section {
+			flex: 1;
+		}
+
+		.card-title {
+			font-size: 1.1rem;
+			font-weight: 600;
+			color: #1e293b;
+			margin-bottom: 0.25rem;
+		}
+
+		.card-subtitle {
+			font-size: 0.85rem;
+			color: #94a3b8;
+			font-style: italic;
+		}
+
+		.card-body {
+			padding: 1.25rem 1.5rem;
+		}
+
+		.info-row {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.85rem;
+			padding: 0.7rem 0;
+			border-bottom: 1px solid #f8fafc;
+		}
+
+		.info-row:last-child {
+			border-bottom: none;
+		}
+
+		.info-icon {
+			color: #0891b2;
+			font-size: 1.2rem;
+			margin-top: 2px;
+		}
+
+		.info-content {
+			flex: 1;
+		}
+
+		.info-label {
+			font-size: 0.8rem;
+			color: #94a3b8;
+			margin-bottom: 0.2rem;
+		}
+
+		.info-value {
+			font-size: 0.95rem;
+			color: #1e293b;
+			font-weight: 500;
+		}
+
+		.card-footer {
+			padding: 0.75rem 1.5rem;
+			background: #fafafa;
+			display: flex;
+			gap: 0.5rem;
+			border-top: 1px solid #f1f5f9;
+		}
+
+		.tag {
+			padding: 0.35rem 0.75rem;
+			border-radius: 4px;
+			font-size: 0.8rem;
+			font-weight: 500;
+		}
+
+		.tag.kharif {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		.tag.rabi {
+			background: #fef3c7;
+			color: #92400e;
+		}
+
+		.tag.annual {
+			background: #dbeafe;
+			color: #1e40af;
+		}
+
+		.detail-modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 9999;
+			overflow-y: auto;
+			animation: fadeIn 0.2s;
+		}
+
+		.detail-modal.active {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 2rem;
+		}
+
+		.modal-content {
+			background: white;
+			border-radius: 12px;
+			max-width: 900px;
+			width: 100%;
+			max-height: 90vh;
+			overflow-y: auto;
+			animation: slideUp 0.3s;
+		}
+
+		.modal-header {
+			padding: 2rem;
+			border-bottom: 1px solid #e2e8f0;
+			position: sticky;
+			top: 0;
+			background: white;
+			z-index: 10;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.modal-title h2 {
+			font-size: 1.75rem;
+			font-weight: 600;
+			color: #1e293b;
+		}
+
+		.close-btn {
+			background: #f1f5f9;
+			border: none;
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #64748b;
+		}
+
+		.close-btn:hover {
+			background: #e2e8f0;
+		}
+
+		.modal-body {
+			padding: 2rem;
+		}
+
+		.detail-section {
+			margin-bottom: 2rem;
+		}
+
+		.detail-section h3 {
+			font-size: 1.1rem;
+			font-weight: 600;
+			color: #1e293b;
+			margin-bottom: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.detail-section ul {
+			list-style: none;
+			padding: 0;
+		}
+
+		.detail-section li {
+			padding: 0.75rem 0;
+			border-bottom: 1px solid #f1f5f9;
+			color: #475569;
+			line-height: 1.6;
+		}
+
+		.detail-section li:before {
+			content: "•";
+			color: #0891b2;
+			font-weight: bold;
+			display: inline-block;
+			width: 1.5rem;
+		}
+
+		.recommendation-box {
+			background: #f0f9ff;
+			border-left: 4px solid #0891b2;
+			padding: 1.25rem;
+			border-radius: 6px;
+			margin-top: 1rem;
+		}
+
+		.recommendation-box p {
+			margin: 0;
+			color: #0c4a6e;
+			line-height: 1.6;
+		}
+
+		@@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+
+		@@keyframes slideUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.no-results {
+			text-align: center;
+			padding: 3rem;
+			color: #64748b;
+		}
+
+		.no-results .material-icons-round {
+			font-size: 4rem;
+			color: #cbd5e1;
+			margin-bottom: 1rem;
+		}
+	</style>
+}
+
+<div class="reference-container">
+	<div class="page-header">
+		<h1 class="page-title">
+			<span class="page-title-icon">📚</span>
+			Crop Reference Library
+		</h1>
+		<p class="page-subtitle">Comprehensive cultivation guidelines and best practices for informed agronomic decisions</p>
+	</div>
+
+	<div class="search-filter-bar">
+		<div class="search-box">
+			<span class="material-icons-round search-icon">search</span>
+			<input type="text" id="searchInput" placeholder="Search crops..." />
+		</div>
+		<div class="filter-group">
+			<button class="filter-btn active" data-season="all">All Seasons</button>
+			<button class="filter-btn" data-season="kharif">Kharif</button>
+			<button class="filter-btn" data-season="rabi">Rabi</button>
+			<button class="filter-btn" data-season="annual">Annual</button>
+		</div>
+	</div>
+
+	<div class="reference-grid" id="referenceGrid">
+		<!-- Content loaded via JavaScript -->
+	</div>
+
+	<div class="no-results" id="noResults" style="display: none;">
+		<span class="material-icons-round">search_off</span>
+		<h3>No crops found</h3>
+		<p>Try adjusting your search or filter</p>
+	</div>
+</div>
+
+<div class="detail-modal" id="detailModal">
+	<div class="modal-content">
+		<div class="modal-header">
+			<div class="modal-title">
+				<h2 id="modalCropName"></h2>
+			</div>
+			<button class="close-btn" onclick="closeModal()">
+				<span class="material-icons-round">close</span>
+			</button>
+		</div>
+		<div class="modal-body" id="modalBody">
+			<!-- Dynamic content -->
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		// Mocked API Data - Comprehensive Crop Reference
+		const cropDatabase = [
+			{
+				id: 1,
+				name: "Rice",
+				scientificName: "Oryza sativa",
+				season: "kharif",
+				icon: "🌾",
+				color: "#fef3c7",
+				soilType: "Clay loam, silty clay loam",
+				soilpH: "5.5 - 7.0",
+				temperature: "20°C - 35°C",
+				rainfall: "1000-2000 mm",
+				duration: "120-150 days",
+				cultivation: [
+					"Puddling and leveling of field required",
+					"Transplanting: 21-25 days old seedlings",
+					"Spacing: 20 × 15 cm or 20 × 20 cm",
+					"Seed rate: 20-25 kg/ha for transplanting",
+					"Water depth: 5-10 cm during growing period"
+				],
+				fertilizer: [
+					"Basal: 60 kg N + 30 kg P₂O₅ + 30 kg K₂O per ha",
+					"Top dressing: 30 kg N at tillering, 30 kg N at panicle initiation",
+					"Apply zinc sulfate 25 kg/ha if deficiency observed",
+					"Organic manure: 10-12 tonnes FYM/ha before planting"
+				],
+				irrigation: [
+					"Maintain 5 cm standing water after transplanting",
+					"Keep field saturated during flowering",
+					"Drain field 10 days before harvest",
+					"Critical stages: Tillering, panicle initiation, flowering, grain filling"
+				],
+				pestManagement: [
+					"Stem borer: Use pheromone traps, Trichogramma release",
+					"Leaf folder: Spray Cartap hydrochloride 50% SP [at] 1g/L",
+					"Brown plant hopper: Use resistant varieties, spray Imidacloprid",
+					"Blast disease: Spray Tricyclazole 75% WP [at] 0.6g/L",
+					"Bacterial leaf blight: Use disease-free seeds, balanced fertilization"
+				],
+				recommendation: "Rice thrives in waterlogged conditions. Ensure proper puddling and maintain standing water. Monitor for blast and bacterial blight. Use certified seeds and follow recommended spacing for optimal yield."
+			},
+			{
+				id: 2,
+				name: "Wheat",
+				scientificName: "Triticum aestivum",
+				season: "rabi",
+				icon: "🌾",
+				color: "#fef3c7",
+				soilType: "Loam to clay loam",
+				soilpH: "6.5 - 7.5",
+				temperature: "10°C - 25°C",
+				rainfall: "400-600 mm",
+				duration: "120-150 days",
+				cultivation: [
+					"Timely sowing: Mid-November for optimal yield",
+					"Seed rate: 100 kg/ha for timely sowing",
+					"Spacing: 20 cm row-to-row distance",
+					"Sowing depth: 5-6 cm",
+					"Use seed treatment with Thiram or Carboxin"
+				],
+				fertilizer: [
+					"Basal: 80 kg N + 40 kg P₂O₅ + 40 kg K₂O per ha",
+					"Top dressing: 40 kg N at CRI (Crown Root Initiation)",
+					"Additional 40 kg N at maximum tillering",
+					"Apply Zinc sulfate 25 kg/ha in deficient soils"
+				],
+				irrigation: [
+					"First irrigation: 20-25 days after sowing (CRI stage)",
+					"Second: At tillering (40-45 DAS)",
+					"Third: At jointing stage (60-65 DAS)",
+					"Fourth: At flowering (80-85 DAS)",
+					"Fifth: At milking stage (100-105 DAS)",
+					"Total: 4-6 irrigations depending on soil and climate"
+				],
+				pestManagement: [
+					"Aphids: Spray Imidacloprid 17.8% SL [at] 0.3ml/L",
+					"Termite: Apply Chlorpyriphos 20% EC [at] 2.5L/ha with irrigation",
+					"Rust diseases: Use resistant varieties, spray Propiconazole",
+					"Powdery mildew: Spray Sulfur 80% WP [at] 3g/L",
+					"Karnal bunt: Use disease-free seeds, avoid over-irrigation"
+				],
+				recommendation: "Timely sowing in mid-November is critical for wheat. Ensure adequate moisture at CRI and flowering stages. Monitor for rust diseases and aphid infestation. Follow recommended seed rate and fertilizer application for maximum yield."
+			},
+			{
+				id: 3,
+				name: "Maize",
+				scientificName: "Zea mays",
+				season: "kharif",
+				icon: "🌽",
+				color: "#fef3c7",
+				soilType: "Well-drained loam",
+				soilpH: "5.5 - 7.5",
+				temperature: "21°C - 30°C",
+				rainfall: "500-800 mm",
+				duration: "90-110 days",
+				cultivation: [
+					"Sowing time: Kharif - June-July, Rabi - October-November",
+					"Seed rate: 20-25 kg/ha",
+					"Spacing: 60 × 20 cm or 75 × 25 cm",
+					"Sowing depth: 4-5 cm",
+					"Use hybrid seeds for better yield"
+				],
+				fertilizer: [
+					"Basal: 60 kg N + 60 kg P₂O₅ + 40 kg K₂O per ha",
+					"Top dressing: 60 kg N at knee-high stage (30-35 DAS)",
+					"Apply 25 kg ZnSO₄/ha if zinc deficiency",
+					"FYM: 10-15 tonnes/ha at field preparation"
+				],
+				irrigation: [
+					"First irrigation: 15-20 DAS",
+					"Critical stages: Tasseling, silking, and grain filling",
+					"Total: 6-8 irrigations depending on rainfall",
+					"Avoid water stress during flowering and grain development"
+				],
+				pestManagement: [
+					"Stem borer: Apply Carbofuran 3G [at] 20 kg/ha in whorl",
+					"Fall armyworm: Spray Emamectin benzoate 5% SG [at] 0.4g/L",
+					"Shoot fly: Use carbofuran 3G [at] 8-10 kg/ha at sowing",
+					"Turcicum leaf blight: Spray Mancozeb 75% WP [at] 2g/L",
+					"Maydis leaf blight: Use resistant varieties"
+				],
+				recommendation: "Maize requires well-drained soil and adequate moisture during flowering and grain filling. Monitor for fall armyworm and stem borer. Use hybrid varieties and ensure timely weed management for better productivity."
+			},
+			{
+				id: 4,
+				name: "Tomato",
+				scientificName: "Solanum lycopersicum",
+				season: "kharif",
+				icon: "🍅",
+				color: "#fee2e2",
+				soilType: "Well-drained sandy loam",
+				soilpH: "6.0 - 7.0",
+				temperature: "20°C - 27°C",
+				rainfall: "600-1200 mm (with irrigation)",
+				duration: "90-120 days",
+				cultivation: [
+					"Nursery raising: 25-30 days before transplanting",
+					"Transplanting: 4-5 weeks old seedlings",
+					"Spacing: 75 × 60 cm for indeterminate, 60 × 45 cm for determinate",
+					"Seed rate: 200-250g/ha",
+					"Staking required for indeterminate varieties"
+				],
+				fertilizer: [
+					"Basal: 60 kg N + 80 kg P₂O₅ + 60 kg K₂O per ha",
+					"Top dressing: 60 kg N in 2-3 splits",
+					"Apply 20-25 tonnes FYM/ha at field preparation",
+					"Foliar spray of micronutrients at flowering"
+				],
+				irrigation: [
+					"Light irrigation immediately after transplanting",
+					"Irrigation interval: 5-7 days in summer, 10-12 days in winter",
+					"Drip irrigation recommended for water efficiency",
+					"Critical stages: Flowering and fruit development"
+				],
+				pestManagement: [
+					"Fruit borer: Install pheromone traps, spray Spinosad",
+					"Leaf miner: Spray Abamectin 1.8% EC [at] 0.5ml/L",
+					"Early blight: Spray Mancozeb 75% WP [at] 2g/L",
+					"Late blight: Spray Metalaxyl + Mancozeb [at] 2.5g/L",
+					"Tomato leaf curl virus: Control whitefly vector, use resistant varieties"
+				],
+				recommendation: "Tomato requires well-drained soil and regular irrigation. Monitor for early and late blight especially during humid weather. Install pheromone traps for fruit borer management. Use disease-resistant varieties and ensure proper staking for indeterminate types."
+			},
+			{
+				id: 5,
+				name: "Onion",
+				scientificName: "Allium cepa",
+				season: "rabi",
+				icon: "🧅",
+				color: "#fef3c7",
+				soilType: "Well-drained loamy soil",
+				soilpH: "6.0 - 7.0",
+				temperature: "15°C - 25°C",
+				rainfall: "650-750 mm",
+				duration: "140-180 days",
+				cultivation: [
+					"Nursery sowing: 6-8 weeks before transplanting",
+					"Transplanting: When seedlings are 15-20 cm tall",
+					"Spacing: 15 × 10 cm",
+					"Seed rate: 8-10 kg/ha for direct sowing, 2-3 kg/ha for transplanting",
+					"Raised bed cultivation recommended"
+				],
+				fertilizer: [
+					"Basal: 50 kg N + 50 kg P₂O₅ + 50 kg K₂O per ha",
+					"Top dressing: 50 kg N in 2 splits (30 and 50 DAT)",
+					"Apply 20-25 tonnes FYM/ha",
+					"Foliar spray of Sulphur for better bulb quality"
+				],
+				irrigation: [
+					"Light irrigation after transplanting",
+					"Irrigation interval: 5-7 days depending on soil type",
+					"Critical stages: Bulb formation and enlargement",
+					"Stop irrigation 10-15 days before harvesting"
+				],
+				pestManagement: [
+					"Thrips: Spray Fipronil 5% SC [at] 2ml/L or Imidacloprid",
+					"Purple blotch: Spray Mancozeb 75% WP [at] 2.5g/L",
+					"Stemphylium blight: Spray Carbendazim 50% WP [at] 1g/L",
+					"Basal rot: Use healthy bulbs, soil solarization",
+					"Onion maggot: Apply phorate 10% CG [at] 10 kg/ha at planting"
+				],
+				recommendation: "Onion thrives in well-drained fertile soil with adequate organic matter. Monitor for thrips and purple blotch during humid conditions. Ensure timely application of nitrogen and stop irrigation before harvest for better storage quality."
+			},
+			{
+				id: 6,
+				name: "Sugarcane",
+				scientificName: "Saccharum officinarum",
+				season: "annual",
+				icon: "🎋",
+				color: "#dcfce7",
+				soilType: "Deep loamy soil",
+				soilpH: "6.5 - 7.5",
+				temperature: "20°C - 35°C",
+				rainfall: "1500-2500 mm",
+				duration: "10-16 months",
+				cultivation: [
+					"Planting: February-March (spring), October-November (autumn)",
+					"Seed rate: 35,000-40,000 two-budded setts per ha",
+					"Spacing: 90-120 cm row-to-row",
+					"Sett treatment with fungicide before planting",
+					"Earthing up: 120-150 days after planting"
+				],
+				fertilizer: [
+					"Basal: 100 kg N + 50 kg P₂O₅ + 60 kg K₂O per ha",
+					"Top dressing: 100 kg N in 2 splits (45 and 90 DAP)",
+					"Apply 25 tonnes FYM/ha at field preparation",
+					"Foliar spray of micronutrients for better cane quality"
+				],
+				irrigation: [
+					"First irrigation: Immediately after planting",
+					"Summer: 7-10 day interval",
+					"Winter: 15-20 day interval",
+					"Critical stages: Tillering, grand growth, and cane formation",
+					"Stop irrigation 2-3 weeks before harvest"
+				],
+				pestManagement: [
+					"Early shoot borer: Apply carbofuran 3G [at] 25 kg/ha",
+					"Top borer: Release Trichogramma parasites",
+					"Red rot: Use disease-free setts, resistant varieties",
+					"Smut: Hot water treatment of setts at 52°C for 30 min",
+					"Whip smut: Remove and destroy infected shoots"
+				],
+				recommendation: "Sugarcane is a long-duration crop requiring consistent moisture and nutrient management. Use disease-free and healthy setts for planting. Monitor for borers throughout the season. Ensure proper earthing up and timely irrigation for maximum sugar recovery."
+			}
+		];
+
+		let currentFilter = 'all';
+		let currentSearch = '';
+
+		// Initialize
+		document.addEventListener('DOMContentLoaded', function() {
+			renderCrops();
+			setupEventListeners();
+		});
+
+		function setupEventListeners() {
+			// Search functionality
+			document.getElementById('searchInput').addEventListener('input', function(e) {
+				currentSearch = e.target.value.toLowerCase();
+				renderCrops();
+			});
+
+			// Filter buttons
+			document.querySelectorAll('.filter-btn').forEach(btn => {
+				btn.addEventListener('click', function() {
+					document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+					this.classList.add('active');
+					currentFilter = this.dataset.season;
+					renderCrops();
+				});
+			});
+
+			// Close modal on outside click
+			document.getElementById('detailModal').addEventListener('click', function(e) {
+				if (e.target === this) {
+					closeModal();
+				}
+			});
+		}
+
+		function renderCrops() {
+			const grid = document.getElementById('referenceGrid');
+			const noResults = document.getElementById('noResults');
+
+			let filteredCrops = cropDatabase.filter(crop => {
+				const matchesFilter = currentFilter === 'all' || crop.season === currentFilter;
+				const matchesSearch = crop.name.toLowerCase().includes(currentSearch) || 
+									crop.scientificName.toLowerCase().includes(currentSearch);
+				return matchesFilter && matchesSearch;
+			});
+
+			if (filteredCrops.length === 0) {
+				grid.style.display = 'none';
+				noResults.style.display = 'block';
+				return;
+			}
+
+			grid.style.display = 'grid';
+			noResults.style.display = 'none';
+
+			grid.innerHTML = filteredCrops.map(crop => `
+				<div class="reference-card" onclick="showDetails(${crop.id})">
+					<div class="card-header">
+						<div class="crop-icon" style="background: ${crop.color};">
+							${crop.icon}
+						</div>
+						<div class="card-title-section">
+							<div class="card-title">${crop.name}</div>
+							<div class="card-subtitle">${crop.scientificName}</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="info-row">
+							<span class="material-icons-round info-icon">thermostat</span>
+							<div class="info-content">
+								<div class="info-label">Temperature</div>
+								<div class="info-value">${crop.temperature}</div>
+							</div>
+						</div>
+						<div class="info-row">
+							<span class="material-icons-round info-icon">water_drop</span>
+							<div class="info-content">
+								<div class="info-label">Rainfall</div>
+								<div class="info-value">${crop.rainfall}</div>
+							</div>
+						</div>
+						<div class="info-row">
+							<span class="material-icons-round info-icon">schedule</span>
+							<div class="info-content">
+								<div class="info-label">Duration</div>
+								<div class="info-value">${crop.duration}</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-footer">
+						<span class="tag ${crop.season}">${capitalize(crop.season)} Season</span>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		function showDetails(cropId) {
+			const crop = cropDatabase.find(c => c.id === cropId);
+			if (!crop) return;
+
+			document.getElementById('modalCropName').textContent = `${crop.name}`;
+			document.getElementById('modalBody').innerHTML = `
+				<div class="detail-section">
+					<h3><span class="material-icons-round">info</span> Basic Information</h3>
+					<ul>
+						<li><strong>Scientific Name:</strong> ${crop.scientificName}</li>
+						<li><strong>Season:</strong> ${capitalize(crop.season)}</li>
+						<li><strong>Duration:</strong> ${crop.duration}</li>
+						<li><strong>Soil Type:</strong> ${crop.soilType}</li>
+						<li><strong>Soil pH:</strong> ${crop.soilpH}</li>
+						<li><strong>Temperature Range:</strong> ${crop.temperature}</li>
+						<li><strong>Rainfall Required:</strong> ${crop.rainfall}</li>
+					</ul>
+				</div>
+
+				<div class="detail-section">
+					<h3><span class="material-icons-round">agriculture</span> Cultivation Practices</h3>
+					<ul>
+						${crop.cultivation.map(item => `<li>${item}</li>`).join('')}
+					</ul>
+				</div>
+
+				<div class="detail-section">
+					<h3><span class="material-icons-round">eco</span> Fertilizer Management</h3>
+					<ul>
+						${crop.fertilizer.map(item => `<li>${item}</li>`).join('')}
+					</ul>
+				</div>
+
+				<div class="detail-section">
+					<h3><span class="material-icons-round">water_drop</span> Irrigation Schedule</h3>
+					<ul>
+						${crop.irrigation.map(item => `<li>${item}</li>`).join('')}
+					</ul>
+				</div>
+
+				<div class="detail-section">
+					<h3><span class="material-icons-round">bug_report</span> Pest & Disease Management</h3>
+					<ul>
+						${crop.pestManagement.map(item => `<li>${item.replace(/\[at\]/g, '@@')}</li>`).join('')}
+					</ul>
+				</div>
+
+				<div class="detail-section">
+					<h3><span class="material-icons-round">lightbulb</span> Agronomist Recommendation</h3>
+					<div class="recommendation-box">
+						<p>${crop.recommendation}</p>
+					</div>
+				</div>
+			`;
+
+			document.getElementById('detailModal').classList.add('active');
+			document.body.style.overflow = 'hidden';
+		}
+
+		function closeModal() {
+			document.getElementById('detailModal').classList.remove('active');
+			document.body.style.overflow = 'auto';
+		}
+
+		function capitalize(str) {
+			return str.charAt(0).toUpperCase() + str.slice(1);
+		}
+	</script>
+}

@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Choose Registration Type";
+    ViewData["Description"] = "Choose how you want to register on SmartFarm — as a Farmer or as a Buyer.";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
+}
+
+<!-- ===== TOP NAVIGATION BAR ===== -->
+<div class="reg-topbar">
+    <a href="@Url.Action("Index", "Home")" class="reg-topbar-logo">
+        <span class="material-icons">eco</span>
+        <div class="reg-topbar-logo-text">
+            <span class="brand-name">SmartFarm</span>
+            <span class="brand-sub">Crop Yield Management System</span>
+        </div>
+    </a>
+    <a href="@Url.Action("Login", "Auth")" class="reg-topbar-login">
+        <span class="material-icons">login</span>
+        Already have an account? Login
+    </a>
+</div>
+
+<!-- ===== MAIN PAGE ===== -->
+<div class="choose-page">
+
+    <!-- Page Heading -->
+    <div class="choose-heading">
+        <h1>Choose Your <span>Registration Type</span></h1>
+        <p>Select the account type that best describes you. Each type provides a tailored experience and dashboard.</p>
+    </div>
+
+    <!-- ===== TWO CARDS ===== -->
+    <div class="choose-cards">
+
+        <!-- ---- Card 1: Farmer ---- -->
+        <div class="choose-card farmer-card">
+
+            <!-- Icon -->
+            <div class="card-icon-circle green">
+                <span class="material-icons">agriculture</span>
+            </div>
+
+            <!-- Badge -->
+            <span class="card-badge green">Farmer Account</span>
+
+            <!-- Title -->
+            <h2>Register as Farmer</h2>
+
+            <!-- Description -->
+            <p>Create your farmer account to register farms, manage land plots, crops and connect with buyers.</p>
+
+            <!-- Feature list -->
+            <ul class="card-features">
+                <li>
+                    <span class="material-icons green">check_circle</span>
+                    Manage your farms &amp; land plots
+                </li>
+                <li>
+                    <span class="material-icons green">check_circle</span>
+                    Track crops and harvest records
+                </li>
+                <li>
+                    <span class="material-icons green">check_circle</span>
+                    Get soil &amp; weather insights
+                </li>
+                <li>
+                    <span class="material-icons green">check_circle</span>
+                    Connect with buyers directly
+                </li>
+            </ul>
+
+            <!-- Button -->
+            <a href="@Url.Action("Farmer", "Register")" class="card-btn green">
+                <span class="material-icons">agriculture</span>
+                Register as Farmer
+            </a>
+        </div>
+
+        <!-- ---- Card 2: Buyer ---- -->
+        <div class="choose-card buyer-card">
+
+            <!-- Icon -->
+            <div class="card-icon-circle blue">
+                <span class="material-icons">storefront</span>
+            </div>
+
+            <!-- Badge -->
+            <span class="card-badge blue">Buyer Account</span>
+
+            <!-- Title -->
+            <h2>Register as Buyer</h2>
+
+            <!-- Description -->
+            <p>Create your buyer account to discover agricultural products and connect with farmers directly from the marketplace.</p>
+
+            <!-- Feature list -->
+            <ul class="card-features">
+                <li>
+                    <span class="material-icons blue">check_circle</span>
+                    Browse fresh agricultural produce
+                </li>
+                <li>
+                    <span class="material-icons blue">check_circle</span>
+                    Connect with verified farmers
+                </li>
+                <li>
+                    <span class="material-icons blue">check_circle</span>
+                    Manage bulk purchase orders
+                </li>
+                <li>
+                    <span class="material-icons blue">check_circle</span>
+                    Track deliveries &amp; transactions
+                </li>
+            </ul>
+
+            <!-- Button -->
+            <a href="@Url.Action("Buyer", "Register")" class="card-btn blue">
+                <span class="material-icons">storefront</span>
+                Register as Buyer
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Bottom note -->
+    <p class="choose-bottom-note">
+        Already have an account?
+        <a href="@Url.Action("Login", "Auth")">Sign in here</a>
+    </p>
+
+</div>

@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.PestCase>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Field Visit Approvals";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-green" style="margin-bottom:20px;">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Done:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="dash-alert dash-alert-orange" style="margin-bottom:20px;">
+        <span class="material-icons-round">warning</span>
+        <div><b>Rejected:</b> @TempData["WarningMessage"]</div>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dash-alert dash-alert-red" style="margin-bottom:20px;">
+        <span class="material-icons-round">error</span>
+        <div><b>Error:</b> @TempData["ErrorMessage"]</div>
+    </div>
+}
+
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">
+            <span class="material-icons-round">how_to_reg</span>
+            Field Officer Visit Reports — Awaiting Your Approval
+        </h2>
+    </div>
+    <div class="dash-card-body" style="padding:0;">
+        @if (!Model.Any())
+        {
+            <div style="text-align:center; padding:48px; color:var(--text-secondary);">
+                <span class="material-icons-round" style="font-size:3rem; color:#cbd5e1;">task_alt</span>
+                <p style="margin-top:12px; font-size:1rem;">No pending field visit reports to review.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var pc in Model)
+            {
+                var officer = pc.AssignedOfficer;
+                <div class="dash-card" style="margin:16px; border:1px solid var(--border-color);">
+                    <div class="dash-card-body">
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Issue Title</label>
+                                <p style="font-weight:700; font-size:1rem;">@pc.Title</p>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Crop</label>
+                                <p style="font-weight:600;">@(pc.CropCycle?.Crop?.CropName ?? "N/A")</p>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Plot</label>
+                                <p style="font-weight:600;">@(pc.CropCycle?.LandPlot?.PlotCode ?? pc.CropCycle?.LandPlot?.PlotName ?? "N/A")</p>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Field Officer</label>
+                                <p style="font-weight:600;">@(officer?.FullName ?? "N/A")</p>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Visit Completed</label>
+                                <p style="font-weight:600;">@(pc.FieldVisitCompletedDate?.ToString("dd MMM yyyy") ?? "N/A")</p>
+                            </div>
+                            <div>
+                                <label class="form-label" style="color:var(--text-secondary); font-size:0.78rem;">Priority</label>
+                                <p><span class="badge @(pc.Priority == "High" ? "badge-red" : "badge-orange")">@pc.Priority</span></p>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--bg-secondary); border-radius:10px; padding:16px; margin-bottom:16px;">
+                            <label class="form-label" style="font-weight:700; margin-bottom:8px;">Field Officer Report</label>
+                            <p style="line-height:1.7; color:var(--text-primary);">@(pc.FieldReport ?? "No report text provided.")</p>
+                        </div>
+
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                            <!-- Approve -->
+                            <form method="post" action="~/Farmer/ApprovePestCase" style="flex:1; min-width:200px;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="pestCaseId" value="@pc.PestCaseId" />
+                                <button type="submit" class="btn btn-primary w-100"
+                                        style="background:#16a34a; border-color:#16a34a;"
+                                        onclick="return confirm('Approve this resolution? The issue will be marked Resolved.')">
+                                    <span class="material-icons-round">thumb_up</span> Approve — Issue Resolved
+                                </button>
+                            </form>
+
+                            <!-- Reject -->
+                            <form method="post" action="~/Farmer/RejectPestCase" style="flex:1; min-width:200px;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="pestCaseId" value="@pc.PestCaseId" />
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <input type="text" name="rejectionReason" class="form-input"
+                                           placeholder="Reason for rejection..." required />
+                                </div>
+                                <button type="submit" class="btn btn-outline w-100" style="border-color:#dc2626; color:#dc2626;">
+                                    <span class="material-icons-round">thumb_down</span> Reject — Request Re-visit
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

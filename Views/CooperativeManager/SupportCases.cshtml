@@ -1,0 +1,236 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Support Cases Queue";
+    var staffUsers = ViewBag.StaffUsers as List<Smart_Farm_and_Crop_Yeild_Management_System.Models.User> 
+        ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.User>();
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-green mb-4">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dash-alert dash-alert-red mb-4">
+        <span class="material-icons-round">error</span>
+        <div><b>Error:</b> @TempData["ErrorMessage"]</div>
+    </div>
+}
+
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center">
+        <h2 class="dash-card-title"><span class="material-icons-round">help_outline</span> Farmer Support Tickets Queue</h2>
+        <span class="badge bg-primary fs-6">@Model.Count() Total Tickets</span>
+    </div>
+    <div class="dash-card-body">
+        <p class="text-muted mb-3" style="font-size: 0.88rem;">Review support tickets raised by farmers and assign an Agronomist or Field Officer for resolution.</p>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#ID</th>
+                        <th>Farmer</th>
+                        <th>Query Type</th>
+                        <th>Title &amp; Issue Details</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                        <th>Assigned Staff</th>
+                        <th>Status</th>
+                        <th style="min-width: 220px;">Assign / Reassign Staff</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">No support queries found in the queue.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var ticket in Model)
+                        {
+                            var assignedStaff = ticket.AssignedToUser;
+                            string roleBadgeClass = assignedStaff?.RoleId == 4 ? "bg-info text-dark" : "bg-primary";
+                            string roleName = assignedStaff?.RoleId == 4 ? "Agronomist" : (assignedStaff?.RoleId == 5 ? "Field Officer" : "Staff");
+
+                            <tr>
+                                <td>#@ticket.QueryId</td>
+                                <td>
+                                    <strong>@(ticket.Farmer?.FullName ?? "Farmer")</strong>
+                                    <small class="text-muted d-block">@(ticket.Farmer?.MobileNumber ?? "")</small>
+                                </td>
+                                <td><span class="badge bg-secondary">@ticket.QueryType</span></td>
+                                <td>
+                                    <div class="fw-bold">@ticket.Title</div>
+                                    <small class="text-muted d-inline-block text-truncate" style="max-width: 220px;" title="@ticket.Description">@ticket.Description</small>
+                                </td>
+                                <td>
+                                    <span class="badge @(ticket.Priority == "High" ? "bg-danger" : (ticket.Priority == "Medium" ? "bg-warning text-dark" : "bg-info text-dark"))">@ticket.Priority</span>
+                                </td>
+                                <td class="small text-muted">@ticket.CreatedDate.ToString("dd-MM-yyyy")</td>
+                                <td>
+                                    @if (assignedStaff != null)
+                                    {
+                                        <div class="fw-semibold">@assignedStaff.FullName</div>
+                                        <span class="badge @roleBadgeClass" style="font-size: 0.7rem;">@roleName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Unassigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @(ticket.Status == "Resolved" ? "bg-success" : (ticket.Status == "Assigned" ? "bg-info text-white" : "bg-warning text-dark"))">@ticket.Status</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if (ticket.Status != "Resolved")
+                                        {
+                                            <form method="post" action="~/CooperativeManager/AssignSupportTicket" class="d-flex gap-1 align-items-center">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="queryId" value="@ticket.QueryId" />
+                                                <select name="assignedUserId" class="form-select form-select-sm rounded-3" style="font-size:0.8rem;" required>
+                                                    <option value="">-- Select Staff --</option>
+                                                    @foreach (var staff in staffUsers)
+                                                    {
+                                                        string staffRole = staff.RoleId == 4 ? "Agronomist" : "Field Officer";
+                                                        bool isSelected = ticket.AssignedToUserId == staff.UserId;
+                                                        <option value="@staff.UserId" selected="@isSelected">@staff.FullName (@staffRole)</option>
+                                                    }
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-success text-nowrap rounded-3">
+                                                    <i class="fas fa-user-check me-1"></i> Assign
+                                                </button>
+                                            </form>
+                                        }
+
+                                        <!-- View Work Done Button -->
+                                        <button type="button" class="btn btn-sm btn-outline-info text-nowrap rounded-3 ms-1" data-bs-toggle="modal" data-bs-target="#workDoneModal-@ticket.QueryId">
+                                            <i class="fas fa-eye me-1"></i> View Work Done
+                                        </button>
+                                    </div>
+
+                                    <!-- Work Done Details Modal -->
+                                    <div class="modal fade" id="workDoneModal-@ticket.QueryId" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg text-start">
+                                            <div class="modal-content rounded-4 border-0 shadow">
+                                                <div class="modal-header bg-dark text-white rounded-top-4">
+                                                    <h5 class="modal-header-title text-white mb-0 d-flex align-items-center gap-2">
+                                                        <span class="material-icons-round text-info">analytics</span>
+                                                        Work Done &amp; Resolution Details - Ticket #@ticket.QueryId
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <!-- Ticket Overview -->
+                                                    <div class="row g-3 mb-4 bg-light p-3 rounded-3 border">
+                                                        <div class="col-md-6">
+                                                            <span class="text-muted small d-block">Farmer:</span>
+                                                            <strong class="text-dark">@(ticket.Farmer?.FullName ?? "N/A")</strong>
+                                                            <small class="text-muted d-block">Phone: @(ticket.Farmer?.MobileNumber ?? "N/A")</small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <span class="text-muted small d-block">Assigned Staff Member:</span>
+                                                            <strong class="text-primary">@(assignedStaff?.FullName ?? "Unassigned")</strong>
+                                                            <span class="badge @roleBadgeClass ms-1">@roleName</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <span class="text-muted small d-block">Query Title &amp; Type:</span>
+                                                            <strong class="text-dark">@ticket.Title</strong>
+                                                            <span class="badge bg-secondary ms-1">@ticket.QueryType</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <span class="text-muted small d-block">Current Status &amp; Resolution Date:</span>
+                                                            <span class="badge @(ticket.Status == "Resolved" ? "bg-success" : "bg-warning text-dark")">@ticket.Status</span>
+                                                            <small class="text-muted d-block mt-1">Resolution Date: @(ticket.ResolutionDate?.ToString("dd-MM-yyyy HH:mm") ?? "Pending")</small>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Original Farmer Query Description -->
+                                                    <div class="mb-4">
+                                                        <h6 class="fw-bold text-dark mb-2"><span class="material-icons-round align-middle text-secondary me-1">help</span> Farmer Problem Statement:</h6>
+                                                        <div class="p-3 bg-white border rounded-3 text-dark" style="white-space: pre-wrap;">@ticket.Description</div>
+                                                    </div>
+
+                                                    <!-- Field Officer Findings & Report (If any) -->
+                                                    @if (ticket.VisitDate.HasValue || !string.IsNullOrEmpty(ticket.FieldObservation) || !string.IsNullOrEmpty(ticket.ActionTaken))
+                                                    {
+                                                        <div class="card border-info mb-4">
+                                                            <div class="card-header bg-info-subtle text-info-emphasis fw-bold">
+                                                                <span class="material-icons-round align-middle me-1">badge</span> Field Officer Inspection Report (@(ticket.OfficerName ?? roleName))
+                                                            </div>
+                                                            <div class="card-body small">
+                                                                <div class="mb-2">
+                                                                    <span class="text-muted">Inspection Visit Date:</span>
+                                                                    <strong class="text-dark ms-1">@(ticket.VisitDate?.ToString("dd-MM-yyyy HH:mm") ?? "N/A")</strong>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <span class="text-muted fw-semibold d-block">Field Observation / Findings:</span>
+                                                                    <div class="p-2 bg-light border rounded text-dark mt-1">@(string.IsNullOrEmpty(ticket.FieldObservation) ? "No observations recorded yet." : ticket.FieldObservation)</div>
+                                                                </div>
+                                                                <div>
+                                                                    <span class="text-muted fw-semibold d-block">Action Taken &amp; Guidance Provided:</span>
+                                                                    <div class="p-2 bg-light border rounded text-success mt-1">@(string.IsNullOrEmpty(ticket.ActionTaken) ? "No action recorded yet." : ticket.ActionTaken)</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <!-- Agronomist Recommendation (If any) -->
+                                                    @if (!string.IsNullOrEmpty(ticket.AgronomistRecommendation))
+                                                    {
+                                                        <div class="card border-success mb-4">
+                                                            <div class="card-header bg-success-subtle text-success-emphasis fw-bold">
+                                                                <span class="material-icons-round align-middle me-1">psychology</span> Agronomist Technical Advisory
+                                                            </div>
+                                                            <div class="card-body small">
+                                                                <div class="mb-2 text-muted">Issued Date: <strong>@(ticket.RecommendationDate?.ToString("dd-MM-yyyy HH:mm") ?? "N/A")</strong></div>
+                                                                <div class="p-3 bg-white border border-success-subtle rounded text-dark">@ticket.AgronomistRecommendation</div>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <!-- Long-Term Improvement Plan (If any) -->
+                                                    @if (!string.IsNullOrEmpty(ticket.ImprovementActions))
+                                                    {
+                                                        <div class="card border-warning">
+                                                            <div class="card-header bg-warning-subtle text-warning-emphasis fw-bold">
+                                                                <span class="material-icons-round align-middle me-1">assignment_turned_in</span> Long-Term Improvement Plan
+                                                            </div>
+                                                            <div class="card-body small">
+                                                                <p class="mb-1"><strong>Action:</strong> @ticket.ImprovementActions</p>
+                                                                <p class="mb-1"><strong>Expected Benefits:</strong> @ticket.ImprovementExpectedBenefits</p>
+                                                                <p class="mb-0"><strong>Implementation Status:</strong> <span class="badge bg-secondary ms-1">@ticket.ImprovementStatus</span></p>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    @if (!ticket.VisitDate.HasValue && string.IsNullOrEmpty(ticket.FieldObservation) && string.IsNullOrEmpty(ticket.AgronomistRecommendation) && string.IsNullOrEmpty(ticket.ImprovementActions))
+                                                    {
+                                                        <div class="text-center py-4 text-muted">
+                                                            <span class="material-icons-round text-muted mb-2" style="font-size: 2rem;">hourglass_empty</span>
+                                                            <p class="mb-0">Staff has been assigned. Inspection report or advisory recommendation is pending completion.</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

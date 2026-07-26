@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Notification API</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔔 Notification API Tester</h1>
+
+    <div>
+        <button onclick="testAPI()">Test GetNotifications API</button>
+        <button onclick="checkSession()">Check Session</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+
+            try {
+                const response = await fetch('/Buyer/GetNotifications');
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h2 class="success">✓ API Working!</h2>
+                        <p><strong>Unread Count:</strong> ${data.unreadCount}</p>
+                        <p><strong>Total Notifications:</strong> ${data.notifications.length}</p>
+                        <h3>Notifications:</h3>
+                        <pre>${JSON.stringify(data.notifications, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2 class="error">✗ API Error</h2>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h2 class="error">✗ Fetch Error</h2>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        function checkSession() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>Session Check</h2>
+                <p>Current URL: ${window.location.href}</p>
+                <p>If you see this page, you are logged in.</p>
+                <p>Click "Test GetNotifications API" to check if the endpoint works.</p>
+            `;
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            testAPI();
+        };
+    </script>
+</body>
+</html>

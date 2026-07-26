@@ -1,0 +1,11 @@
+{
+  "ConnectionStrings": {
+	"DefaultConnection": "Server=YOUR_COMPUTER_NAME\\SQLEXPRESS;Database=smart_farm_db;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
+  },
+  "Logging": {
+	"LogLevel": {
+	  "Default": "Information",
+	  "Microsoft.AspNetCore": "Warning"
+	}
+  }
+}

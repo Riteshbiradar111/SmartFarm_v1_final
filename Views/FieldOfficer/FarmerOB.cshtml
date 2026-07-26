@@ -1,0 +1,120 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.Farmer>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Farmer Onboarding";
+}
+
+<!-- Filters Row -->
+<div class="dash-card" style="margin-bottom: 24px;">
+    <div class="dash-card-body" style="padding: 20px;">
+        <form method="get" action="~/FieldOfficer/FarmerOB" class="d-flex align-end justify-between flex-wrap gap-16">
+            <div class="d-flex align-center flex-wrap gap-16" style="flex: 1;">
+                <div class="form-group" style="min-width: 250px; flex: 1;">
+                    <label class="form-label" style="font-weight:600;">Search Farmers</label>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-input" placeholder="Search by name, village, mobile..." />
+                </div>
+                <div class="form-group" style="min-width: 200px;">
+                    <label class="form-label" style="font-weight:600;">Verification Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Pending" selected="@(ViewBag.Status == "Pending")">Pending</option>
+                        <option value="Approved" selected="@(ViewBag.Status == "Approved")">Approved</option>
+                        <option value="Rejected" selected="@(ViewBag.Status == "Rejected")">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions mb-0" style="display: flex; gap: 8px;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
+                    <span class="material-icons-round">search</span> Filter
+                </button>
+                <a href="~/FieldOfficer/FarmerOB" class="btn btn-outline" style="padding: 10px 20px;">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Main Table Card -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">
+            <span class="material-icons-round">people</span>
+            Cooperative Member Directory & Onboardings
+        </h2>
+    </div>
+    <div class="dash-card-body" style="padding: 0;">
+        <div class="dash-table-wrap">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Farmer Name</th>
+                        <th>Email Address</th>
+                        <th>Phone Number</th>
+                        <th>Village</th>
+                        <th>Date Registered</th>
+                        <th>Verification Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var farmer in Model)
+                        {
+                            <tr>
+                                <td><b>#@farmer.FarmerId</b></td>
+                                <td>
+                                    <div class="d-flex align-center gap-8">
+                                        @if (!string.IsNullOrEmpty(farmer.ProfilePicturePath))
+                                        {
+                                            <img src="@farmer.ProfilePicturePath" alt="avatar" style="width:32px; height:32px; border-radius:50%; object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div style="width:32px; height:32px; border-radius:50%; background:#2563eb; color:white; display:flex; align-center; justify-center; font-weight:bold; font-size:0.8rem; line-height:32px; text-align:center;">
+                                                @(farmer.FullName.Length >= 2 ? farmer.FullName.Substring(0, 2).ToUpper() : "FM")
+                                            </div>
+                                        }
+                                        <span class="td-label" style="font-weight:600;">@farmer.FullName</span>
+                                    </div>
+                                </td>
+                                <td>@farmer.User.Email</td>
+                                <td>@farmer.MobileNumber</td>
+                                <td>@farmer.Village</td>
+                                <td>
+                                    @{
+                                        var assignmentDates = ViewBag.AssignmentDates as Dictionary<int, DateTime> ?? new Dictionary<int, DateTime>();
+                                        if (assignmentDates.TryGetValue(farmer.FarmerId, out var assignedDate))
+                                        {
+                                            @assignedDate.ToString("dd MMM yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            @:N/A
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                     <span class="badge @(farmer.User != null && farmer.User.IsActive ? "badge-green" : "badge-orange")">
+                                         @(farmer.User != null && farmer.User.IsActive ? "APPROVED" : "PENDING")
+                                     </span>
+                                </td>
+                                <td>
+                                    <a href="~/FieldOfficer/FarmerOBDetails/@farmer.FarmerId" class="btn btn-sm btn-primary">Verify &amp; Details</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" style="text-align:center; color:var(--text-secondary); padding:30px;">
+                                No farmers found in directory matching filters.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

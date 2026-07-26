@@ -1,0 +1,817 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.FarmManagementViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Farm Management";
+}
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="dash-content">
+
+	<!-- Page Header -->
+	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+		<div>
+			<h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">Farm Management</h1>
+			<p style="color: #7a9a8a; font-size: 14px; margin: 4px 0 0 0;">Overview and manage registered farms.</p>
+		</div>
+	</div>
+
+	<!-- Statistics Cards Row -->
+	<div class="stats-row" style="margin-bottom: 24px;">
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-tractor" style="color: #2D6A4F; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">TOTAL FARMS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.TotalFarms</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-check-circle" style="color: #1976d2; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">ACTIVE FARMS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.ActiveFarms</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #fce4ec; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-times-circle" style="color: #c2185b; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">INACTIVE FARMS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.InactiveFarms</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e1f5fe; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-ruler-combined" style="color: #0277bd; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">AVERAGE FARM SIZE (HA)</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.AverageFarmSize</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Search and Filters -->
+	<div class="dash-card" style="margin-bottom: 0;">
+		<div class="dash-card-body">
+			<form method="get" asp-action="FarmManagement" id="filterForm">
+				<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+					<!-- Search Box -->
+					<div style="flex: 1; position: relative;">
+						<i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #7a9a8a;"></i>
+						<input type="text" 
+							   id="searchInput"
+							   name="searchTerm" 
+							   value="@Model.SearchTerm" 
+							   placeholder="Search farms by name, owner or location" 
+							   style="width: 100%; padding: 10px 14px 10px 40px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px;" />
+					</div>
+
+					<!-- Search Button -->
+					<button type="submit" 
+							style="padding: 10px 20px; background: #2D6A4F; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;">
+						<i class="fas fa-search"></i> Search
+					</button>
+
+					<!-- State Filter -->
+					<select name="stateFilter" id="stateFilter"
+							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
+						<option value="">All States</option>
+					</select>
+
+					<!-- District Filter -->
+					<select name="districtFilter" id="districtFilter"
+							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
+						<option value="">All Districts</option>
+					</select>
+
+					<!-- Crop Filter -->
+					<select name="cropFilter" id="cropFilter"
+							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
+						<option value="">All Crops</option>
+					</select>
+
+					<!-- Refresh Button -->
+					<button type="button" onclick="location.reload()" 
+							style="padding: 10px 14px; background: #f5f5f5; color: #666; border: none; border-radius: 8px; cursor: pointer;">
+						<i class="fas fa-sync-alt"></i>
+					</button>
+				</div>
+			</form>
+
+			<!-- Farms Table -->
+			<div style="max-height: 500px; overflow-y: auto; margin-top: 24px;">
+				<table class="table" style="width: 100%; border-collapse: collapse;">
+					<thead style="position: sticky; top: 0; background: #f8faf9; z-index: 10;">
+						<tr>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Farm Name</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Owner</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Location</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Area (ha)</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Main Crop</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Soil Type</th>
+							<th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Status</th>
+							<th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #7a9a8a; text-transform: uppercase;">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Farms.Any())
+						{
+							@foreach (var farm in Model.Farms)
+							{
+								<tr style="border-bottom: 1px solid #e9ecef;">
+									<td style="padding: 16px; color: #1a1a1a; font-weight: 500;">@farm.FarmName</td>
+									<td style="padding: 16px;">
+										<div style="display: flex; align-items: center; gap: 10px;">
+											<div style="width: 32px; height: 32px; background: #2D6A4F; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">
+												@farm.OwnerInitials
+											</div>
+											<span style="color: #1a1a1a;">@farm.OwnerName</span>
+										</div>
+									</td>
+									<td style="padding: 16px; color: #666;">@farm.Location</td>
+									<td style="padding: 16px; color: #1a1a1a; font-weight: 500;">@farm.AreaFormatted</td>
+									<td style="padding: 16px; color: #666;">@farm.MainCrop</td>
+									<td style="padding: 16px; color: #666;">@farm.SoilType</td>
+									<td style="padding: 16px;">
+										@if (farm.Status == "ACTIVE")
+										{
+											<span class="badge badge-success" style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">@farm.Status</span>
+										}
+										else
+										{
+											<span class="badge badge-secondary" style="background: #e2e3e5; color: #383d41; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">@farm.Status</span>
+										}
+									</td>
+									<td style="padding: 16px; text-align: center;">
+										<button onclick="viewFarm(@farm.FarmId)" class="btn btn-sm" style="background: none; border: none; color: #0066cc; padding: 4px 8px; cursor: pointer;" title="View">
+											<i class="fas fa-eye"></i>
+										</button>
+										<button onclick="deleteFarm(@farm.FarmId)" class="btn btn-sm" style="background: none; border: none; color: #dc3545; padding: 4px 8px; cursor: pointer;" title="Delete">
+											<i class="fas fa-trash"></i>
+										</button>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr>
+								<td colspan="8" style="padding: 40px; text-align: center; color: #999;">
+									<i class="fas fa-tractor" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></i>
+									<p style="font-size: 16px; margin: 0;">No farms found</p>
+									<p style="font-size: 14px; color: #bbb;">Try adjusting your search or filters</p>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			@if (Model.Farms.Any())
+			{
+				<div style="margin-top: 16px; color: #7a9a8a; font-size: 14px;">
+					Showing @Model.Farms.Count of @Model.TotalFarms farms
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+<style>
+	.stats-row {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 20px;
+	}
+
+	@@media (max-width: 1200px) {
+		.stats-row {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@@media (max-width: 768px) {
+		.stats-row {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.table tbody tr:hover {
+		background-color: #f8f9fa;
+	}
+
+	/* Scrollbar styling */
+	.dash-card-body > div::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.dash-card-body > div::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 10px;
+	}
+
+	.dash-card-body > div::-webkit-scrollbar-thumb {
+		background: #888;
+		border-radius: 10px;
+	}
+
+	.dash-card-body > div::-webkit-scrollbar-thumb:hover {
+		background: #555;
+	}
+</style>
+
+<!-- Create Farm Modal -->
+<div class="modal fade" id="createFarmModal" tabindex="-1" aria-labelledby="createFarmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content" style="border-radius: 12px; border: none;">
+			<div class="modal-header" style="background: #2D6A4F; color: white; border-radius: 12px 12px 0 0; padding: 20px 24px;">
+				<h5 class="modal-title" id="createFarmModalLabel" style="font-weight: 600;">
+					<i class="fas fa-plus-circle" style="margin-right: 8px;"></i> Add New Farm
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="padding: 24px;">
+				<form id="createFarmForm">
+					<div class="row">
+						<!-- Farm Name -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Farm Name <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="createFarmName" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Owner -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Owner (Farmer) <span style="color: #dc3545;">*</span>
+							</label>
+							<select class="form-select" id="createFarmerId" required
+									style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;">
+								<option value="">Select Owner</option>
+							</select>
+						</div>
+
+						<!-- Village -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Village
+							</label>
+							<input type="text" class="form-control" id="createVillage"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Taluka -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Taluka
+							</label>
+							<input type="text" class="form-control" id="createTaluka"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- District -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								District <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="createDistrict" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- State -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								State <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="createState" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Pincode -->
+						<div class="col-md-12 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Pincode
+							</label>
+							<input type="text" class="form-control" id="createPincode" maxlength="6" pattern="\d{6}"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" 
+								   placeholder="6-digit pincode" />
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 24px;">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; background: white; color: #666;">
+					Cancel
+				</button>
+				<button type="button" class="btn btn-primary" onclick="submitCreateFarm()"
+						style="padding: 10px 20px; border-radius: 8px; background: #2D6A4F; border: none;">
+					<i class="fas fa-save" style="margin-right: 6px;"></i> Create Farm
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- View Farm Modal -->
+<div class="modal fade" id="viewFarmModal" tabindex="-1" aria-labelledby="viewFarmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content" style="border-radius: 12px; border: none;">
+			<div class="modal-header" style="background: #0277bd; color: white; border-radius: 12px 12px 0 0; padding: 20px 24px;">
+				<h5 class="modal-title" id="viewFarmModalLabel" style="font-weight: 600;">
+					<i class="fas fa-eye" style="margin-right: 8px;"></i> Farm Details
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="padding: 24px;">
+				<div class="row">
+					<!-- Farm Information -->
+					<div class="col-12 mb-4">
+						<h6 style="color: #2D6A4F; font-weight: 600; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; margin-bottom: 16px;">
+							<i class="fas fa-tractor" style="margin-right: 6px;"></i> Farm Information
+						</h6>
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">FARM NAME</label>
+								<p id="viewFarmName" style="font-size: 16px; color: #1a1a1a; font-weight: 500; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">STATUS</label>
+								<p id="viewStatus" style="margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">TOTAL AREA</label>
+								<p id="viewTotalArea" style="font-size: 16px; color: #1a1a1a; font-weight: 500; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">TOTAL PLOTS</label>
+								<p id="viewTotalPlots" style="font-size: 16px; color: #1a1a1a; font-weight: 500; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">MAIN CROP</label>
+								<p id="viewMainCrop" style="font-size: 16px; color: #1a1a1a; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">SOIL TYPES</label>
+								<p id="viewSoilTypes" style="font-size: 16px; color: #1a1a1a; margin: 4px 0 0 0;"></p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Owner Information -->
+					<div class="col-12 mb-4">
+						<h6 style="color: #2D6A4F; font-weight: 600; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; margin-bottom: 16px;">
+							<i class="fas fa-user" style="margin-right: 6px;"></i> Owner Information
+						</h6>
+						<div class="row">
+							<div class="col-md-12 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">OWNER NAME</label>
+								<p id="viewOwnerName" style="font-size: 16px; color: #1a1a1a; font-weight: 500; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">PHONE</label>
+								<p id="viewOwnerPhone" style="font-size: 16px; color: #1a1a1a; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">EMAIL</label>
+								<p id="viewOwnerEmail" style="font-size: 16px; color: #1a1a1a; margin: 4px 0 0 0;"></p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Location Information -->
+					<div class="col-12 mb-4">
+						<h6 style="color: #2D6A4F; font-weight: 600; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; margin-bottom: 16px;">
+							<i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i> Location
+						</h6>
+						<div class="row">
+							<div class="col-md-12 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">FULL ADDRESS</label>
+								<p id="viewFullAddress" style="font-size: 16px; color: #1a1a1a; margin: 4px 0 0 0; line-height: 1.6;"></p>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">VILLAGE</label>
+								<p id="viewVillage" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">TALUKA</label>
+								<p id="viewTaluka" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">DISTRICT</label>
+								<p id="viewDistrict" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">STATE</label>
+								<p id="viewState" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">PINCODE</label>
+								<p id="viewPincode" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+							<div class="col-md-12">
+								<label style="font-size: 12px; color: #7a9a8a; font-weight: 500;">REGISTERED ON</label>
+								<p id="viewCreatedDate" style="font-size: 14px; color: #666; margin: 4px 0 0 0;"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 24px;">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; background: white; color: #666;">
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Edit Farm Modal -->
+<div class="modal fade" id="editFarmModal" tabindex="-1" aria-labelledby="editFarmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content" style="border-radius: 12px; border: none;">
+			<div class="modal-header" style="background: #28a745; color: white; border-radius: 12px 12px 0 0; padding: 20px 24px;">
+				<h5 class="modal-title" id="editFarmModalLabel" style="font-weight: 600;">
+					<i class="fas fa-edit" style="margin-right: 8px;"></i> Edit Farm
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="padding: 24px;">
+				<form id="editFarmForm">
+					<input type="hidden" id="editFarmId" />
+					<div class="row">
+						<!-- Farm Name -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Farm Name <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="editFarmName" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Owner -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Owner (Farmer) <span style="color: #dc3545;">*</span>
+							</label>
+							<select class="form-select" id="editFarmerId" required
+									style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;">
+								<option value="">Select Owner</option>
+							</select>
+						</div>
+
+						<!-- Village -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Village
+							</label>
+							<input type="text" class="form-control" id="editVillage"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Taluka -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Taluka
+							</label>
+							<input type="text" class="form-control" id="editTaluka"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- District -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								District <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="editDistrict" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- State -->
+						<div class="col-md-6 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								State <span style="color: #dc3545;">*</span>
+							</label>
+							<input type="text" class="form-control" id="editState" required
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" />
+						</div>
+
+						<!-- Pincode -->
+						<div class="col-md-12 mb-3">
+							<label class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">
+								Pincode
+							</label>
+							<input type="text" class="form-control" id="editPincode" maxlength="6" pattern="\d{6}"
+								   style="border: 1px solid #e2ede8; border-radius: 8px; padding: 10px 14px;" 
+								   placeholder="6-digit pincode" />
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 24px;">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; background: white; color: #666;">
+					Cancel
+				</button>
+				<button type="button" class="btn btn-primary" onclick="submitEditFarm()"
+						style="padding: 10px 20px; border-radius: 8px; background: #28a745; border: none;">
+					<i class="fas fa-save" style="margin-right: 6px;"></i> Update Farm
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+<script>
+	// Toast notification function
+	function showToast(message, type = 'success') {
+		const bgColor = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#ffc107';
+		const toast = document.createElement('div');
+		toast.style.cssText = `position: fixed; top: 80px; right: 20px; background: ${bgColor}; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; font-size: 14px; min-width: 300px;`;
+		toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="margin-right: 8px;"></i>${message}`;
+		document.body.appendChild(toast);
+		setTimeout(() => toast.remove(), 3000);
+	}
+
+	// Load filter dropdowns on page load
+	$(document).ready(function () {
+		loadStates();
+		loadDistricts();
+		loadCrops();
+		loadFarmers();
+
+		// Auto-submit form on filter change
+		$('#stateFilter, #districtFilter, #cropFilter').on('change', function () {
+			$('#filterForm').submit();
+		});
+
+		// Enter key submission for search
+		$('#searchInput').on('keypress', function (e) {
+			if (e.which === 13) {
+				e.preventDefault();
+				$('#filterForm').submit();
+			}
+		});
+	});
+
+	// Load States dropdown
+	function loadStates() {
+		$.ajax({
+			url: '/Admin/GetStates',
+			type: 'GET',
+			success: function (data) {
+				const stateFilter = $('#stateFilter');
+				const currentValue = '@Model.StateFilter';
+				data.forEach(function (state) {
+					const selected = state === currentValue ? 'selected' : '';
+					stateFilter.append(`<option value="${state}" ${selected}>${state}</option>`);
+				});
+			}
+		});
+	}
+
+	// Load Districts dropdown
+	function loadDistricts() {
+		const selectedState = '@Model.StateFilter';
+		$.ajax({
+			url: '/Admin/GetDistricts',
+			type: 'GET',
+			data: { state: selectedState },
+			success: function (data) {
+				const districtFilter = $('#districtFilter');
+				const currentValue = '@Model.DistrictFilter';
+				data.forEach(function (district) {
+					const selected = district === currentValue ? 'selected' : '';
+					districtFilter.append(`<option value="${district}" ${selected}>${district}</option>`);
+				});
+			}
+		});
+	}
+
+	// Load Crops dropdown
+	function loadCrops() {
+		$.ajax({
+			url: '/Admin/GetCrops',
+			type: 'GET',
+			success: function (data) {
+				const cropFilter = $('#cropFilter');
+				const currentValue = '@Model.CropFilter';
+				data.forEach(function (crop) {
+					const selected = crop === currentValue ? 'selected' : '';
+					cropFilter.append(`<option value="${crop}" ${selected}>${crop}</option>`);
+				});
+			}
+		});
+	}
+
+	// Load Farmers for Add/Edit dropdowns
+	function loadFarmers() {
+		$.ajax({
+			url: '/Admin/GetFarmers',
+			type: 'GET',
+			success: function (data) {
+				const createFarmerSelect = $('#createFarmerId');
+				const editFarmerSelect = $('#editFarmerId');
+				data.forEach(function (farmer) {
+					createFarmerSelect.append(`<option value="${farmer.farmerId}">${farmer.farmerName}</option>`);
+					editFarmerSelect.append(`<option value="${farmer.farmerId}">${farmer.farmerName}</option>`);
+				});
+			}
+		});
+	}
+
+	// View Farm
+	function viewFarm(farmId) {
+		$.ajax({
+			url: '/Admin/ViewFarm',
+			type: 'GET',
+			data: { id: farmId },
+			success: function (response) {
+				if (response.success) {
+					const farm = response.farm;
+					$('#viewFarmName').text(farm.farmName);
+					$('#viewOwnerName').text(farm.ownerName);
+					$('#viewOwnerPhone').text(farm.ownerPhone);
+					$('#viewOwnerEmail').text(farm.ownerEmail);
+					$('#viewVillage').text(farm.village);
+					$('#viewTaluka').text(farm.taluka);
+					$('#viewDistrict').text(farm.district);
+					$('#viewState').text(farm.state);
+					$('#viewPincode').text(farm.pincode);
+					$('#viewFullAddress').text(farm.fullAddress);
+					$('#viewTotalArea').text(farm.totalAreaHa + ' ha');
+					$('#viewTotalPlots').text(farm.totalPlots);
+					$('#viewMainCrop').text(farm.mainCrop);
+					$('#viewSoilTypes').text(farm.soilTypes);
+					$('#viewCreatedDate').text(farm.createdDateFormatted);
+
+					// Set status badge
+					const statusBadge = farm.status === 'ACTIVE'
+						? '<span class="badge badge-success" style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">ACTIVE</span>'
+						: '<span class="badge badge-secondary" style="background: #e2e3e5; color: #383d41; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">INACTIVE</span>';
+					$('#viewStatus').html(statusBadge);
+
+					$('#viewFarmModal').modal('show');
+				} else {
+					showToast(response.message, 'error');
+				}
+			},
+			error: function () {
+				showToast('Error loading farm details', 'error');
+			}
+		});
+	}
+
+	// Submit Create Farm
+	function submitCreateFarm() {
+		const form = $('#createFarmForm')[0];
+		if (!form.checkValidity()) {
+			form.reportValidity();
+			return;
+		}
+
+		const data = {
+			FarmName: $('#createFarmName').val(),
+			FarmerId: parseInt($('#createFarmerId').val()),
+			Village: $('#createVillage').val() || null,
+			Taluka: $('#createTaluka').val() || null,
+			District: $('#createDistrict').val(),
+			State: $('#createState').val(),
+			Pincode: $('#createPincode').val() || null
+		};
+
+		$.ajax({
+			url: '/Admin/CreateFarm',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(data),
+			success: function (response) {
+				if (response.success) {
+					$('#createFarmModal').modal('hide');
+					showToast(response.message, 'success');
+					setTimeout(() => location.reload(), 1000);
+				} else {
+					showToast(response.message, 'error');
+				}
+			},
+			error: function (xhr) {
+				const errorMsg = xhr.responseJSON?.message || 'Error creating farm';
+				showToast(errorMsg, 'error');
+			}
+		});
+	}
+
+	// Edit Farm
+	function editFarm(farmId) {
+		$.ajax({
+			url: '/Admin/EditFarm',
+			type: 'GET',
+			data: { id: farmId },
+			success: function (response) {
+				if (response.success) {
+					const farm = response.farm;
+					$('#editFarmId').val(farm.farmId);
+					$('#editFarmName').val(farm.farmName);
+					$('#editFarmerId').val(farm.farmerId);
+					$('#editVillage').val(farm.village || '');
+					$('#editTaluka').val(farm.taluka || '');
+					$('#editDistrict').val(farm.district);
+					$('#editState').val(farm.state);
+					$('#editPincode').val(farm.pincode || '');
+					$('#editFarmModal').modal('show');
+				} else {
+					showToast(response.message, 'error');
+				}
+			},
+			error: function () {
+				showToast('Error loading farm details', 'error');
+			}
+		});
+	}
+
+	// Submit Edit Farm
+	function submitEditFarm() {
+		const form = $('#editFarmForm')[0];
+		if (!form.checkValidity()) {
+			form.reportValidity();
+			return;
+		}
+
+		const data = {
+			FarmId: parseInt($('#editFarmId').val()),
+			FarmName: $('#editFarmName').val(),
+			FarmerId: parseInt($('#editFarmerId').val()),
+			Village: $('#editVillage').val() || null,
+			Taluka: $('#editTaluka').val() || null,
+			District: $('#editDistrict').val(),
+			State: $('#editState').val(),
+			Pincode: $('#editPincode').val() || null
+		};
+
+		$.ajax({
+			url: '/Admin/EditFarm',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(data),
+			success: function (response) {
+				if (response.success) {
+					$('#editFarmModal').modal('hide');
+					showToast(response.message, 'success');
+					setTimeout(() => location.reload(), 1000);
+				} else {
+					showToast(response.message, 'error');
+				}
+			},
+			error: function (xhr) {
+				const errorMsg = xhr.responseJSON?.message || 'Error updating farm';
+				showToast(errorMsg, 'error');
+			}
+		});
+	}
+
+	// Delete Farm
+	function deleteFarm(farmId) {
+		if (!confirm('Are you sure you want to delete this farm? This action cannot be undone.')) {
+			return;
+		}
+
+		$.ajax({
+			url: '/Admin/DeleteFarm',
+			type: 'POST',
+			data: { id: farmId },
+			success: function (response) {
+				if (response.success) {
+					showToast(response.message, 'success');
+					setTimeout(() => location.reload(), 1000);
+				} else {
+					showToast(response.message, 'error');
+				}
+			},
+			error: function (xhr) {
+				const errorMsg = xhr.responseJSON?.message || 'Error deleting farm';
+				showToast(errorMsg, 'error');
+			}
+		});
+	}
+</script>
+}

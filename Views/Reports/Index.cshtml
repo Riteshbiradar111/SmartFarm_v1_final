@@ -1,0 +1,269 @@
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Farm Reports & Analytics";
+}
+
+<div class="row mb-4">
+	<div class="col-12">
+		<h2 class="mb-1 text-success">Farm Reports & Analytics</h2>
+		<p class="text-muted mb-0">Comprehensive insights and performance metrics for your farming operations.</p>
+	</div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+	<!-- Farms & Plots -->
+	<div class="col-md-6 col-lg-3">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center gap-3 mb-3">
+					<div class="rounded-circle bg-success-subtle p-3">
+						<span class="material-icons-round text-success" style="font-size: 2rem;">agriculture</span>
+					</div>
+					<div>
+						<h5 class="mb-1 fw-bold text-dark">@ViewBag.TotalFarms</h5>
+						<p class="mb-0 text-muted small">Total Farms</p>
+					</div>
+				</div>
+				<div class="border-top pt-3">
+					<span class="text-muted small">@ViewBag.TotalPlots Land Plots</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Crop Cycles -->
+	<div class="col-md-6 col-lg-3">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center gap-3 mb-3">
+					<div class="rounded-circle bg-primary-subtle p-3">
+						<span class="material-icons-round text-primary" style="font-size: 2rem;">spa</span>
+					</div>
+					<div>
+						<h5 class="mb-1 fw-bold text-dark">@ViewBag.ActiveCropCycles</h5>
+						<p class="mb-0 text-muted small">Active Cycles</p>
+					</div>
+				</div>
+				<div class="border-top pt-3">
+					<span class="text-muted small">@ViewBag.CompletedCropCycles Completed</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Harvests -->
+	<div class="col-md-6 col-lg-3">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center gap-3 mb-3">
+					<div class="rounded-circle bg-warning-subtle p-3">
+						<span class="material-icons-round text-warning" style="font-size: 2rem;">inventory_2</span>
+					</div>
+					<div>
+						<h5 class="mb-1 fw-bold text-dark">@ViewBag.TotalHarvests</h5>
+						<p class="mb-0 text-muted small">Total Harvests</p>
+					</div>
+				</div>
+				<div class="border-top pt-3">
+					<span class="text-muted small">@ViewBag.TotalHarvestQuantity.ToString("N0") Units Total</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Revenue -->
+	<div class="col-md-6 col-lg-3">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center gap-3 mb-3">
+					<div class="rounded-circle bg-info-subtle p-3">
+						<span class="material-icons-round text-info" style="font-size: 2rem;">payments</span>
+					</div>
+					<div>
+						<h5 class="mb-1 fw-bold text-dark">₹@ViewBag.TotalRevenue.ToString("N0")</h5>
+						<p class="mb-0 text-muted small">Total Revenue</p>
+					</div>
+				</div>
+				<div class="border-top pt-3">
+					<span class="text-muted small">₹@ViewBag.PendingRevenue.ToString("N0") Pending</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row g-4 mb-4">
+	<!-- Yield Performance -->
+	<div class="col-lg-6">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center justify-content-between mb-4">
+					<h5 class="mb-0 fw-semibold">Yield Performance</h5>
+					<span class="material-icons-round text-success">trending_up</span>
+				</div>
+				<div class="mb-4">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<span class="text-muted">Average Yield Variance</span>
+						<span class="fw-bold @(ViewBag.AverageYieldVariance >= 0 ? "text-success" : "text-danger")">
+							@(ViewBag.AverageYieldVariance >= 0 ? "+" : "")@ViewBag.AverageYieldVariance.ToString("F1")%
+						</span>
+					</div>
+					<div class="progress" style="height: 10px;">
+						<div class="progress-bar @(ViewBag.AverageYieldVariance >= 0 ? "bg-success" : "bg-danger")" 
+							 role="progressbar" 
+							 style="width: @Math.Min(Math.Abs(ViewBag.AverageYieldVariance), 100)%">
+						</div>
+					</div>
+				</div>
+				<div class="row text-center border-top pt-3">
+					<div class="col-6">
+						<h6 class="mb-1 text-muted small">Total Expected</h6>
+						<p class="mb-0 fw-semibold fs-5">@ViewBag.TotalExpectedQuantity.ToString("N0")</p>
+					</div>
+					<div class="col-6 border-start">
+						<h6 class="mb-1 text-muted small">Total Harvested</h6>
+						<p class="mb-0 fw-semibold fs-5 text-success">@ViewBag.TotalHarvestQuantity.ToString("N0")</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pest & Issues -->
+	<div class="col-lg-6">
+		<div class="card border-0 shadow-sm rounded-4 h-100">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center justify-content-between mb-4">
+					<h5 class="mb-0 fw-semibold">Pest & Disease Monitoring</h5>
+					<span class="material-icons-round text-danger">bug_report</span>
+				</div>
+				<div class="row text-center">
+					<div class="col-6">
+						<div class="rounded-3 bg-danger-subtle p-3 mb-2">
+							<h3 class="mb-0 fw-bold text-danger">@ViewBag.ActivePestCases</h3>
+						</div>
+						<p class="mb-0 text-muted small">Active Cases</p>
+					</div>
+					<div class="col-6">
+						<div class="rounded-3 bg-success-subtle p-3 mb-2">
+							<h3 class="mb-0 fw-bold text-success">@(ViewBag.TotalPestCases - ViewBag.ActivePestCases)</h3>
+						</div>
+						<p class="mb-0 text-muted small">Resolved Cases</p>
+					</div>
+				</div>
+				<div class="border-top mt-4 pt-3 text-center">
+					<a href="~/PestCase" class="btn btn-sm btn-outline-danger rounded-3">View All Cases</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Top Performing Crops -->
+<div class="row g-4 mb-4">
+	<div class="col-12">
+		<div class="card border-0 shadow-sm rounded-4">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center justify-content-between mb-4">
+					<div>
+						<h5 class="mb-1 fw-semibold">Top Performing Crops</h5>
+						<p class="mb-0 text-muted small">Ranked by total yield quantity</p>
+					</div>
+					<span class="material-icons-round text-success">bar_chart</span>
+				</div>
+
+				@if (ViewBag.TopCrops.Count > 0)
+				{
+					<div class="table-responsive">
+						<table class="table table-hover align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th class="ps-3">Crop Name</th>
+									<th>Total Yield</th>
+									<th>Harvest Count</th>
+									<th>Average Yield</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var crop in ViewBag.TopCrops)
+								{
+									<tr>
+										<td class="ps-3 fw-semibold text-success">@crop.CropName</td>
+										<td class="fw-bold">@crop.TotalYield.ToString("N1") Units</td>
+										<td>@crop.HarvestCount Harvests</td>
+										<td>@crop.AverageYield.ToString("N1") Units</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+				else
+				{
+					<div class="text-center py-4">
+						<span class="material-icons-round text-muted" style="font-size: 3rem;">inventory_2</span>
+						<p class="text-muted mt-2 mb-0">No harvest data available yet</p>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Recent Harvests -->
+<div class="row g-4">
+	<div class="col-12">
+		<div class="card border-0 shadow-sm rounded-4">
+			<div class="card-body p-4">
+				<div class="d-flex align-items-center justify-content-between mb-4">
+					<div>
+						<h5 class="mb-1 fw-semibold">Recent Harvest Activities</h5>
+						<p class="mb-0 text-muted small">Latest 5 harvest records</p>
+					</div>
+					<a href="~/Harvest" class="btn btn-sm btn-outline-success rounded-3">View All</a>
+				</div>
+
+				@if (ViewBag.RecentHarvests.Count > 0)
+				{
+					<div class="table-responsive">
+						<table class="table table-hover align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th class="ps-3">Date</th>
+									<th>Crop</th>
+									<th>Plot</th>
+									<th>Quantity</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var harvest in ViewBag.RecentHarvests)
+								{
+									<tr>
+										<td class="ps-3">@harvest.HarvestDate.ToString("dd-MM-yyyy")</td>
+										<td class="fw-semibold text-success">@harvest.CropCycle.Crop.CropName</td>
+										<td>@harvest.CropCycle.LandPlot.PlotName</td>
+										<td class="fw-bold">@harvest.ActualQuantity @harvest.Unit</td>
+										<td>
+											<span class="badge bg-success-subtle text-success rounded-pill px-3">@harvest.Status</span>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+				else
+				{
+					<div class="text-center py-4">
+						<span class="material-icons-round text-muted" style="font-size: 3rem;">agriculture</span>
+						<p class="text-muted mt-2 mb-0">No recent harvests recorded</p>
+						<a href="~/Harvest/Create" class="btn btn-success mt-3">Record Harvest</a>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>

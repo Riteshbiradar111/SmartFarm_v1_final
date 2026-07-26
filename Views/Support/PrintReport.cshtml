@@ -1,0 +1,183 @@
+﻿@model Smart_Farm_and_Crop_Yeild_Management_System.Models.SupportQuery
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Officer Visit Report - Ticket #@Model.QueryId</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #fff;
+                color: #1a202c;
+                padding: 40px;
+                margin: 0;
+                line-height: 1.5;
+            }
+
+            .header {
+                border-bottom: 2px solid #2b6cb0;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+                .header h1 {
+                    color: #2b6cb0;
+                    margin: 0;
+                    font-size: 24px;
+                }
+
+                .header p {
+                    margin: 5px 0 0 0;
+                    color: #718096;
+                    font-size: 14px;
+                }
+
+            .ticket-info {
+                background-color: #f7fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+                .ticket-info table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                .ticket-info td {
+                    padding: 8px 12px;
+                    font-size: 14px;
+                }
+
+                    .ticket-info td.label {
+                        font-weight: 600;
+                        color: #4a5568;
+                        width: 30%;
+                    }
+
+            .report-box {
+                border: 1px solid #2b6cb0;
+                background-color: #ebf8ff;
+                border-radius: 8px;
+                padding: 25px;
+                margin-bottom: 30px;
+            }
+
+                .report-box h3 {
+                    color: #2b6cb0;
+                    margin-top: 0;
+                    margin-bottom: 15px;
+                    font-size: 18px;
+                }
+
+            .footer {
+                text-align: center;
+                color: #a0aec0;
+                font-size: 12px;
+                margin-top: 50px;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 20px;
+            }
+
+            .no-print {
+                text-align: right;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                background-color: #2b6cb0;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-weight: 600;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+
+                .btn:hover {
+                    background-color: #2c5282;
+                }
+
+            @@media print {
+                .no-print {
+                    display: none !important;
+                }
+
+                body {
+                    padding: 0;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" class="btn">Print / Save as PDF</button>
+    </div>
+
+    <div class="header">
+        <div>
+            <h1>Smart Farm ERP Portal</h1>
+            <p>Official Field Officer Inspection Report</p>
+        </div>
+        <div style="text-align: right;">
+            <strong>Ticket ID: #@Model.QueryId</strong>
+            <p>Visit Date: @(Model.VisitDate?.ToString("dd-MM-yyyy") ?? "-")</p>
+        </div>
+    </div>
+
+    <div class="ticket-info">
+        <h3>General Details</h3>
+        <table>
+            <tr>
+                <td class="label">Field Officer:</td>
+                <td>@Model.OfficerName</td>
+                <td class="label">Priority:</td>
+                <td>@Model.Priority</td>
+            </tr>
+            <tr>
+                <td class="label">Associated Farm:</td>
+                <td>@Model.Farm.FarmName</td>
+                <td class="label">Associated Land Plot:</td>
+                <td>@(Model.LandPlot?.PlotName ?? "General Farm") (@(Model.LandPlot?.PlotCode ?? "N/A"))</td>
+            </tr>
+            <tr>
+                <td class="label">Farmer ID:</td>
+                <td>@Model.FarmerId</td>
+                <td class="label">Status:</td>
+                <td>@Model.Status</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="report-box">
+        <h3>Field Inspection Findings</h3>
+        <p><strong>Visual Observations:</strong></p>
+        <p style="white-space: pre-wrap; font-size: 14px; margin-bottom: 20px; line-height: 1.6;">@Model.FieldObservation</p>
+
+        <p><strong>Actions Taken / Recommended Solutions:</strong></p>
+        <p style="white-space: pre-wrap; font-size: 14px; color: #2b6cb0; margin: 0; line-height: 1.6;">@Model.ActionTaken</p>
+    </div>
+
+    <div class="footer">
+        This document is generated automatically by the Smart Farm and Crop Yield Management System.
+    </div>
+
+    <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            });
+    </script>
+</body>
+</html>

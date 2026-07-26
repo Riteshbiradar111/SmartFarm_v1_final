@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SmartFarm</title>
+    <meta name="description" content="@ViewData["Description"]" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+
+    <!-- Bootstrap CSS Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Buyer Dedicated Stylesheet -->
+    <link rel="stylesheet" href="~/css/buyer.css" asp-append-version="true" />
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+        <span class="material-icons-round">chevron_left</span>
+    </button>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="dash-sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <span class="material-icons-round">eco</span>
+            </div>
+            <span class="logo-text">SmartFarm</span>
+        </div>
+
+        <div class="sidebar-role-badge">
+            <span class="role-dot" style="background:@ViewData["RoleColor"];"></span>
+            <span class="role-label">@ViewData["UserRole"]</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <partial name="_Sidebar" />
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="~/Auth/Login" class="nav-item logout">
+                <span class="material-icons-round">logout</span>
+                <span class="nav-label">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="dash-main" id="dashMain">
+
+        <!-- Topbar Header -->
+        <header class="dash-topbar" id="topbar">
+            <div class="topbar-left">
+                <div class="topbar-breadcrumb">
+                    <span class="bc-title">@ViewData["Title"]</span>
+                    <span class="bc-sub">@ViewData["Subtitle"]</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <!-- Notification Bell -->
+                <div class="dropdown">
+                    <button class="topbar-icon-btn" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                        <span class="material-icons-round">notifications</span>
+                        <span class="notif-badge" id="notifBadge" style="display: none;"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown" style="width: 350px; max-height: 500px; overflow-y: auto;">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Notifications</h6>
+                            <button class="btn btn-sm btn-link text-decoration-none" id="markAllReadBtn" style="display: none;">Mark all as read</button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div id="notificationList">
+                            <div class="text-center py-4">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted small mt-2">Loading notifications...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topbar-divider"></div>
+
+                <!-- User Profile Avatar/Details with Dropdown -->
+                <div class="dropdown">
+                    <div class="topbar-user" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        @{
+                            var profilePicPath = Context.Session.GetString("UserProfilePicture") ?? "";
+                        }
+                        @if (!string.IsNullOrEmpty(profilePicPath))
+                        {
+                            <img src="@profilePicPath" alt="Profile" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover; margin-right: 8px;" />
+                        }
+                        else
+                        {
+                            <div class="user-avatar">@ViewData["UserInitials"]</div>
+                        }
+                        <div class="user-info">
+                            <div class="user-name">@ViewData["UserName"]</div>
+                            <div class="user-role">@ViewData["UserRole"]</div>
+                        </div>
+                        <span class="material-icons-round" style="margin-left: 8px; font-size: 20px;">expand_more</span>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="@Url.Action("Profile", "Buyer")"><span class="material-icons-round me-2" style="vertical-align: middle; font-size: 18px;">person</span>My Profile</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Wishlist", "Buyer")"><span class="material-icons-round me-2" style="vertical-align: middle; font-size: 18px;">favorite</span>Wishlist</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Auth")"><span class="material-icons-round me-2" style="vertical-align: middle; font-size: 18px;">logout</span>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Dashboard Page Content -->
+        <div class="dash-content">
+            @RenderBody()
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Buyer Dedicated Sidebar Logic -->
+    <script src="~/js/buyer.js" asp-append-version="true"></script>
+
+    <!-- Real-time Notification Handler -->
+    <script>
+        // Load notifications when dropdown is opened
+        document.getElementById('notificationDropdown').addEventListener('click', function() {
+            loadNotifications();
+        });
+
+        // Load notifications on page load to get badge count
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
+        });
+
+        function loadNotifications() {
+            const listContainer = document.getElementById('notificationList');
+
+            // Show loading state
+            listContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted small mt-2">Loading notifications...</p>
+                </div>
+            `;
+
+            fetch('@Url.Action("GetNotifications", "Buyer")')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response OK:', response.ok);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Notification data:', data);
+                    if (data && data.success) {
+                        updateNotificationBadge(data.unreadCount);
+                        renderNotifications(data.notifications);
+                    } else {
+                        const errorMsg = data && data.message ? data.message : 'Unable to load notifications. Please try again.';
+                        console.error('API returned success=false:', errorMsg);
+                        showNotificationError(errorMsg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    console.error('Error details:', error.message, error.stack);
+                    showNotificationError('Failed to load notifications. Please refresh the page.');
+                });
+        }
+
+        function showNotificationError(message) {
+            const listContainer = document.getElementById('notificationList');
+            listContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <span class="material-icons-round text-danger" style="font-size: 48px;">error_outline</span>
+                    <p class="text-muted mt-2">${message}</p>
+                    <button class="btn btn-sm btn-primary" onclick="loadNotifications()">Retry</button>
+                </div>
+            `;
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notifBadge');
+            const markAllBtn = document.getElementById('markAllReadBtn');
+
+            if (count > 0) {
+                badge.textContent = count > 9 ? '9+' : count;
+                badge.style.display = 'inline-block';
+                markAllBtn.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+                markAllBtn.style.display = 'none';
+            }
+        }
+
+        function renderNotifications(notifications) {
+            const listContainer = document.getElementById('notificationList');
+
+            if (notifications.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <span class="material-icons-round text-muted" style="font-size: 48px;">notifications_none</span>
+                        <p class="text-muted mt-2">No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = notifications.map(notif => `
+                <div class="dropdown-item notification-item ${notif.isRead ? 'read' : 'unread'}" 
+                     style="white-space: normal; padding: 12px 16px; border-left: ${notif.isRead ? '3px solid transparent' : '3px solid #4CAF50'};"
+                     data-notif-id="${notif.notificationId}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div style="flex: 1;">
+                            <h6 class="mb-1" style="font-size: 14px; font-weight: 600;">${notif.title}</h6>
+                            <p class="mb-1 text-muted" style="font-size: 13px;">${notif.message}</p>
+                            <small class="text-muted" style="font-size: 11px;">${notif.timeAgo}</small>
+                        </div>
+                        ${!notif.isRead ? `
+                            <button class="btn btn-sm btn-link p-0 ms-2 mark-read-btn" 
+                                    onclick="markAsRead(${notif.notificationId}, event)"
+                                    title="Mark as read">
+                                <span class="material-icons-round" style="font-size: 16px;">check</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function markAsRead(notificationId, event) {
+            event.stopPropagation();
+
+            fetch('@Url.Action("MarkNotificationAsRead", "Buyer")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ notificationId: notificationId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        // Mark all notifications as read
+        document.getElementById('markAllReadBtn').addEventListener('click', function() {
+            fetch('@Url.Action("MarkAllNotificationsAsRead", "Buyer")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all notifications as read:', error));
+        });
+
+        // ===== ACTIVE MENU HIGHLIGHTING v2.0 =====
+        // Highlight the current page's menu item in the sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+
+            console.log('Current path:', currentPath); // Debug
+
+            // Remove 'active' class from all nav items
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // Sort nav items by href length (longest first) to match more specific routes first
+            const sortedNavItems = Array.from(navItems).sort((a, b) => {
+                const hrefA = a.getAttribute('href') || '';
+                const hrefB = b.getAttribute('href') || '';
+                return hrefB.length - hrefA.length;
+            });
+
+            let matched = false;
+
+            // Find and activate the first matching nav item only
+            for (let item of sortedNavItems) {
+                if (matched) break; // Stop immediately after first match
+
+                const href = item.getAttribute('href')?.toLowerCase();
+                if (!href || href === '#' || href.startsWith('#')) continue;
+
+                // Convert tilde paths to absolute
+                const absoluteHref = href.startsWith('~/') ? href.substring(1) : href;
+
+                console.log('Checking:', absoluteHref); // Debug
+
+                // Exact match (including trailing slash variants)
+                if (currentPath === absoluteHref || currentPath === absoluteHref + '/' || currentPath + '/' === absoluteHref) {
+                    console.log('Exact match:', absoluteHref); // Debug
+                    item.classList.add('active');
+                    matched = true;
+                    break;
+                }
+                // Starts with match (for sub-pages) - but only if not already matched
+                else if (currentPath.startsWith(absoluteHref + '/') && absoluteHref !== '/') {
+                    console.log('Prefix match:', absoluteHref); // Debug
+                    item.classList.add('active');
+                    matched = true;
+                    break;
+                }
+            }
+        });
+    </script>
+
+    <!-- Dashboard-specific scripts (e.g. Chart.js initializations) -->
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

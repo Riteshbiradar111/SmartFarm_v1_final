@@ -1,0 +1,327 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.AdminDashboardViewModel
+@{
+	Layout = "_DashboardLayout";
+	ViewData["Title"] = "Admin Dashboard";
+}
+
+<!-- ===== MAIN DASHBOARD CONTENT ===== -->
+<div class="dash-content">
+
+	<!-- ===== 4 KPI STATS ROW ===== -->
+	<div class="stats-row" style="margin-bottom: 24px;">
+
+		<!-- Total Users -->
+		<div class="stat-card blue">
+			<div class="stat-icon-wrap si-blue">
+				<span class="material-icons-round">people</span>
+			</div>
+			<div class="stat-body">
+				<div class="stat-value">@Model.TotalUsers.ToString("N0")</div>
+				<div class="stat-label">Total Users</div>
+				<div class="stat-change up">
+					<span class="material-icons-round" style="font-size:12px;">add</span>
+					<span>+@Model.UsersAddedThisMonth this month</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Active Registered Farms -->
+		<div class="stat-card green">
+			<div class="stat-icon-wrap si-green">
+				<span class="material-icons-round">landscape</span>
+			</div>
+			<div class="stat-body">
+				<div class="stat-value">@Model.ActiveFarms</div>
+				<div class="stat-label">Active Registered Farms</div>
+				<div class="stat-change neutral">
+					<span>Across @Model.TotalStates states</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Active Crops -->
+		<div class="stat-card lime">
+			<div class="stat-icon-wrap si-lime">
+				<span class="material-icons-round">eco</span>
+			</div>
+			<div class="stat-body">
+				<div class="stat-value">@Model.ActiveCrops</div>
+				<div class="stat-label">Active Crops</div>
+				<div class="stat-change neutral">
+					<span>Currently Growing</span>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- ===== MAIN GRID: System Audit Logs (stretched to 100% width) ===== -->
+	<div style="margin-bottom: 24px;">
+
+		<!-- Column: System Audit Logs -->
+		<div class="dash-card">
+			<div class="dash-card-header">
+				<h2 class="dash-card-title">
+					<span class="material-icons-round">history</span>
+					System Audit Logs
+				</h2>
+			</div>
+			<div class="dash-card-body">
+				@if (Model.RecentAuditLogs.Any())
+				{
+					<div class="audit-log-list">
+						@foreach (var log in Model.RecentAuditLogs)
+						{
+							<div class="audit-log-item">
+								<span class="audit-dot" style="background: @GetAuditDotColor(log.BadgeColor);"></span>
+								<div class="audit-content">
+									<div class="audit-message">@log.Message</div>
+									<div class="audit-time">@log.TimeAgo</div>
+								</div>
+							</div>
+						}
+					</div>
+				}
+				else
+				{
+					<div style="padding: 20px; text-align: center; color: #7a9a8a;">
+						<p>No recent audit logs.</p>
+					</div>
+				}
+			</div>
+		</div>
+
+	</div>
+
+	<!-- ===== CHARTS ROW ===== -->
+	<div class="grid-2" style="gap:24px; margin-bottom: 24px;">
+
+		<!-- User Growth Chart (Line Chart) -->
+		<div class="dash-card">
+			<div class="dash-card-header">
+				<h2 class="dash-card-title">
+					<span class="material-icons-round">trending_up</span>
+					User Growth (Last 12 Months)
+				</h2>
+			</div>
+			<div class="dash-card-body">
+				<canvas id="userGrowthChart" style="max-height: 300px;"></canvas>
+			</div>
+		</div>
+
+		<!-- User Distribution by Role (Donut Chart) -->
+		<div class="dash-card">
+			<div class="dash-card-header">
+				<h2 class="dash-card-title">
+					<span class="material-icons-round">pie_chart</span>
+					User Distribution by Role
+				</h2>
+			</div>
+			<div class="dash-card-body">
+				<canvas id="userDistributionChart" style="max-height: 300px;"></canvas>
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+@functions {
+	string GetAuditDotColor(string badgeColor)
+	{
+		return badgeColor switch
+		{
+			"green" => "#52B788",
+			"orange" => "#FF8C00",
+			"blue" => "#4169E1",
+			"red" => "#dc2626",
+			_ => "#6c757d"
+		};
+	}
+}
+
+@section Scripts {
+<script>
+	// ===== USER GROWTH CHART (Line Chart) =====
+	const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+	const userGrowthChart = new Chart(userGrowthCtx, {
+		type: 'line',
+		data: {
+			labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserGrowthData.Labels)),
+			datasets: [{
+				label: 'Total Registered Users',
+				data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserGrowthData.Data)),
+				borderColor: '#4169E1',
+				backgroundColor: 'rgba(65, 105, 225, 0.1)',
+				borderWidth: 3,
+				fill: true,
+				tension: 0.4,
+				pointRadius: 4,
+				pointBackgroundColor: '#4169E1',
+				pointBorderColor: '#fff',
+				pointBorderWidth: 2,
+				pointHoverRadius: 6
+			}]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: true,
+			plugins: {
+				legend: {
+					display: true,
+					position: 'bottom',
+					labels: {
+						usePointStyle: true,
+						padding: 15,
+						font: { size: 12, family: 'Inter, sans-serif' }
+					}
+				}
+			},
+			scales: {
+				y: {
+					beginAtZero: false,
+					ticks: {
+						font: { size: 11 },
+						color: '#7a9a8a'
+					},
+					grid: {
+						color: '#e2ede8'
+					}
+				},
+				x: {
+					ticks: {
+						font: { size: 11 },
+						color: '#7a9a8a'
+					},
+					grid: {
+						display: false
+					}
+				}
+			}
+		}
+	});
+
+	// ===== USER DISTRIBUTION CHART (Donut Chart) =====
+	const userDistCtx = document.getElementById('userDistributionChart').getContext('2d');
+	const userDistChart = new Chart(userDistCtx, {
+		type: 'doughnut',
+		data: {
+			labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserDistributionData.Labels)),
+			datasets: [{
+				data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserDistributionData.Data)),
+				backgroundColor: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserDistributionData.BackgroundColors)),
+				borderWidth: 0,
+				hoverOffset: 8
+			}]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: true,
+			plugins: {
+				legend: {
+					display: true,
+					position: 'bottom',
+					labels: {
+						usePointStyle: true,
+						padding: 12,
+						font: { size: 12, family: 'Inter, sans-serif' }
+					}
+				}
+			}
+		}
+	});
+</script>
+}
+
+<style>
+	/* Audit Log Styles */
+	.audit-log-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.audit-log-item {
+		display: flex;
+		align-items: start;
+		gap: 12px;
+		padding: 12px;
+		border-radius: 8px;
+		background: #f8faf9;
+		transition: background 0.2s ease;
+	}
+
+		.audit-log-item:hover {
+			background: #f0f7f4;
+		}
+
+	.audit-dot {
+		flex-shrink: 0;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		margin-top: 4px;
+	}
+
+	.audit-content {
+		flex: 1;
+	}
+
+	.audit-message {
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--text-primary);
+		margin-bottom: 4px;
+	}
+
+	.audit-time {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	/* Table responsive wrapper */
+	.table-responsive {
+		overflow-x: auto;
+		width: 100%;
+	}
+
+	/* Dashboard table styling */
+	.dash-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 14px;
+	}
+
+		.dash-table thead {
+			background: #f8faf9;
+			border-bottom: 2px solid #e2ede8;
+		}
+
+			.dash-table thead th {
+				padding: 14px 16px;
+				text-align: left;
+				font-weight: 600;
+				font-size: 11px;
+				letter-spacing: 0.5px;
+				color: #7a9a8a;
+				text-transform: uppercase;
+			}
+
+		.dash-table tbody tr {
+			border-bottom: 1px solid #f0f7f4;
+			transition: background 0.2s ease;
+		}
+
+			.dash-table tbody tr:hover {
+				background: #f8faf9;
+			}
+
+		.dash-table tbody td {
+			padding: 16px;
+			color: var(--text-primary);
+		}
+
+			.dash-table tbody td strong {
+				font-weight: 600;
+			}
+</style>

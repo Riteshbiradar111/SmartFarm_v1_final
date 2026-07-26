@@ -1,0 +1,28 @@
+﻿<!-- ============================================================
+     STICKY NAVBAR (PUBLIC SITE)
+============================================================ -->
+<header class="navbar" id="navbar">
+    <div class="nav-container">
+        <div class="nav-logo" onclick="location.href='@Url.Action("Index", "Home")'" style="cursor:pointer;">
+            <span class="material-icons logo-icon">eco</span>
+            <div class="logo-text">
+                <span class="logo-main">SmartFarm</span>
+                <span class="logo-sub">Crop Yield Management System</span>
+            </div>
+        </div>
+        <nav class="nav-links" id="navLinks">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#benefits">Benefits</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#faq">FAQ</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="~/Auth/Login" class="btn btn-outline">Login</a>
+            <a href="@Url.Action("ChooseType", "Register")" class="btn btn-primary">Register</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+            <span class="material-icons">menu</span>
+        </button>
+    </div>
+</header>

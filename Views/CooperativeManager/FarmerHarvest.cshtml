@@ -1,0 +1,104 @@
+@model IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.FarmerHarvestViewModel>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Farmer Harvest Registry";
+    ViewData["Subtitle"] = "Monitor crop planting cycles, sowing records, and actual yields.";
+    ViewData["UserRole"] = "Cooperative Manager";
+    ViewData["UserName"] = Context.Session.GetString("UserName") ?? "Cooperative Manager";
+    ViewData["UserInitials"] = Context.Session.GetString("UserInitials") ?? "CM";
+    ViewData["RoleColor"] = "#7c3aed";
+}
+
+<!-- Search & Filter Controls -->
+<div class="dash-card mb-4">
+    <div class="dash-card-body">
+        <form method="get" asp-action="FarmerHarvest" class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label font-weight-bold">Search Farmer or Crop</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <span class="material-icons-round fs-5 text-muted">search</span>
+                    </span>
+                    <input type="text" name="searchFarmer" class="form-control" placeholder="Search by Farmer Name or Crop Name..." value="@Context.Request.Query["searchFarmer"]" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <span class="material-icons-round fs-6">search</span> Filter
+                </button>
+                <a href="/CooperativeManager/FarmerHarvest" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Harvest Table -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">
+            <span class="material-icons-round">table_chart</span>
+            Farmer Harvest Logs
+        </h2>
+    </div>
+    <div class="dash-card-body" style="padding:0;">
+        <div class="dash-table-wrap">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Farmer Name</th>
+                        <th>Farm / Plot Name</th>
+                        <th>Crop Name</th>
+                        <th>Sowing Date</th>
+                        <th>Expected Harvest</th>
+                        <th>Actual Yield</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <span class="material-icons-round d-block mb-2" style="font-size: 48px; color: #cbd5e1;">agriculture</span>
+                                No sowing or harvest records found matching filter.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><div class="td-label font-weight-bold">@item.FarmerName</div></td>
+                                <td>@item.PlotName</td>
+                                <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">@item.CropName</span></td>
+                                <td>@item.SowingDate.ToString("dd MMM yyyy")</td>
+                                <td>@item.ExpectedHarvestDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (item.ActualYield > 0)
+                                    {
+                                        <b class="text-dark">@item.ActualYield.ToString("0.00") @item.Unit</b>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not Harvested Yet</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase) || item.ActualYield > 0)
+                                    {
+                                        <span class="badge badge-green">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-orange">@item.Status</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

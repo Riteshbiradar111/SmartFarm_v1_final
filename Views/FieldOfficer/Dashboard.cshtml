@@ -1,0 +1,289 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.FieldOfficerDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Field Officer Dashboard";
+}
+
+<!-- ===== DASHBOARD CONTENT ===== -->
+<!-- 4 KPI Stats Row -->
+<div class="stats-row">
+    <!-- Farmers Registered -->
+    <div class="stat-card blue">
+        <div class="stat-icon-wrap si-blue">
+            <span class="material-icons-round">people</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.TotalFarmerRegistrations</div>
+            <div class="stat-label">Farmers Registered</div>
+            <div class="stat-change up">
+                <span class="material-icons-round" style="font-size:12px;">trending_up</span>
+                <span>Active Assigned</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plots Mapped -->
+    <div class="stat-card green">
+        <div class="stat-icon-wrap si-green">
+            <span class="material-icons-round">map</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.PendingPlotsVerification</div>
+            <div class="stat-label">Plots Mapped</div>
+            <div class="stat-change orange">
+                <span>Pending Verification</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sensor Logs -->
+    <div class="stat-card teal">
+        <div class="stat-icon-wrap si-teal">
+            <span class="material-icons-round">sensors</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.TotalSensorReadings</div>
+            <div class="stat-label">Sensor Logs Saved</div>
+            <div class="stat-change neutral">
+                <span>Logged Records</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Incidents -->
+    <div class="stat-card red">
+        <div class="stat-icon-wrap si-red">
+            <span class="material-icons-round">report_problem</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.OpenIncidentsCount</div>
+            <div class="stat-label">Open Incidents</div>
+            <div class="stat-change down">
+                <span class="material-icons-round" style="font-size:12px;">priority_high</span>
+                <span>Requires action</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dash-alert dash-alert-green" style="margin-bottom: 20px;">
+        <span class="material-icons-round">check_circle</span>
+        <div><b>Success:</b> @TempData["SuccessMessage"]</div>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dash-alert dash-alert-red" style="margin-bottom: 20px;">
+        <span class="material-icons-round">error</span>
+        <div><b>Error:</b> @TempData["ErrorMessage"]</div>
+    </div>
+}
+
+<!-- Charts Grid -->
+<div class="grid-2">
+    <!-- Left: Farmer growth chart -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <span class="material-icons-round">bar_chart</span>
+                Monthly Farmer Registrations (This Year)
+            </h2>
+        </div>
+        <div class="dash-card-body">
+            <div class="chart-wrap" style="height: 280px;">
+                <canvas id="regChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Soil type distribution -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <span class="material-icons-round">pie_chart</span>
+                Plot Soil Type Distribution
+            </h2>
+        </div>
+        <div class="dash-card-body">
+            <div class="chart-wrap" style="height: 280px;">
+                <canvas id="soilTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Queue & Visited Feed -->
+<div class="grid-2-1">
+    <!-- Verification Table -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <span class="material-icons-round">fact_check</span>
+                Pending Mappings Verification Queue
+            </h2>
+        </div>
+        <div class="dash-card-body" style="padding: 0;">
+            <div class="dash-table-wrap">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Farmer Name</th>
+                            <th>Village</th>
+                            <th>Submitted</th>
+                            <th>Land (Acres)</th>
+                            <th>Plots</th>
+                            <th>Soil Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.PendingMappings == null || !Model.PendingMappings.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <span class="material-icons-round d-block mb-1" style="font-size: 2rem; color: #cbd5e1;">fact_check</span>
+                                    No pending plot verification requests at this time.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var plot in Model.PendingMappings)
+                            {
+                                <tr>
+                                    <td><div class="td-label" style="font-weight: 600;">@plot.FarmerName</div></td>
+                                    <td>@plot.Village</td>
+                                    <td>@plot.CreatedDate.ToString("dd MMM yyyy")</td>
+                                    <td>@plot.Area.ToString("0.0")</td>
+                                    <td>
+                                        <span class="fw-semibold">@plot.PlotName</span>
+                                        <small class="text-muted d-block">@plot.PlotCode</small>
+                                    </td>
+                                    <td>@plot.SoilType</td>
+                                    <td><span class="badge badge-orange">@plot.Status</span></td>
+                                    <td>
+                                        <form method="post" action="~/FieldOfficer/VerifyPlot/@plot.PlotId" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-primary">Verify</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Field Visits Feed -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <span class="material-icons-round">directions_walk</span>
+                Field Visit Activity
+            </h2>
+        </div>
+        <div class="dash-card-body">
+            <div class="activity-feed">
+                @if (Model.RecentVisits != null && Model.RecentVisits.Any())
+                {
+                    foreach (var visit in Model.RecentVisits)
+                    {
+                        <div class="activity-item">
+                            <div class="activity-dot-wrap">
+                                <span class="activity-dot" style="background:@visit.DotColor;"></span>
+                            </div>
+                            <div class="activity-body">
+                                <div class="activity-text">
+                                    Field visit to <b>@visit.FarmerName</b> — Plot: @visit.PlotInfo
+                                    <span class="badge @(visit.Status == "Completed" ? "badge-green" : visit.Status == "Scheduled" ? "badge-blue" : "badge-orange")" style="margin-left:6px; font-size:0.7rem;">@visit.Status</span>
+                                </div>
+                                <div class="activity-meta">
+                                    @(visit.VisitDate.HasValue ? visit.VisitDate.Value.ToString("dd MMM yyyy HH:mm") : "Not scheduled")
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align:center; color:var(--text-secondary); padding:30px;">
+                        <span class="material-icons-round" style="font-size:2rem; color:#cbd5e1;">commute</span>
+                        <div style="margin-top:8px;">No field visits recorded yet.</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- ===== CHART INITIALIZATION ===== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          // 1. Farmer Registration Growth Chart (Bar)
+          var ctxReg = document.getElementById('regChart').getContext('2d');
+          var regChart = new Chart(ctxReg, {
+            type: 'bar',
+            data: {
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+              datasets: [{
+                label: 'Farmers Registered',
+                data: [@string.Join(", ", ViewBag.MonthlyFarmerRegistrations as int[] ?? new int[12])],
+                backgroundColor: 'rgba(37, 99, 235, 0.85)',
+                borderColor: 'rgb(37, 99, 235)',
+                borderWidth: 1,
+                borderRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: { boxWidth: 12, font: { family: 'Poppins' } }
+                }
+              },
+              scales: {
+                x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { family: 'Inter' } } },
+                y: { grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true, ticks: { precision: 0, font: { family: 'Inter' } } }
+              }
+            }
+          });
+
+          // 2. Soil Type Distribution (Pie Chart) — dynamic from DB
+          var ctxSoil = document.getElementById('soilTypeChart').getContext('2d');
+          var soilLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SoilTypeData.Keys.ToArray()));
+          var soilValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SoilTypeData.Values.ToArray()));
+          var soilColors = ['#1B4332','#2D6A4F','#40916C','#52B788','#74C69D','#95D5B2','#B7E4C7','#D8F3DC'];
+          var soilChart = new Chart(ctxSoil, {
+            type: 'pie',
+            data: {
+              labels: soilLabels.length > 0 ? soilLabels : ['No Data'],
+              datasets: [{
+                data: soilValues.length > 0 ? soilValues : [1],
+                backgroundColor: soilColors.slice(0, Math.max(soilLabels.length, 1)),
+                borderWidth: 1,
+                borderColor: '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: { boxWidth: 12, font: { family: 'Poppins' } }
+                }
+              }
+            }
+          });
+        });
+    </script>
+}

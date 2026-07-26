@@ -1,0 +1,232 @@
+@model Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels.CooperativeManagerDashboardViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Cooperative Manager Dashboard";
+}
+
+<!-- Welcome alert banner -->
+<div class="dash-alert dash-alert-blue mb-4">
+    <span class="material-icons-round">info</span>
+    <div>
+        Welcome, <b>@Model.ManagerFullName</b>! You are managing the cooperative operations for <b>@Model.Region</b>.
+    </div>
+</div>
+
+<!-- 8 Operational KPI Summary Cards -->
+<div class="stats-row mb-3">
+    <!-- Total Farmers -->
+    <div class="stat-card purple">
+        <div class="stat-icon-wrap si-purple">
+            <span class="material-icons-round">people</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.TotalFarmers</div>
+            <div class="stat-label">Total Farmers</div>
+        </div>
+    </div>
+
+    <!-- Pending Farmer Issues -->
+    <div class="stat-card red">
+        <div class="stat-icon-wrap si-red">
+            <span class="material-icons-round">report_problem</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.PendingFarmerIssues</div>
+            <div class="stat-label">Pending Issues</div>
+        </div>
+    </div>
+
+    <!-- Active Assignments -->
+    <div class="stat-card blue">
+        <div class="stat-icon-wrap si-blue">
+            <span class="material-icons-round">assignment</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.ActiveAssignments</div>
+            <div class="stat-label">Active Assignments</div>
+        </div>
+    </div>
+
+    <!-- Resolved Cases -->
+    <div class="stat-card green">
+        <div class="stat-icon-wrap si-green">
+            <span class="material-icons-round">check_circle</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.ResolvedCases</div>
+            <div class="stat-label">Resolved Cases</div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-row mb-4">
+    <!-- Pending Field Visits -->
+    <div class="stat-card teal">
+        <div class="stat-icon-wrap si-teal">
+            <span class="material-icons-round">directions_walk</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.PendingFieldVisits</div>
+            <div class="stat-label">Pending Field Visits</div>
+        </div>
+    </div>
+
+    <!-- Agronomist Reviews Pending -->
+    <div class="stat-card orange">
+        <div class="stat-icon-wrap si-orange">
+            <span class="material-icons-round">rate_review</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.AgronomistReviewsPending</div>
+            <div class="stat-label">Reviews Pending</div>
+        </div>
+    </div>
+
+    <!-- Total Pest Cases -->
+    <div class="stat-card red">
+        <div class="stat-icon-wrap si-red">
+            <span class="material-icons-round">bug_report</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.TotalPestCases</div>
+            <div class="stat-label">Total Pest Cases</div>
+        </div>
+    </div>
+
+    <!-- Active Improvement Plans -->
+    <div class="stat-card green">
+        <div class="stat-icon-wrap si-green">
+            <span class="material-icons-round">lightbulb</span>
+        </div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.ActiveImprovementPlans</div>
+            <div class="stat-label">Active Improvement Plans</div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Member Farm Performance Directory Section -->
+<div class="dash-card mb-4">
+    <div class="dash-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h2 class="dash-card-title mb-0">
+            <span class="material-icons-round text-success">analytics</span>
+            Member Farm Performance Overview
+        </h2>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="badge bg-success-subtle text-success fs-6 rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                <span class="material-icons-round font-size-sm">spa</span> @Model.MemberFarmPerformance.Count Registered Farmers
+            </span>
+            <a href="~/CooperativeManager/MemberFarms" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                Manage Member Farms
+            </a>
+        </div>
+    </div>
+    <div class="dash-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%); border-bottom: 2px solid #cbd5e1;">
+                    <tr style="font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 0.85rem; font-weight: 700; color: #1e293b; text-transform: capitalize; letter-spacing: 0.2px;">
+                        <th class="ps-4 py-3 text-dark fw-bold">Farmer Details</th>
+                        <th class="py-3 text-dark fw-bold">Location</th>
+                        <th class="py-3 text-dark fw-bold">Land &amp; Plots</th>
+                        <th class="py-3 text-dark fw-bold">Planted Crops</th>
+                        <th class="py-3 text-dark fw-bold">Total Harvest</th>
+                        <th class="py-3 text-dark fw-bold">Sales Revenue</th>
+                        <th class="py-3 text-dark fw-bold">Open Issues</th>
+                        <th class="py-3 text-dark fw-bold">Assigned Staff</th>
+                        <th class="py-3 text-dark fw-bold">Operational Status</th>
+                        <th class="pe-4 py-3 text-end text-dark fw-bold">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.MemberFarmPerformance.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-muted">No member farm performance records found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.MemberFarmPerformance)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@item.FarmerName</div>
+                                    <small class="text-muted d-inline-flex align-items-center gap-1 mt-1">
+                                        <span class="material-icons-round text-secondary" style="font-size: 14px;">call</span> @item.MobileNumber
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@item.Location</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@item.TotalAreaAcres Acres</div>
+                                    <small class="text-muted">@item.TotalFarms Farm(s), @item.TotalPlots Plot(s)</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success fw-semibold">@item.ActiveCrops</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-success">@item.TotalHarvestQuantity <small class="text-muted font-normal">qtl</small></div>
+                                </td>
+                                <td>
+                                    @if (item.TotalSalesRevenue > 0)
+                                    {
+                                        <div class="fw-bold text-dark">₹@item.TotalSalesRevenue.ToString("N0")</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">₹0</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.OpenIssuesCount > 0)
+                                    {
+                                        <span class="badge bg-danger text-white rounded-pill px-2.5">@item.OpenIssuesCount Open</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-2.5">Clear</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.AssignedStaffName != "Unassigned")
+                                    {
+                                        <div class="fw-semibold text-primary small">@item.AssignedStaffName</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Unassigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.ProduceStatus == "Revenue Generated")
+                                    {
+                                        <span class="badge bg-success text-white px-2.5 py-1">Revenue Generated</span>
+                                    }
+                                    else if (item.ProduceStatus == "Harvest Completed")
+                                    {
+                                        <span class="badge bg-info text-white px-2.5 py-1">Harvest Completed</span>
+                                    }
+                                    else if (item.ProduceStatus == "In Cultivation")
+                                    {
+                                        <span class="badge bg-primary text-white px-2.5 py-1">In Cultivation</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white px-2.5 py-1">Registered</span>
+                                    }
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="~/CooperativeManager/FarmerHarvest?searchFarmer=@item.FarmerName" class="btn btn-sm btn-outline-success rounded-3 text-nowrap d-inline-flex align-items-center gap-1">
+                                        <span class="material-icons-round" style="font-size: 15px;">visibility</span> Harvest Registry
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
