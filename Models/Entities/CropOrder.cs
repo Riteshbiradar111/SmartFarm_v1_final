@@ -54,6 +54,14 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
         [StringLength(500)]
         public string? SpecialInstructions { get; set; }
 
+        [StringLength(100)]
+        public string? DeclineReason { get; set; }
+
+        [StringLength(500)]
+        public string? DeclineNotes { get; set; }
+
+        public DateTime? DeclinedDate { get; set; }
+
         // Navigation Properties
         [ForeignKey(nameof(BuyerId))]
         public virtual Buyer? Buyer { get; set; }

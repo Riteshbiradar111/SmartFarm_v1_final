@@ -53,16 +53,22 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
             ViewData["Title"] = "Field Officer Dashboard";
             ViewData["Subtitle"] = "Wardha Zone — Track registrations, plot mappings, and field incidents.";
 
-            // Mapped farmer IDs assigned across assignments, pest cases, support queries, and field visits
-            var assignedFarmerIds = _context.FieldOfficerAssignments
-                .Where(a => a.FieldOfficerUserId == userId.Value)
-                .Select(a => a.FarmerId)
-                .Union(_context.Assignments.Where(a => a.OfficerId == userId.Value).Select(a => a.FarmerId))
-                .Union(_context.PestCases.Where(p => p.AssignedOfficerId == userId.Value).Select(p => p.CropCycle.LandPlot.Farm.FarmerId))
-                .Union(_context.SupportQueries.Where(s => s.AssignedToUserId == userId.Value).Select(s => s.FarmerId))
-                .Union(_context.FieldVisits.Where(v => v.AssignedOfficerId == userId.Value).Select(v => v.FarmerId))
-                .Distinct()
-                .ToList();
+            // Step 1: Collect assigned farmer IDs step-by-step
+            var assignedFarmerIds = new List<int>();
+
+            var foAssignments = _context.FieldOfficerAssignments.Where(a => a.FieldOfficerUserId == userId.Value).Select(a => a.FarmerId).ToList();
+            assignedFarmerIds.AddRange(foAssignments);
+
+            var officerAssignments = _context.Assignments.Where(a => a.OfficerId == userId.Value).Select(a => a.FarmerId).ToList();
+            assignedFarmerIds.AddRange(officerAssignments);
+
+            var supportQueryFarmerIds = _context.SupportQueries.Where(s => s.AssignedToUserId == userId.Value).Select(s => s.FarmerId).ToList();
+            assignedFarmerIds.AddRange(supportQueryFarmerIds);
+
+            var visitFarmerIds = _context.FieldVisits.Where(v => v.AssignedOfficerId == userId.Value).Select(v => v.FarmerId).ToList();
+            assignedFarmerIds.AddRange(visitFarmerIds);
+
+            assignedFarmerIds = assignedFarmerIds.Distinct().ToList();
 
             // Fallback to all registered farmers if specific assignments list is unpopulated
             if (!assignedFarmerIds.Any())

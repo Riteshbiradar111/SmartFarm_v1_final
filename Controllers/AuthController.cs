@@ -62,13 +62,11 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             // Compute SHA-256 hash of the entered password (matches AdminController.HashPassword)
             string hashedInput = HashPassword(inputPassword);
 
-            // Valid if stored value matches the plaintext OR the hashed input (supports legacy plaintext + hashed accounts)
+            // Valid if stored value matches the plaintext OR the hashed input
             bool passwordMatches =
                 matchedUser.PasswordHash == inputPassword ||
                 matchedUser.PasswordHash == hashedInput ||
-                matchedUser.PasswordHash == "admin123" || matchedUser.PasswordHash == "rohan123" ||
-                matchedUser.PasswordHash == "buyer123" || matchedUser.PasswordHash == "agro123" ||
-                matchedUser.PasswordHash == "officer123" || matchedUser.PasswordHash == "manager123";
+                (inputPassword == "admin123" && matchedUser.PasswordHash == "admin123");
 
             // If credentials are invalid — show error, stay on Login page
             if (!passwordMatches)
@@ -84,17 +82,21 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             if (userRole?.RoleName == "Farmer")
             {
                 var farmer = _context.Farmers.FirstOrDefault(f => f.UserId == matchedUser.UserId);
-                if (farmer != null && !string.IsNullOrEmpty(farmer.FullName))
+                if (farmer != null)
                 {
-                    fullName = farmer.FullName;
+                    if (!string.IsNullOrEmpty(farmer.FullName)) fullName = farmer.FullName;
+                    if (!string.IsNullOrEmpty(farmer.ProfilePicturePath))
+                    {
+                        HttpContext.Session.SetString("UserProfilePicture", farmer.ProfilePicturePath);
+                    }
                 }
             }
             else if (userRole?.RoleName == "Buyer")
             {
                 var buyer = _context.Buyers.FirstOrDefault(b => b.UserId == matchedUser.UserId);
-                if (buyer != null && !string.IsNullOrEmpty(buyer.FullName))
+                if (buyer != null)
                 {
-                    fullName = buyer.FullName;
+                    if (!string.IsNullOrEmpty(buyer.FullName)) fullName = buyer.FullName;
                 }
             }
 

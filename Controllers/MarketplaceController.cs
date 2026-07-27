@@ -29,6 +29,7 @@ namespace SmartFarmMVC.Controllers
         // Displays list of listings and buyer orders (for Farmers)
         public IActionResult Index(string? searchCrop, string? searchRegion, decimal? maxPrice)
         {
+            _context.EnsureMarketplaceColumnsExist();
             var role = GetSessionRole();
             var username = GetSessionUsername();
             if (string.IsNullOrEmpty(role) || string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Auth");
@@ -234,6 +235,7 @@ namespace SmartFarmMVC.Controllers
                     HarvestId = model.HarvestId,
                     PricePerUnit = model.PricePerUnit,
                     AvailableQuantity = model.AvailableQuantity,
+                    OriginalQuantity = model.AvailableQuantity,
                     Unit = model.Unit,
                     Status = "Available",
                     ListedDate = DateTime.Now,
@@ -241,8 +243,6 @@ namespace SmartFarmMVC.Controllers
                 };
 
                 // 2. Mark harvest as listed (but don't reduce ActualQuantity)
-                // ActualQuantity represents the total harvested amount (for reporting)
-                // AvailableQuantity in CropListing tracks remaining stock for sale
                 if (selectedHarvest.ActualQuantity == model.AvailableQuantity)
                 {
                     selectedHarvest.Status = "Listed";
@@ -265,58 +265,157 @@ namespace SmartFarmMVC.Controllers
         }
 
         // POST: /Marketplace/AcceptOrder
-        // Farmer accepts an incoming buyer request
+        // Farmer accepts an incoming buyer request with stock deduction & oversell protection
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AcceptOrder(int orderId)
         {
-            var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == GetSessionUsername());
+            var username = GetSessionUsername();
+            if (string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Auth");
+
+            var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == username);
             if (farmer == null) return RedirectToAction("Login", "Auth");
 
-            var order = _context.CropOrders.FirstOrDefault(o => o.OrderId == orderId && o.FarmerId == farmer.FarmerId);
+            var order = _context.CropOrders
+                .Include(o => o.CropListing)
+                    .ThenInclude(l => l.Harvest)
+                        .ThenInclude(h => h.CropCycle)
+                            .ThenInclude(c => c.Crop)
+                .Include(o => o.Buyer)
+                .FirstOrDefault(o => o.OrderId == orderId && o.FarmerId == farmer.FarmerId);
+
             if (order == null)
             {
-                TempData["ErrorMessage"] = "Order not found.";
+                TempData["ErrorMessage"] = "Order request not found.";
                 return RedirectToAction("Index");
             }
 
-            if (order.Status == "Delivered")
+            if (order.Status == "Accepted" || order.Status == "Farmer Accepted" || order.Status == "ACCEPTED" || order.Status == "Delivered" || order.Status == "Declined" || order.Status == "Rejected" || order.Status == "Cancelled")
             {
-                TempData["ErrorMessage"] = "Cannot modify a delivered order.";
+                TempData["ErrorMessage"] = "This order request has already been processed and its status cannot be modified.";
                 return RedirectToAction("Index");
             }
 
-            if (order.HarvestId.HasValue)
+            // Find associated listing
+            CropListing? listing = order.CropListing;
+            if (listing == null && order.ListingId.HasValue)
             {
-                var isListed = _context.CropListings.Any(l => l.HarvestId == order.HarvestId.Value && l.Status == "Available");
-                if (!isListed)
-                {
-                    TempData["ErrorMessage"] = "You must list this crop on the Marketplace before you can accept the pre-order request.";
-                    return RedirectToAction("Index");
-                }
+                listing = _context.CropListings.FirstOrDefault(l => l.ListingId == order.ListingId.Value);
             }
 
-            order.Status = "Farmer Accepted";
+            if (listing == null)
+            {
+                TempData["ErrorMessage"] = "The marketplace listing for this order could not be found.";
+                return RedirectToAction("Index");
+            }
+
+            // STEP 8 & STEP 5: Oversell protection & Stock Deduction Validation
+            if (order.Quantity > listing.AvailableQuantity)
+            {
+                TempData["ErrorMessage"] = $"Cannot accept order! Insufficient stock available. Remaining stock is {listing.AvailableQuantity} {listing.Unit}, but requested quantity is {order.Quantity} {listing.Unit}.";
+                return RedirectToAction("Index");
+            }
+
+            // STEP 5: Deduct stock immediately upon acceptance
+            listing.AvailableQuantity -= order.Quantity;
+
+            // STEP 7: If AvailableQuantity becomes 0, set status to Sold Out (auto-hides from Buyer view)
+            if (listing.AvailableQuantity <= 0)
+            {
+                listing.AvailableQuantity = 0;
+                listing.Status = "Sold Out";
+            }
+
+            // Update order status to Accepted
+            order.Status = "Accepted";
             order.AcceptedDate = DateTime.Now;
+
             _context.SaveChanges();
 
-            // Create notification for the buyer
-            var buyer = _context.Buyers.Find(order.BuyerId);
-            if (buyer != null)
+            // Notify buyer
+            if (order.Buyer != null)
             {
-                var notif = new Notification
+                string cropName = listing.Harvest?.CropCycle?.Crop?.CropName ?? "crop";
+                _context.Notifications.Add(new Notification
                 {
-                    UserId = buyer.UserId,
-                    Title = "Order Accepted",
-                    Message = $"Farmer {farmer.FullName} accepted your order request #{order.OrderId}.",
+                    UserId = order.Buyer.UserId,
+                    Title = "Order Request Accepted",
+                    Message = $"Farmer {farmer.FullName} accepted your purchase request #{order.OrderId} for {order.Quantity} {listing.Unit} of {cropName}.",
                     IsRead = false,
                     CreatedDate = DateTime.Now
-                };
-                _context.Notifications.Add(notif);
+                });
                 _context.SaveChanges();
             }
 
-            TempData["SuccessMessage"] = "Order request accepted successfully.";
+            TempData["SuccessMessage"] = $"Order #{order.OrderId} accepted successfully! Remaining stock for this listing is now {listing.AvailableQuantity} {listing.Unit}.";
+            return RedirectToAction("Index");
+        }
+
+        // POST: /Marketplace/DeclineOrder
+        // Farmer declines a buyer request with mandatory decline reason
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeclineOrder(int orderId, string declineReason, string? declineNotes)
+        {
+            var username = GetSessionUsername();
+            if (string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Auth");
+
+            var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == username);
+            if (farmer == null) return RedirectToAction("Login", "Auth");
+
+            var order = _context.CropOrders
+                .Include(o => o.CropListing)
+                .Include(o => o.Buyer)
+                .FirstOrDefault(o => o.OrderId == orderId && o.FarmerId == farmer.FarmerId);
+
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Order request not found.";
+                return RedirectToAction("Index");
+            }
+
+            if (order.Status == "Declined" || order.Status == "Rejected" || order.Status == "Accepted" || order.Status == "Farmer Accepted" || order.Status == "ACCEPTED" || order.Status == "Delivered" || order.Status == "Cancelled" || order.Status == "In Transit" || order.Status == "Paid")
+            {
+                TempData["ErrorMessage"] = "This order request has already been processed and its status cannot be changed to declined.";
+                return RedirectToAction("Index");
+            }
+
+            // STEP 6: Mandatory Decline Reason Validation
+            if (string.IsNullOrWhiteSpace(declineReason))
+            {
+                TempData["ErrorMessage"] = "Please select a mandatory decline reason.";
+                return RedirectToAction("Index");
+            }
+
+            if (declineReason == "Other" && string.IsNullOrWhiteSpace(declineNotes))
+            {
+                TempData["ErrorMessage"] = "Please provide details in the text box when selecting 'Other' as decline reason.";
+                return RedirectToAction("Index");
+            }
+
+            order.Status = "Declined";
+            order.DeclineReason = declineReason;
+            order.DeclineNotes = declineNotes;
+            order.DeclinedDate = DateTime.Now;
+
+            _context.SaveChanges();
+
+            // Notify buyer with exact reason & timestamp
+            if (order.Buyer != null)
+            {
+                string reasonText = declineReason == "Other" ? declineNotes! : declineReason;
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = order.Buyer.UserId,
+                    Title = "Order Request Declined",
+                    Message = $"Farmer {farmer.FullName} declined your purchase request #{order.OrderId}. Reason: {reasonText}.",
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+                _context.SaveChanges();
+            }
+
+            TempData["WarningMessage"] = $"Order #{order.OrderId} declined. Buyer has been notified of the reason ({declineReason}).";
             return RedirectToAction("Index");
         }
 
@@ -336,9 +435,30 @@ namespace SmartFarmMVC.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (order.Status == "Delivered")
+            if (order.Status == "Declined" || order.Status == "Rejected" || order.Status == "Delivered" || order.Status == "Cancelled")
             {
-                TempData["ErrorMessage"] = "Cannot modify a delivered order.";
+                TempData["ErrorMessage"] = "Terminal order state reached. Status is locked and cannot be changed.";
+                return RedirectToAction("Index");
+            }
+
+            int GetOrderRank(string s) => s switch
+            {
+                "Pending" or "Request Sent" or "PENDING_FARMER_ACCEPTANCE" or "REQUESTED" => 1,
+                "Accepted" or "Farmer Accepted" or "ACCEPTED" => 2,
+                "Paid" => 3,
+                "Preparing Produce" => 4,
+                "Ready for Pickup" => 5,
+                "In Transit" => 6,
+                "Delivered" or "Completed" => 7,
+                _ => 0
+            };
+
+            int currentRank = GetOrderRank(order.Status);
+            int newRank = GetOrderRank(status);
+
+            if (newRank < currentRank)
+            {
+                TempData["ErrorMessage"] = "Order progression can only move forward, not backward.";
                 return RedirectToAction("Index");
             }
 

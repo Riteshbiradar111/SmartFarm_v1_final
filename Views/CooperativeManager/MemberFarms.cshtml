@@ -74,8 +74,9 @@
     {
         foreach (var farmer in Model)
         {
-            var assignment = assignments.FirstOrDefault(a => a.FarmerId == farmer.FarmerId);
-            bool isAssigned = assignment != null;
+            var farmerAssignments = assignments.Where(a => a.FarmerId == farmer.FarmerId).ToList();
+            var assignment = farmerAssignments.FirstOrDefault();
+            bool isAssigned = farmerAssignments.Any();
 
             <div class="col-md-4">
                 <div class="card h-100 shadow-sm border-0 rounded-3 p-3 position-relative" style="background:#ffffff;">
@@ -98,17 +99,22 @@
                             <span class="text-muted"><span class="material-icons-round fs-6 align-middle">place</span> Location:</span>
                             <span class="fw-bold">@farmer.Taluka, @farmer.State</span>
                         </div>
-                        <div class="d-flex justify-content-between py-1">
+                        <div class="d-flex justify-content-between py-1 align-items-center">
                             <span class="text-muted"><span class="material-icons-round fs-6 align-middle">assignment_ind</span> Assignment:</span>
-                            @if (isAssigned)
-                            {
-                                var staffName = staffLookup.ContainsKey(assignment.OfficerId) ? staffLookup[assignment.OfficerId] : "Assigned";
-                                <span class="badge bg-success">@staffName</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Pending Staff</span>
-                            }
+                            <div>
+                                @if (isAssigned)
+                                {
+                                    foreach (var assignItem in farmerAssignments)
+                                    {
+                                        var staffName = staffLookup.ContainsKey(assignItem.OfficerId) ? staffLookup[assignItem.OfficerId] : "Assigned";
+                                        <span class="badge bg-success ms-1 mb-1">@staffName</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending Staff</span>
+                                }
+                            </div>
                         </div>
                     </div>
 

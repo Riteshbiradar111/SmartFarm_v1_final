@@ -51,14 +51,17 @@ namespace SmartFarmMVC.Controllers
                 .ToList();
 
             // 2. Separate into lists based on timeline status
-            // Purchase Requests: 'Request Sent', 'PENDING_FARMER_ACCEPTANCE', or 'REQUESTED'
-            ViewBag.Requests = orders.Where(o => o.Status == "Request Sent" || o.Status == "PENDING_FARMER_ACCEPTANCE" || o.Status == "REQUESTED").ToList();
+            // Purchase Requests: Pending farmer approval
+            ViewBag.Requests = orders.Where(o => o.Status == "Pending" || o.Status == "Request Sent" || o.Status == "PENDING_FARMER_ACCEPTANCE" || o.Status == "REQUESTED").ToList();
 
-            // Active Orders: Processing, accepted, or on the road
-            ViewBag.ActiveOrders = orders.Where(o => o.Status != "Request Sent" && o.Status != "PENDING_FARMER_ACCEPTANCE" && o.Status != "REQUESTED" && o.Status != "Delivered").ToList();
+            // Active Orders: Accepted, paid, preparing, or in transit
+            ViewBag.ActiveOrders = orders.Where(o => o.Status == "Accepted" || o.Status == "Farmer Accepted" || o.Status == "Paid" || o.Status == "Preparing Produce" || o.Status == "Ready for Pickup" || o.Status == "In Transit").ToList();
 
-            // Completed Orders: Archive of successfully received goods
-            ViewBag.CompletedOrders = orders.Where(o => o.Status == "Delivered").ToList();
+            // Declined Orders: Requests declined by farmer with mandatory reason
+            ViewBag.DeclinedOrders = orders.Where(o => o.Status == "Declined" || o.Status == "Rejected").ToList();
+
+            // Completed Orders: Archive of successfully delivered goods
+            ViewBag.CompletedOrders = orders.Where(o => o.Status == "Completed" || o.Status == "Delivered").ToList();
 
             // Compute buyer sequential order map
             var allBuyerOrdersAscending = _context.CropOrders
@@ -633,6 +636,12 @@ namespace SmartFarmMVC.Controllers
             if (order == null)
             {
                 return NotFound();
+            }
+
+            if (order.Status == "Declined" || order.Status == "Rejected" || order.Status == "Cancelled")
+            {
+                TempData["ErrorMessage"] = "Invoices are not generated for declined or cancelled order requests.";
+                return RedirectToAction("Details", new { id = id });
             }
 
             return View(order);

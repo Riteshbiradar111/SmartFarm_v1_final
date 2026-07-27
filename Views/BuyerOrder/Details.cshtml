@@ -11,13 +11,22 @@
                 <span class="material-icons-round">arrow_back</span> Back to Orders List
             </a>
             <h2 class="text-success mb-1">Track Procurement Order</h2>
-            <p class="text-muted mb-0">Order ID: <strong>#@(ViewBag.BuyerOrderSeqNumber ?? Model.OrderId)</strong> | Invoice: <strong>@Model.InvoiceNumber</strong></p>
+            <p class="text-muted mb-0">
+                Order ID: <strong>#@(ViewBag.BuyerOrderSeqNumber ?? Model.OrderId)</strong>
+                @if (Model.Status != "Declined" && Model.Status != "Rejected" && Model.Status != "Cancelled")
+                {
+                    <text> | Invoice: <strong>@Model.InvoiceNumber</strong></text>
+                }
+            </p>
         </div>
-        <div>
-            <a href="~/BuyerOrder/Invoice/@Model.OrderId" target="_blank" class="btn btn-outline-success rounded-pill px-4">
-                <span class="material-icons-round align-middle me-1">print</span> Print Invoice
-            </a>
-        </div>
+        @if (Model.Status != "Declined" && Model.Status != "Rejected" && Model.Status != "Cancelled")
+        {
+            <div>
+                <a href="~/BuyerOrder/Invoice/@Model.OrderId" target="_blank" class="btn btn-outline-success rounded-pill px-4">
+                    <span class="material-icons-round align-middle me-1">print</span> Print Invoice
+                </a>
+            </div>
+        }
     </div>
 </div>
 
@@ -34,10 +43,13 @@
                         <span class="material-icons-round align-middle" style="font-size: 16px;">receipt_long</span>
                         View Transaction History
                     </a>
-                    <a href="@Url.Action("Invoice", new { id = Model.OrderId })" target="_blank" class="btn btn-sm btn-outline-success rounded-3">
-                        <span class="material-icons-round align-middle" style="font-size: 16px;">print</span>
-                        Download Invoice
-                    </a>
+                    @if (Model.Status != "Declined" && Model.Status != "Rejected" && Model.Status != "Cancelled")
+                    {
+                        <a href="@Url.Action("Invoice", new { id = Model.OrderId })" target="_blank" class="btn btn-sm btn-outline-success rounded-3">
+                            <span class="material-icons-round align-middle" style="font-size: 16px;">print</span>
+                            Download Invoice
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -45,86 +57,113 @@
     </div>
 }
 
-<!-- AMAZON/FLIPKART STYLE TIMELINE STEPPER -->
-<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-    <h5 class="text-dark mb-4 fw-bold">Order Tracking Stepper</h5>
-
-    @{
-        int currentStep = 1; // Default 'Request Sent'
-        if (Model.Status == "Farmer Accepted") currentStep = 2;
-        else if (Model.Status == "Preparing Produce") currentStep = 3;
-        else if (Model.Status == "Ready for Pickup") currentStep = 4;
-        else if (Model.Status == "In Transit") currentStep = 5;
-        else if (Model.Status == "Delivered") currentStep = 6;
-    }
-
-    <div class="row position-relative text-center g-0">
-        <!-- Gray connecting line -->
-        <div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -15px;"></div>
-        <!-- Green tracking line -->
-        <div class="position-absolute start-0 top-50 translate-middle-y bg-success" style="height: 4px; z-index: 0; margin-top: -15px; width: @((currentStep - 1) * 20)%; transition: width 0.4s ease;"></div>
-
-        <!-- Step 1: Request Sent -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 1 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">send</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 1 ? "text-success" : "text-muted")">Request Sent</span>
-            </div>
-        </div>
-
-        <!-- Step 2: Farmer Accepted -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 2 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">thumb_up</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 2 ? "text-success" : "text-muted")">Farmer Accepted</span>
-            </div>
-        </div>
-
-        <!-- Step 3: Preparing Produce -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 3 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">inventory</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 3 ? "text-success" : "text-muted")">Preparing</span>
-            </div>
-        </div>
-
-        <!-- Step 4: Ready for Pickup -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 4 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">local_shipping</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 4 ? "text-success" : "text-muted")">Ready</span>
-            </div>
-        </div>
-
-        <!-- Step 5: In Transit -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 5 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">directions_bus</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 5 ? "text-success" : "text-muted")">In Transit</span>
-            </div>
-        </div>
-
-        <!-- Step 6: Delivered -->
-        <div class="col position-relative" style="z-index: 1;">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 6 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
-                <span class="material-icons-round" style="font-size: 1.2rem;">task_alt</span>
-            </div>
-            <div class="mt-2">
-                <span class="fw-bold small d-block @(currentStep >= 6 ? "text-success" : "text-muted")">Delivered</span>
+@if (Model.Status == "Declined" || Model.Status == "Rejected")
+{
+    <!-- DECLINED ORDER BANNER -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-danger-subtle border border-danger">
+        <div class="d-flex align-items-center gap-3">
+            <span class="material-icons-round text-danger" style="font-size: 3.5rem;">cancel</span>
+            <div class="flex-grow-1">
+                <h4 class="fw-bold text-danger mb-1">Order Request Declined</h4>
+                <p class="mb-2 text-dark">
+                    Farmer <strong>@Model.Farmer.FullName</strong> declined your purchase request for 
+                    <strong>@(Model.CropListing != null ? Model.CropListing.Harvest.CropCycle.Crop.CropName : Model.Harvest.CropCycle.Crop.CropName)</strong> on 
+                    <strong>@(Model.DeclinedDate.HasValue ? Model.DeclinedDate.Value.ToString("dd MMMM yyyy HH:mm") : Model.OrderDate.ToString("dd MMMM yyyy"))</strong>.
+                </p>
+                <div class="p-3 bg-white rounded-3 border border-danger-subtle">
+                    <div class="mb-1"><span class="text-muted small">Mandatory Decline Reason:</span> <strong class="text-danger fs-6">@(Model.DeclineReason ?? "Out of Stock")</strong></div>
+                    @if (!string.IsNullOrEmpty(Model.DeclineNotes))
+                    {
+                        <div><span class="text-muted small">Farmer Notes:</span> <span class="text-dark fw-semibold">@Model.DeclineNotes</span></div>
+                    }
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <!-- AMAZON/FLIPKART STYLE TIMELINE STEPPER -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="text-dark mb-4 fw-bold">Order Tracking Stepper</h5>
+
+        @{
+            int currentStep = 1; // Default 'Request Sent'
+            if (Model.Status == "Farmer Accepted" || Model.Status == "Accepted" || Model.Status == "ACCEPTED" || Model.Status == "Paid") currentStep = 2;
+            else if (Model.Status == "Preparing Produce") currentStep = 3;
+            else if (Model.Status == "Ready for Pickup") currentStep = 4;
+            else if (Model.Status == "In Transit") currentStep = 5;
+            else if (Model.Status == "Delivered") currentStep = 6;
+        }
+
+        <div class="row position-relative text-center g-0">
+            <!-- Gray connecting line -->
+            <div class="position-absolute start-0 end-0 top-50 translate-middle-y bg-light" style="height: 4px; z-index: 0; margin-top: -15px;"></div>
+            <!-- Green tracking line -->
+            <div class="position-absolute start-0 top-50 translate-middle-y bg-success" style="height: 4px; z-index: 0; margin-top: -15px; width: @((currentStep - 1) * 20)%; transition: width 0.4s ease;"></div>
+
+            <!-- Step 1: Request Sent -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 1 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">send</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 1 ? "text-success" : "text-muted")">Request Sent</span>
+                </div>
+            </div>
+
+            <!-- Step 2: Farmer Accepted -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 2 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">thumb_up</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 2 ? "text-success" : "text-muted")">Farmer Accepted</span>
+                </div>
+            </div>
+
+            <!-- Step 3: Preparing Produce -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 3 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">inventory</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 3 ? "text-success" : "text-muted")">Preparing</span>
+                </div>
+            </div>
+
+            <!-- Step 4: Ready for Pickup -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 4 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">local_shipping</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 4 ? "text-success" : "text-muted")">Ready</span>
+                </div>
+            </div>
+
+            <!-- Step 5: In Transit -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 5 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">directions_bus</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 5 ? "text-success" : "text-muted")">In Transit</span>
+                </div>
+            </div>
+
+            <!-- Step 6: Delivered -->
+            <div class="col position-relative" style="z-index: 1;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle border-4 @(currentStep >= 6 ? "bg-success text-white border-success-subtle" : "bg-white text-muted border-light")" style="width: 40px; height: 40px;">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">task_alt</span>
+                </div>
+                <div class="mt-2">
+                    <span class="fw-bold small d-block @(currentStep >= 6 ? "text-success" : "text-muted")">Delivered</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <div class="row g-4">
     <!-- LEFT: Order Information -->
@@ -205,30 +244,58 @@
             <!-- Current Status Badge -->
             <div class="bg-light p-3 rounded-3 border">
                 <label class="form-label fw-bold text-dark small mb-2 d-flex align-items-center gap-1">
-                    <span class="material-icons-round text-info">info</span>
+                    <span class="material-icons-round @(Model.Status == "Declined" || Model.Status == "Rejected" ? "text-danger" : "text-info")">info</span>
                     Current Order Status
                 </label>
-                <div class="alert alert-info mb-3 d-flex align-items-center gap-2">
-                    <span class="material-icons-round">schedule</span>
-                    <div>
-                        <strong class="d-block">@Model.Status</strong>
-                        <small class="text-muted">The farmer will update the status as your order progresses. You'll receive notifications for each milestone.</small>
-                    </div>
-                </div>
 
-                @if (Model.Status == "PENDING_FARMER_ACCEPTANCE" || Model.Status == "REQUESTED")
+                @if (Model.Status == "Declined" || Model.Status == "Rejected")
                 {
-                    <div class="alert alert-warning mb-0 text-center fw-bold">
-                        Payment will be available once the farmer accepts your order request.
+                    <div class="alert alert-danger mb-0 rounded-3">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="material-icons-round text-danger">cancel</span>
+                            <div>
+                                <strong class="d-block text-danger fs-6">Order Declined</strong>
+                                <small class="text-dark d-block mt-1">Reason: <strong>@(Model.DeclineReason ?? "Declined by farmer")</strong></small>
+                                @if (!string.IsNullOrEmpty(Model.DeclineNotes))
+                                {
+                                    <small class="text-muted d-block mt-1">Notes: @Model.DeclineNotes</small>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
-                else if (Model.Status == "Farmer Accepted" || Model.Status == "ACCEPTED" || Model.Status == "FARMER_ACCEPTED")
+                else
                 {
-                    <div class="text-center mt-3">
-                        <a href="/BuyerOrder/PaymentDetails?orderId=@Model.OrderId" class="btn btn-success btn-lg rounded-pill px-5 w-100 fw-bold shadow-sm">
-                            <span class="material-icons-round align-middle me-1">payment</span> Pay Now
-                        </a>
+                    <div class="alert alert-info mb-3 d-flex align-items-center gap-2">
+                        <span class="material-icons-round">schedule</span>
+                        <div>
+                            <strong class="d-block">@Model.Status</strong>
+                            <small class="text-muted">The farmer will update the status as your order progresses. You'll receive notifications for each milestone.</small>
+                        </div>
                     </div>
+
+                    @if (Model.Status == "PENDING_FARMER_ACCEPTANCE" || Model.Status == "REQUESTED" || Model.Status == "Pending" || Model.Status == "Request Sent")
+                    {
+                        <div class="alert alert-warning mb-0 text-center fw-bold">
+                            <span class="material-icons-round align-middle me-1">hourglass_top</span>
+                            Payment will be enabled once the farmer accepts your order request.
+                        </div>
+                    }
+                    else if (Model.Status == "Accepted" || Model.Status == "Farmer Accepted" || Model.Status == "ACCEPTED" || Model.Status == "FARMER_ACCEPTED")
+                    {
+                        <div class="text-center mt-3">
+                            <a href="/BuyerOrder/PaymentDetails?orderId=@Model.OrderId" class="btn btn-success btn-lg rounded-pill px-5 w-100 fw-bold shadow-sm">
+                                <span class="material-icons-round align-middle me-1">payment</span> Pay Now
+                            </a>
+                        </div>
+                    }
+                    else if (Model.Status == "Paid")
+                    {
+                        <div class="alert alert-success mb-0 text-center fw-bold">
+                            <span class="material-icons-round align-middle me-1">check_circle</span>
+                            Payment Received & Confirmed! The farmer is preparing your produce for dispatch.
+                        </div>
+                    }
                 }
             </div>
         </div>

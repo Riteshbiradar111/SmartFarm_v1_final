@@ -33,6 +33,7 @@ namespace SmartFarmMVC.Controllers
         // GET: /BuyerMarketplace
         public IActionResult Index(MarketplaceSearchViewModel search)
         {
+            _context.EnsureMarketplaceColumnsExist();
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 

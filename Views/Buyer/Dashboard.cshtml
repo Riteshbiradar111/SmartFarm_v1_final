@@ -30,7 +30,8 @@
 
         <!-- Active Shipment Tracker Widget -->
         @{
-            var latestActiveOrder = recentOrders.FirstOrDefault(o => o.Status != "Request Sent" && o.Status != "Delivered");
+            var activeStatuses = new[] { "Accepted", "Farmer Accepted", "ACCEPTED", "Preparing Produce", "Ready for Pickup", "In Transit", "Paid" };
+            var latestActiveOrder = recentOrders.FirstOrDefault(o => activeStatuses.Contains(o.Status));
         }
         @if (latestActiveOrder != null)
         {
@@ -122,7 +123,7 @@
                                     ? order.CropListing.Harvest.CropCycle.Crop.CropName
                                     : order.Harvest.CropCycle.Crop.CropName;
 
-                                string badgeColor = order.Status == "Delivered" ? "bg-success" : (order.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary");
+                                string badgeColor = order.Status == "Delivered" ? "bg-success" : (order.Status == "Declined" || order.Status == "Rejected" ? "bg-danger" : (order.Status == "Pending" || order.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary"));
 
                                 <tr>
                                     @{

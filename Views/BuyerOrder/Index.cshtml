@@ -3,6 +3,7 @@
     ViewData["Title"] = "Purchase Management";
     var requests = ViewBag.Requests as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
     var activeOrders = ViewBag.ActiveOrders as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
+    var declinedOrders = ViewBag.DeclinedOrders as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
     var completedOrders = ViewBag.CompletedOrders as IEnumerable<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder> ?? new List<Smart_Farm_and_Crop_Yeild_Management_System.Models.CropOrder>();
     var orderMap = ViewBag.OrderNumberMap as Dictionary<int, int>;
 }
@@ -11,7 +12,7 @@
     <div class="col-12">
         <div>
             <h2 class="text-success mb-1">Purchase Management</h2>
-            <p class="text-muted mb-0">Track active dispatches, review pending requests, and browse completed orders.</p>
+            <p class="text-muted mb-0">Track active dispatches, review pending requests, view declined reasons, and browse completed orders.</p>
         </div>
     </div>
 </div>
@@ -31,6 +32,11 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link fw-bold text-dark" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests-pane" type="button" role="tab" aria-controls="requests-pane" aria-selected="false">
             Purchase Requests (@requests.Count())
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold text-danger" id="declined-tab" data-bs-toggle="tab" data-bs-target="#declined-pane" type="button" role="tab" aria-controls="declined-pane" aria-selected="false">
+            Declined Orders (@declinedOrders.Count())
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -87,6 +93,12 @@
                                             <span class="badge bg-primary rounded-pill px-2.5 py-1">@o.Status</span>
                                         </td>
                                         <td class="pe-4 text-end">
+                                            @if (o.Status == "Accepted" || o.Status == "Farmer Accepted" || o.Status == "ACCEPTED")
+                                            {
+                                                <a href="~/BuyerOrder/PaymentDetails?orderId=@o.OrderId" class="btn btn-sm btn-success rounded-3 px-3 fw-bold me-1">
+                                                    <span class="material-icons-round align-middle me-1" style="font-size: 16px;">payment</span> Pay Now
+                                                </a>
+                                            }
                                             <a href="~/BuyerOrder/Details/@o.OrderId" class="btn btn-sm btn-outline-primary rounded-3 px-3">Track Shipping</a>
                                         </td>
                                     </tr>
@@ -156,7 +168,68 @@
         </div>
     </div>
 
-    <!-- 3. Completed Orders Pane -->
+    <!-- 3. Declined Orders Pane -->
+    <div class="tab-pane fade" id="declined-pane" role="tabpanel" aria-labelledby="declined-tab">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-0">
+                @if (!declinedOrders.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <span class="material-icons-round text-muted" style="font-size: 3rem;">cancel</span>
+                        <p class="mb-0 mt-2 fw-semibold">No Declined Orders</p>
+                        <p class="small">None of your purchase requests have been declined.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-dark">
+                            <thead class="table-light text-muted small">
+                                <tr>
+                                    <th class="ps-4">Request ID</th>
+                                    <th>Order Date</th>
+                                    <th>Crop Name</th>
+                                    <th>Volume</th>
+                                    <th>Farmer Name</th>
+                                    <th>Decline Reason</th>
+                                    <th>Decline Date</th>
+                                    <th class="pe-4 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var o in declinedOrders)
+                                {
+                                    string cropName = o.CropListing != null
+                                        ? o.CropListing.Harvest.CropCycle.Crop.CropName
+                                        : o.Harvest.CropCycle.Crop.CropName;
+                                    <tr>
+                                        <td class="ps-4 fw-bold">#@o.OrderId</td>
+                                        <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
+                                        <td class="fw-bold">@cropName</td>
+                                        <td>@o.Quantity.ToString("0.00") kg</td>
+                                        <td>@o.Farmer.FullName</td>
+                                        <td>
+                                            <span class="badge bg-danger rounded-pill px-2.5 py-1">@o.DeclineReason</span>
+                                            @if (!string.IsNullOrEmpty(o.DeclineNotes))
+                                            {
+                                                <small class="text-muted d-block mt-1">@o.DeclineNotes</small>
+                                            }
+                                        </td>
+                                        <td class="small text-muted">@(o.DeclinedDate.HasValue ? o.DeclinedDate.Value.ToString("dd-MM-yyyy HH:mm") : "N/A")</td>
+                                        <td class="pe-4 text-end">
+                                            <a href="~/BuyerOrder/Details/@o.OrderId" class="btn btn-sm btn-outline-secondary rounded-3 px-3">Details</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Completed Orders Pane -->
     <div class="tab-pane fade" id="completed-pane" role="tabpanel" aria-labelledby="completed-tab">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="card-body p-0">

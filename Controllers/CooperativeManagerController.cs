@@ -88,29 +88,122 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 .GroupBy(q => q.FarmerId)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            // Pre-fetch assigned staff by farmer
-            var officerAssignmentsMap = _context.FieldOfficerAssignments
-                .Include(a => a.FieldOfficer)
-                .Where(a => a.IsActive)
-                .GroupBy(a => a.FarmerId)
-                .ToDictionary(g => g.Key, g => g.First().FieldOfficer?.FullName ?? "Staff");
+            // Build staff lookup dictionary across Agronomists, FieldOfficers, and Users
+            var agronomistsList = _context.Agronomists.ToList();
+            var fieldOfficersList = _context.FieldOfficers.ToList();
 
-            var memberFarmPerformanceList = farmersList.Select(f =>
+            var staffNameByUserId = new Dictionary<int, string>();
+            foreach (var a in agronomistsList)
             {
-                var allPlots = f.Farms.SelectMany(farm => farm.LandPlots).ToList();
-                var allCycles = allPlots.SelectMany(p => p.CropCycles).ToList();
+                staffNameByUserId[a.UserId] = a.FullName;
+            }
+            foreach (var o in fieldOfficersList)
+            {
+                staffNameByUserId[o.UserId] = o.FullName;
+            }
 
-                var activeCropsList = allCycles.Where(c => c.Status != "Harvested" && c.Crop != null)
-                    .Select(c => c.Crop.CropName)
-                    .Distinct()
-                    .ToList();
+            var allAssignments = _context.Assignments.ToList();
+            var allFoAssignments = _context.FieldOfficerAssignments.Include(a => a.FieldOfficer).ToList();
 
-                string activeCropsStr = activeCropsList.Any() 
-                    ? string.Join(", ", activeCropsList) 
-                    : (allCycles.LastOrDefault()?.Crop?.CropName ?? "General Crops");
+            var officerAssignmentsMap = new Dictionary<int, string>();
 
-                double totalArea = allPlots.Sum(p => (double)p.Area);
-                decimal totalHarvest = allCycles.SelectMany(c => c.Harvests).Sum(h => (decimal)h.ActualQuantity);
+            foreach (var f in farmersList)
+            {
+                var staffNames = new List<string>();
+
+                // 1. Check Assignments table (set by Cooperative Manager / Admin)
+                var farmerAssigns = allAssignments.Where(a => a.FarmerId == f.FarmerId).ToList();
+                foreach (var a in farmerAssigns)
+                {
+                    if (staffNameByUserId.TryGetValue(a.OfficerId, out string sName))
+                    {
+                        if (!staffNames.Contains(sName)) staffNames.Add(sName);
+                    }
+                    else
+                    {
+                        var user = _context.Users.FirstOrDefault(u => u.UserId == a.OfficerId);
+                        if (user != null)
+                        {
+                            var uName = !string.IsNullOrEmpty(user.FullName) ? user.FullName : user.Username;
+                            if (!staffNames.Contains(uName)) staffNames.Add(uName);
+                        }
+                    }
+                }
+
+                // 2. Check FieldOfficerAssignments table
+                var farmerFoAssigns = allFoAssignments.Where(a => a.FarmerId == f.FarmerId).ToList();
+                foreach (var fa in farmerFoAssigns)
+                {
+                    if (fa.FieldOfficer != null && !staffNames.Contains(fa.FieldOfficer.FullName))
+                    {
+                        staffNames.Add(fa.FieldOfficer.FullName);
+                    }
+                }
+
+                if (staffNames.Any())
+                {
+                    officerAssignmentsMap[f.FarmerId] = string.Join(", ", staffNames);
+                }
+            }
+
+            var memberFarmPerformanceList = new List<MemberFarmPerformanceItem>();
+
+            foreach (var f in farmersList)
+            {
+                var allPlots = new List<LandPlot>();
+                foreach (var farm in f.Farms)
+                {
+                    if (farm.LandPlots != null)
+                    {
+                        allPlots.AddRange(farm.LandPlots);
+                    }
+                }
+
+                var allCycles = new List<CropCycle>();
+                foreach (var p in allPlots)
+                {
+                    if (p.CropCycles != null)
+                    {
+                        allCycles.AddRange(p.CropCycles);
+                    }
+                }
+
+                var activeCropsList = new List<string>();
+                string lastCropName = "General Crops";
+
+                foreach (var c in allCycles)
+                {
+                    if (c.Crop != null)
+                    {
+                        lastCropName = c.Crop.CropName;
+                        if (c.Status != "Harvested" && !activeCropsList.Contains(c.Crop.CropName))
+                        {
+                            activeCropsList.Add(c.Crop.CropName);
+                        }
+                    }
+                }
+
+                string activeCropsStr = activeCropsList.Any()
+                    ? string.Join(", ", activeCropsList)
+                    : lastCropName;
+
+                double totalArea = 0;
+                foreach (var p in allPlots)
+                {
+                    totalArea += (double)p.Area;
+                }
+
+                decimal totalHarvest = 0;
+                foreach (var c in allCycles)
+                {
+                    if (c.Harvests != null)
+                    {
+                        foreach (var h in c.Harvests)
+                        {
+                            totalHarvest += (decimal)h.ActualQuantity;
+                        }
+                    }
+                }
 
                 farmerSalesMap.TryGetValue(f.FarmerId, out decimal salesRev);
                 farmerOpenIssuesMap.TryGetValue(f.FarmerId, out int openIssues);
@@ -118,7 +211,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 
                 string produceStatus = salesRev > 0 ? "Revenue Generated" : (totalHarvest > 0 ? "Harvest Completed" : (activeCropsList.Any() ? "In Cultivation" : "Registered"));
 
-                return new MemberFarmPerformanceItem
+                memberFarmPerformanceList.Add(new MemberFarmPerformanceItem
                 {
                     FarmerId = f.FarmerId,
                     FarmerName = f.FullName,
@@ -133,8 +226,13 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     OpenIssuesCount = openIssues,
                     AssignedStaffName = string.IsNullOrEmpty(staffName) ? "Unassigned" : staffName,
                     ProduceStatus = produceStatus
-                };
-            }).OrderByDescending(p => p.TotalHarvestQuantity).ThenByDescending(p => p.TotalAreaAcres).ToList();
+                });
+            }
+
+            memberFarmPerformanceList = memberFarmPerformanceList
+                .OrderByDescending(p => p.TotalHarvestQuantity)
+                .ThenByDescending(p => p.TotalAreaAcres)
+                .ToList();
 
             var cultivationPlans = _context.CultivationRequests
                 .Include(cr => cr.Farmer)

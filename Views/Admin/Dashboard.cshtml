@@ -7,48 +7,44 @@
 <!-- ===== MAIN DASHBOARD CONTENT ===== -->
 <div class="dash-content">
 
-	<!-- ===== 4 KPI STATS ROW ===== -->
-	<div class="stats-row" style="margin-bottom: 24px;">
+	<!-- ===== 3 KPI STATS ROW ===== -->
+	<div class="stats-row" style="margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
 
 		<!-- Total Users -->
-		<div class="stat-card blue">
-			<div class="stat-icon-wrap si-blue">
-				<span class="material-icons-round">people</span>
-			</div>
-			<div class="stat-body">
-				<div class="stat-value">@Model.TotalUsers.ToString("N0")</div>
-				<div class="stat-label">Total Users</div>
-				<div class="stat-change up">
-					<span class="material-icons-round" style="font-size:12px;">add</span>
-					<span>+@Model.UsersAddedThisMonth this month</span>
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-users" style="color: #2D6A4F; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">TOTAL USERS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.TotalUsers.ToString("N0")</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Active Registered Farms -->
-		<div class="stat-card green">
-			<div class="stat-icon-wrap si-green">
-				<span class="material-icons-round">landscape</span>
-			</div>
-			<div class="stat-body">
-				<div class="stat-value">@Model.ActiveFarms</div>
-				<div class="stat-label">Active Registered Farms</div>
-				<div class="stat-change neutral">
-					<span>Across @Model.TotalStates states</span>
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-tractor" style="color: #1976d2; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">ACTIVE REGISTERED FARMS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.ActiveFarms</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Active Crops -->
-		<div class="stat-card lime">
-			<div class="stat-icon-wrap si-lime">
-				<span class="material-icons-round">eco</span>
-			</div>
-			<div class="stat-body">
-				<div class="stat-value">@Model.ActiveCrops</div>
-				<div class="stat-label">Active Crops</div>
-				<div class="stat-change neutral">
-					<span>Currently Growing</span>
+		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+			<div style="display: flex; align-items: center; gap: 16px;">
+				<div style="width: 48px; height: 48px; background: #f3e5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+					<i class="fas fa-seedling" style="color: #7b1fa2; font-size: 24px;"></i>
+				</div>
+				<div>
+					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">ACTIVE CROPS</div>
+					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.ActiveCrops</div>
 				</div>
 			</div>
 		</div>

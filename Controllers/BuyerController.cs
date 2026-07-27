@@ -52,7 +52,7 @@ namespace SmartFarmMVC.Controllers
 
             // Count active shipments (orders in progress)
             int activeShipmentsCount = _context.CropOrders
-                .Count(o => o.BuyerId == buyer.BuyerId && o.Status != "Delivered");
+                .Count(o => o.BuyerId == buyer.BuyerId && o.Status != "Delivered" && o.Status != "Declined" && o.Status != "Rejected" && o.Status != "Cancelled");
 
             // Count completed orders
             int completedOrdersCount = _context.CropOrders
@@ -132,8 +132,7 @@ namespace SmartFarmMVC.Controllers
         }
 
         // GET: /Buyer/Profile
-        [HttpGet("Buyer/Profile")]
-        [HttpGet("Buyer/MyProfile")]
+        [HttpGet]
         public IActionResult Profile()
         {
             // 1. Fetch active buyer record

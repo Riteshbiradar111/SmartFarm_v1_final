@@ -122,25 +122,28 @@ namespace SmartFarmMVC.Controllers
                 .Where(f => f.FarmerId == farmerId)
                 .ToList();
 
-            var farmsWithWeather = farmsData
-                .Where(f => f.LandPlots != null && f.LandPlots.Any())
-                .Select(f =>
+            var farmsWithWeather = new List<dynamic>();
+            foreach (var f in farmsData)
+            {
+                if (f.LandPlots != null && f.LandPlots.Any())
                 {
                     var firstPlot = f.LandPlots.FirstOrDefault();
-                    return new
+                    if (firstPlot != null)
                     {
-                        FarmId = f.FarmId,
-                        FarmName = f.FarmName,
-                        FirstPlot = firstPlot != null ? new
+                        farmsWithWeather.Add(new
                         {
-                            PlotName = firstPlot.PlotName,
-                            Latitude = firstPlot.Latitude,
-                            Longitude = firstPlot.Longitude
-                        } : null
-                    };
-                })
-                .Where(f => f.FirstPlot != null)
-                .ToList();
+                            FarmId = f.FarmId,
+                            FarmName = f.FarmName,
+                            FirstPlot = new
+                            {
+                                PlotName = firstPlot.PlotName,
+                                Latitude = firstPlot.Latitude,
+                                Longitude = firstPlot.Longitude
+                            }
+                        });
+                    }
+                }
+            }
 
             // Debug logging
             System.Diagnostics.Debug.WriteLine($"Total farms found: {farmsData.Count}");
@@ -203,6 +206,10 @@ namespace SmartFarmMVC.Controllers
             };
 
             ViewBag.ProfilePicturePath = farmer.ProfilePicturePath;
+            if (!string.IsNullOrEmpty(farmer.ProfilePicturePath))
+            {
+                HttpContext.Session.SetString("UserProfilePicture", farmer.ProfilePicturePath);
+            }
             ViewData["UserName"] = farmer.FullName;
             ViewData["UserInitials"] = HttpContext.Session.GetString("UserInitials") ?? GetInitials(farmer.FullName);
             ViewData["UserRole"] = "Farmer";
@@ -220,6 +227,10 @@ namespace SmartFarmMVC.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.ProfilePicturePath = farmer.ProfilePicturePath;
+                if (!string.IsNullOrEmpty(farmer.ProfilePicturePath))
+                {
+                    HttpContext.Session.SetString("UserProfilePicture", farmer.ProfilePicturePath);
+                }
                 ViewData["UserName"] = farmer.FullName;
                 ViewData["UserInitials"] = HttpContext.Session.GetString("UserInitials") ?? GetInitials(farmer.FullName);
                 ViewData["UserRole"] = "Farmer";
@@ -287,6 +298,10 @@ namespace SmartFarmMVC.Controllers
                 // Update session
                 HttpContext.Session.SetString("UserName", farmer.FullName);
                 HttpContext.Session.SetString("UserInitials", GetInitials(farmer.FullName));
+                if (!string.IsNullOrEmpty(farmer.ProfilePicturePath))
+                {
+                    HttpContext.Session.SetString("UserProfilePicture", farmer.ProfilePicturePath);
+                }
 
                 TempData["SuccessMessage"] = "Profile updated successfully.";
                 return RedirectToAction("Profile");

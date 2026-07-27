@@ -14,6 +14,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels
         // Report List
         public List<ReportDto> Reports { get; set; } = new List<ReportDto>();
 
+        // Rendered On-Page Executive Report HTML
+        public string ActiveReportHtml { get; set; } = string.Empty;
+        public string SelectedReportType { get; set; } = "B2B Sales & Revenue Summary";
+
         // Filters
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }

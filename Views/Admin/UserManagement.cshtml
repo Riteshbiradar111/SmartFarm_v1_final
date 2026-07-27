@@ -19,7 +19,7 @@
 	</div>
 
 	<!-- Statistics Cards Row -->
-	<div class="stats-row" style="margin-bottom: 24px;">
+	<div class="stats-row" style="margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
 		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
 			<div style="display: flex; align-items: center; gap: 16px;">
 				<div style="width: 48px; height: 48px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
@@ -40,18 +40,6 @@
 				<div>
 					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">ACTIVE USERS</div>
 					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.ActiveUsers</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-			<div style="display: flex; align-items: center; gap: 16px;">
-				<div style="width: 48px; height: 48px; background: #fff3e0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-					<i class="fas fa-hourglass-half" style="color: #f57c00; font-size: 24px;"></i>
-				</div>
-				<div>
-					<div style="font-size: 14px; color: #7a9a8a; margin-bottom: 4px;">PENDING APPROVAL</div>
-					<div style="font-size: 28px; font-weight: 700; color: #1a1a1a;">@Model.PendingApproval</div>
 				</div>
 			</div>
 		</div>
@@ -108,7 +96,6 @@
 							style="padding: 10px 14px; border: 1px solid #e2ede8; border-radius: 8px; font-size: 14px; min-width: 150px;">
 						<option value="">All Status</option>
 						<option value="ACTIVE" selected="@(Model.StatusFilter == "ACTIVE")">Active</option>
-						<option value="PENDING" selected="@(Model.StatusFilter == " PENDING")">Pending</option>
 						<option value="BLOCKED" selected="@(Model.StatusFilter == "BLOCKED")">Blocked</option>
 					</select>
 
@@ -133,8 +120,6 @@
 							<th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Role</th>
 							<th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Status</th>
 							<th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Join Date</th>
-							<th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Assigned Field Officer</th>
-							<th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Assigned Agronomist</th>
 							<th style="padding: 14px 16px; text-align: center; font-weight: 600; font-size: 12px; color: #7a9a8a; text-transform: uppercase;">Actions</th>
 						</tr>
 					</thead>
@@ -162,12 +147,9 @@
 										<span class="@user.StatusBadgeClass">@user.Status</span>
 									</td>
 									<td style="padding: 16px; color: #7a9a8a; font-size: 13px;">@user.JoinDateFormatted</td>
-									<td style="padding: 16px; color: #1a1a1a;">@user.AssignedFieldOfficer</td>
-									<td style="padding: 16px; color: #1a1a1a;">@user.AssignedAgronomist</td>
 									<td style="padding: 16px; text-align: center;">
 										<div style="display: flex; gap: 8px; justify-content: center;">
 											<button class="btn-icon" title="View" onclick="viewUser(@user.UserId)"><i class="fas fa-eye" style="color: #1976d2;"></i></button>
-											<button class="btn-icon" title="Edit" onclick="editUser(@user.UserId)"><i class="fas fa-edit" style="color: #f57c00;"></i></button>
 											@if (user.Status == "PENDING")
 											{
 												<button class="btn-icon" title="Approve" onclick="approveUser(@user.UserId)"><i class="fas fa-check" style="color: #2e7d32;"></i></button>
@@ -189,7 +171,7 @@
 						else
 						{
 							<tr>
-								<td colspan="10" style="padding: 40px; text-align: center; color: #7a9a8a;">
+								<td colspan="8" style="padding: 40px; text-align: center; color: #7a9a8a;">
 									No users found.
 								</td>
 							</tr>

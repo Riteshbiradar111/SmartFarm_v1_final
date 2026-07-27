@@ -257,6 +257,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
                 entity.HasKey(e => e.ListingId);
                 entity.Property(e => e.PricePerUnit).HasPrecision(18, 2);
                 entity.Property(e => e.AvailableQuantity).HasPrecision(18, 2);
+                entity.Property(e => e.OriginalQuantity).HasPrecision(18, 2);
                 entity.Property(e => e.Unit).HasMaxLength(50);
                 entity.Property(e => e.Status).HasMaxLength(50);
                 entity.Property(e => e.ListedDate).HasDefaultValueSql("(getdate())");
@@ -285,6 +286,8 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
                 entity.Property(e => e.InvoiceNumber).HasMaxLength(100);
                 entity.Property(e => e.DeliveryAddress).HasMaxLength(500);
                 entity.Property(e => e.SpecialInstructions).HasMaxLength(500);
+                entity.Property(e => e.DeclineReason).HasMaxLength(100);
+                entity.Property(e => e.DeclineNotes).HasMaxLength(500);
 
                 entity.HasOne(d => d.Buyer)
                     .WithMany()
@@ -762,6 +765,30 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
                     Department = "IT"
                 }
             );
+        }
+
+        // Helper method to guarantee marketplace columns exist in SQL Server DB
+        public void EnsureMarketplaceColumnsExist()
+        {
+            try
+            {
+                Database.ExecuteSqlRaw(@"
+                    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropListing' AND COLUMN_NAME = 'OriginalQuantity')
+                    BEGIN
+                        ALTER TABLE [CropListing] ADD [OriginalQuantity] DECIMAL(18,2) NULL;
+                    END;
+                    EXEC('UPDATE [CropListing] SET [OriginalQuantity] = [AvailableQuantity] WHERE [OriginalQuantity] IS NULL');
+
+                    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropOrder' AND COLUMN_NAME = 'DeclineReason')
+                    BEGIN
+                        ALTER TABLE [CropOrder] ADD [DeclineReason] NVARCHAR(100) NULL, [DeclineNotes] NVARCHAR(500) NULL, [DeclinedDate] DATETIME NULL;
+                    END;
+                ");
+            }
+            catch
+            {
+                // Suppress if already existing or locked
+            }
         }
     }
 }

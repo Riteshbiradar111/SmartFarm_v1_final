@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using Smart_Farm_and_Crop_Yeild_Management_System.Models;
@@ -114,6 +114,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     Username = model.Username.Trim(),
                     PasswordHash = model.Password, // ALIGNED WITH DB: PasswordHash
                     Email = model.Email.Trim(), // Saved in Users table
+                    Phone = model.MobileNumber.Trim(), // Saved in Users table
                     RoleId = 2, // ALIGNED WITH DB: Role ID 2 is Farmer
                     IsActive = true,
                     IsDeleted = false,
@@ -239,6 +240,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     Username = model.Username.Trim(),
                     PasswordHash = model.Password, // ALIGNED WITH DB: PasswordHash
                     Email = model.Email.Trim(), // Saved in Users table
+                    Phone = model.MobileNumber.Trim(), // Saved in Users table
                     RoleId = 3, // ALIGNED WITH DB: Role ID 3 is Buyer
                     IsActive = true,
                     CreatedAt = DateTime.Now // ALIGNED WITH DB: CreatedAt

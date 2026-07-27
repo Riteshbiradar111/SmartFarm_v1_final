@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_DashboardLayout";
     string activeTab = ViewBag.ActiveTab ?? "crop";
     ViewData["Title"] = "Analytics & Trends Console";
@@ -72,60 +72,47 @@
             var activeTab = '@activeTab';
 
             if (activeTab === 'crop') {
+                var cropLabels = @Html.Raw(ViewBag.CropLabels ?? "['Cotton', 'Sugarcane', 'Onion']");
+                var cropData = @Html.Raw(ViewBag.CropData ?? "[356.0, 70.0, 50.0]");
+
                 var ctxCrop = document.getElementById('cropPerformanceChart').getContext('2d');
                 new Chart(ctxCrop, {
                     type: 'bar',
                     data: {
-                        labels: ['Wheat', 'Tomato', 'Cotton', 'Rice', 'Sugarcane'],
+                        labels: cropLabels,
                         datasets: [
                             {
-                                label: 'Rabi 2024',
-                                data: [12.4, 8.5, 6.2, 10.1, 42.0],
-                                backgroundColor: '#1B4332'
-                            },
-                            {
-                                label: 'Kharif 2024',
-                                data: [11.8, 9.2, 5.8, 11.5, 40.5],
-                                backgroundColor: '#2D6A4F'
-                            },
-                            {
-                                label: 'Rabi 2025 (Projected)',
-                                data: [13.2, 9.8, 6.5, 12.0, 44.2],
-                                backgroundColor: '#52B788'
+                                label: 'Actual Harvest Volume (Quintals / Tons)',
+                                data: cropData,
+                                backgroundColor: '#2D6A4F',
+                                borderRadius: 6
                             }
                         ]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' }
+                        }
                     }
                 });
             } else if (activeTab === 'soil') {
+                var plotLabels = @Html.Raw(ViewBag.PlotLabels ?? "['Plot 1', 'Plot 2']");
+                var moistureData = @Html.Raw(ViewBag.MoistureData ?? "[55.0, 42.0]");
+
                 var ctxSoil = document.getElementById('soilNutrientChart').getContext('2d');
                 new Chart(ctxSoil, {
                     type: 'line',
                     data: {
-                        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        labels: plotLabels,
                         datasets: [
                             {
-                                label: 'Nitrogen (N)',
-                                data: [45, 42, 38, 52, 48, 44, 46, 49, 41, 35, 38, 42],
-                                borderColor: '#dc2626',
-                                backgroundColor: 'transparent',
-                                tension: 0.3
-                            },
-                            {
-                                label: 'Phosphorus (P)',
-                                data: [25, 23, 20, 28, 26, 24, 25, 27, 22, 18, 20, 23],
+                                label: 'Soil Moisture % (Database Plots)',
+                                data: moistureData,
                                 borderColor: '#0891b2',
-                                backgroundColor: 'transparent',
-                                tension: 0.3
-                            },
-                            {
-                                label: 'Potassium (K)',
-                                data: [150, 145, 138, 162, 155, 148, 151, 156, 142, 130, 135, 143],
-                                borderColor: '#2D6A4F',
-                                backgroundColor: 'transparent',
+                                backgroundColor: 'rgba(8, 145, 178, 0.1)',
+                                fill: true,
                                 tension: 0.3
                             }
                         ]
@@ -135,26 +122,21 @@
                         maintainAspectRatio: false
                     }
                 });
-            } else { // seasonal
+            } else { // seasonal / pest cases
+                var pestLabels = @Html.Raw(ViewBag.PestLabels ?? "['Pest Cases']");
+                var pestCounts = @Html.Raw(ViewBag.PestCounts ?? "[0]");
+
                 var ctxStress = document.getElementById('seasonalStressChart').getContext('2d');
                 new Chart(ctxStress, {
-                    type: 'line',
+                    type: 'bar',
                     data: {
-                        labels: ['Monsoon', 'Post-Monsoon', 'Winter', 'Summer'],
+                        labels: pestLabels,
                         datasets: [
                             {
-                                label: 'Pest Outbreak Index',
-                                data: [80, 45, 20, 60],
-                                borderColor: '#ef4444',
-                                backgroundColor: 'transparent',
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Soil Moisture Stress',
-                                data: [15, 35, 65, 90],
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'transparent',
-                                tension: 0.4
+                                label: 'Reported Pest Cases (Database Count)',
+                                data: pestCounts,
+                                backgroundColor: '#ef4444',
+                                borderRadius: 6
                             }
                         ]
                     },

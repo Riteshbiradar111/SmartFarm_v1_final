@@ -74,9 +74,19 @@
             </div>
 
             <div class="topbar-right">
+                @{
+                    var profilePic = Context.Session.GetString("UserProfilePicture") ?? "";
+                }
                 <!-- User Profile Avatar/Details -->
                 <div class="topbar-user">
-                    <div class="user-avatar">@ViewData["UserInitials"]</div>
+                    @if (!string.IsNullOrEmpty(profilePic))
+                    {
+                        <img src="@profilePic" alt="Avatar" class="rounded-circle border me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="user-avatar">@ViewData["UserInitials"]</div>
+                    }
                     <div class="user-info">
                         <div class="user-name">@ViewData["UserName"]</div>
                         <div class="user-role">@ViewData["UserRole"]</div>
@@ -87,7 +97,14 @@
                 <div id="profilePanel" class="topbar-panel shadow-sm" aria-hidden="true">
                     <div class="panel-body p-3">
                         <div class="d-flex gap-3 align-items-center mb-3">
-                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-weight:700">@ViewData["UserInitials"]</div>
+                            @if (!string.IsNullOrEmpty(profilePic))
+                            {
+                                <img src="@profilePic" alt="Avatar" class="rounded-circle border" style="width:48px;height:48px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-weight:700">@ViewData["UserInitials"]</div>
+                            }
                             <div>
                                 <div class="fw-600">@ViewData["UserName"]</div>
                                 <div class="text-muted small">@ViewData["UserRole"]</div>

@@ -17,7 +17,11 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
         public decimal PricePerUnit { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal AvailableQuantity { get; set; }
+
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal? OriginalQuantity { get; set; }
 
         [Required]
         [StringLength(50)]

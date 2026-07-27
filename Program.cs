@@ -112,6 +112,28 @@ try
 
         Console.WriteLine("✅ DATABASE MIGRATIONS APPLIED!");
 
+        // Code First schema check for new marketplace columns
+        try
+        {
+            db.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropListing' AND COLUMN_NAME = 'OriginalQuantity')
+                BEGIN
+                    ALTER TABLE [CropListing] ADD [OriginalQuantity] DECIMAL(18,2) NULL;
+                END;
+                EXEC('UPDATE [CropListing] SET [OriginalQuantity] = [AvailableQuantity] WHERE [OriginalQuantity] IS NULL');
+
+                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropOrder' AND COLUMN_NAME = 'DeclineReason')
+                BEGIN
+                    ALTER TABLE [CropOrder] ADD [DeclineReason] NVARCHAR(100) NULL, [DeclineNotes] NVARCHAR(500) NULL, [DeclinedDate] DATETIME NULL;
+                END;
+            ");
+            Console.WriteLine("✅ Code First Marketplace columns verified in SQL Server!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Column verification note: {ex.Message}");
+        }
+
         // Verify seed data
         Console.WriteLine("🔍 Verifying data...");
         var rolesCount = db.Roles.Count();
