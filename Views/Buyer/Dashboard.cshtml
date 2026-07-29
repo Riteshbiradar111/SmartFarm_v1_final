@@ -38,6 +38,7 @@
             string cropName = latestActiveOrder.CropListing != null
                 ? latestActiveOrder.CropListing.Harvest.CropCycle.Crop.CropName
                 : latestActiveOrder.Harvest.CropCycle.Crop.CropName;
+            string latestActiveOrderUnit = latestActiveOrder.CropListing?.Unit ?? latestActiveOrder.Harvest?.Unit ?? "kg";
 
             int activeStep = 1;
             if (latestActiveOrder.Status == "Preparing Produce") activeStep = 2;
@@ -58,7 +59,7 @@
                 <div class="p-3 bg-light rounded-3 mb-3 small d-flex justify-content-between flex-wrap gap-2">
                     <span>Order: <strong>#@latestSeqNo</strong></span>
                     <span>Produce: <strong>@cropName</strong></span>
-                    <span>Est. Volume: <strong>@latestActiveOrder.Quantity kg</strong></span>
+                    <span>Est. Volume: <strong>@latestActiveOrder.Quantity @latestActiveOrderUnit</strong></span>
                     <span>Status: <span class="badge bg-primary rounded-pill">@latestActiveOrder.Status</span></span>
                 </div>
 
@@ -122,6 +123,7 @@
                                 string cropName = order.CropListing != null
                                     ? order.CropListing.Harvest.CropCycle.Crop.CropName
                                     : order.Harvest.CropCycle.Crop.CropName;
+                                string orderUnit = order.CropListing?.Unit ?? order.Harvest?.Unit ?? "kg";
 
                                 string badgeColor = order.Status == "Delivered" ? "bg-success" : (order.Status == "Declined" || order.Status == "Rejected" ? "bg-danger" : (order.Status == "Pending" || order.Status == "Request Sent" ? "bg-warning text-dark" : "bg-primary"));
 
@@ -132,7 +134,7 @@
                                     <td class="fw-bold">#@seqNoLog</td>
                                     <td>@cropName</td>
                                     <td class="small text-muted">@order.OrderDate.ToString("dd-MM-yyyy")</td>
-                                    <td>@order.Quantity.ToString("0.00") kg</td>
+                                    <td>@order.Quantity.ToString("0.00") @orderUnit</td>
                                     <td class="fw-bold">₹@order.TotalAmount.ToString("N2")</td>
                                     <td><span class="badge @badgeColor rounded-pill px-2.5 py-1">@order.Status</span></td>
                                     <td class="text-end">

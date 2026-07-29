@@ -31,8 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="C:\Users\2507494\Desktop\sql buyer\QUICK_START.txt" Link="QUICK_START.txt" />
-    <None Include="C:\Users\2507494\Desktop\sql buyer\TestData_BuyerNotifications_FIXED.sql" Link="TestData_BuyerNotifications_FIXED.sql" />
+    <None Include=".github\copilot-instructions.md" />
   </ItemGroup>
 
 </Project>

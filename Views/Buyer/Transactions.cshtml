@@ -38,7 +38,6 @@
 		<div class="card border-0 shadow-sm rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);">
 			<span class="text-white-50 small text-uppercase d-block mb-1">Total Paid</span>
 			<h3 class="fw-bold mb-0">₹@ViewBag.TotalSpent.ToString("N2")</h3>
-			<small class="opacity-75" style="font-size: 0.75rem;">All orders (paid at checkout)</small>
 		</div>
 	</div>
 	<div class="col-md-3">
@@ -64,13 +63,15 @@
 		</h5>
 		<form method="get" asp-action="Transactions" class="row g-3 align-items-end">
 			<div class="col-md-4">
-				<label class="form-label fw-semibold text-dark">Order Status</label>
+				<label class="form-label fw-semibold text-dark">Transaction Status</label>
 				<select name="status" class="form-select rounded-3">
 					<option value="">All Statuses</option>
-					<option value="Request Sent" selected="@(ViewBag.Status == "Request Sent")">Request Sent</option>
-					<option value="Farmer Accepted" selected="@(ViewBag.Status == "Farmer Accepted")">Farmer Accepted</option>
-					<option value="Ready" selected="@(ViewBag.Status == "Ready")">Ready</option>
+					<option value="Paid" selected="@(ViewBag.Status == "Paid")">Paid</option>
+					<option value="Preparing Produce" selected="@(ViewBag.Status == "Preparing Produce")">Preparing Produce</option>
+					<option value="Ready for Pickup" selected="@(ViewBag.Status == "Ready for Pickup")">Ready for Pickup</option>
+					<option value="In Transit" selected="@(ViewBag.Status == "In Transit")">In Transit</option>
 					<option value="Delivered" selected="@(ViewBag.Status == "Delivered")">Delivered</option>
+					<option value="Completed" selected="@(ViewBag.Status == "Completed")">Completed</option>
 				</select>
 			</div>
 			<div class="col-md-3 d-flex gap-2">
@@ -126,12 +127,17 @@
 								farmerName = transaction.Farmer?.FullName ?? "Unknown";
 							}
 
+							var transactionUnit = transaction.CropListing?.Unit ?? transaction.Harvest?.Unit ?? "kg";
+
 							var statusBadge = transaction.Status switch
 							{
-								"Request Sent" => "bg-warning text-dark",
-								"Farmer Accepted" => "bg-info text-white",
-								"Ready" => "bg-primary text-white",
+								"Paid" => "bg-success text-white",
+								"PAID_ESCROW" => "bg-success text-white",
+								"Preparing Produce" => "bg-info text-white",
+								"Ready for Pickup" => "bg-primary text-white",
+								"In Transit" => "bg-warning text-dark",
 								"Delivered" => "bg-success text-white",
+								"Completed" => "bg-success text-white",
 								_ => "bg-secondary text-white"
 							};
 
@@ -161,7 +167,7 @@
 									@farmerName
 								</td>
 								<td class="py-3 text-end">
-									<span class="fw-semibold text-dark">@transaction.Quantity.ToString("0.##") kg</span>
+									<span class="fw-semibold text-dark">@transaction.Quantity.ToString("0.##") @transactionUnit</span>
 								</td>
 								<td class="py-3 text-end">
 									<span class="fw-bold text-success">₹@transaction.TotalAmount.ToString("N2")</span>
@@ -188,7 +194,7 @@ else
 	<div class="card border-0 shadow-sm rounded-4 p-5 text-center text-muted">
 		<span class="material-icons-round text-muted mb-3" style="font-size: 4rem;">receipt_long</span>
 		<h5 class="fw-bold mb-2">No Transactions Found</h5>
-		<p class="mb-3">You don't have any order transactions yet, or no results match your filter criteria.</p>
+		<p class="mb-3">No paid transactions are available yet, or no results match your filter criteria.</p>
 		<a href="@Url.Action("Index", "BuyerMarketplace")" class="btn btn-success rounded-3 px-4">
 			<span class="material-icons-round" style="font-size: 18px; vertical-align: middle;">storefront</span>
 			Browse Marketplace

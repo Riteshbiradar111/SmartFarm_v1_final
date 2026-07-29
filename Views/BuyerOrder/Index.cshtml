@@ -82,11 +82,12 @@
                                     string cropName = o.CropListing != null
                                         ? o.CropListing.Harvest.CropCycle.Crop.CropName
                                         : o.Harvest.CropCycle.Crop.CropName;
+                                    string orderUnit = o.CropListing?.Unit ?? o.Harvest?.Unit ?? "kg";
                                     <tr>
                                         <td class="ps-4 fw-bold">#@o.OrderId</td>
                                         <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
                                         <td class="fw-bold">@cropName</td>
-                                        <td>@o.Quantity kg</td>
+                                        <td>@o.Quantity @orderUnit</td>
                                         <td>@o.Farmer.FullName</td>
                                         <td class="fw-bold">₹@o.TotalAmount.ToString("N2")</td>
                                         <td>
@@ -145,11 +146,12 @@
                                     string cropName = o.CropListing != null
                                         ? o.CropListing.Harvest.CropCycle.Crop.CropName
                                         : o.Harvest.CropCycle.Crop.CropName;
+                                    string orderUnit = o.CropListing?.Unit ?? o.Harvest?.Unit ?? "kg";
                                     <tr>
                                         <td class="ps-4 fw-bold">#@o.OrderId</td>
                                         <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
                                         <td class="fw-bold">@cropName</td>
-                                        <td>@o.Quantity kg</td>
+                                        <td>@o.Quantity @orderUnit</td>
                                         <td>@o.Farmer.FullName</td>
                                         <td class="fw-bold">₹@o.TotalAmount.ToString("N2")</td>
                                         <td>
@@ -202,11 +204,12 @@
                                     string cropName = o.CropListing != null
                                         ? o.CropListing.Harvest.CropCycle.Crop.CropName
                                         : o.Harvest.CropCycle.Crop.CropName;
+                                    string orderUnit = o.CropListing?.Unit ?? o.Harvest?.Unit ?? "kg";
                                     <tr>
                                         <td class="ps-4 fw-bold">#@o.OrderId</td>
                                         <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
                                         <td class="fw-bold">@cropName</td>
-                                        <td>@o.Quantity.ToString("0.00") kg</td>
+                                        <td>@o.Quantity.ToString("0.00") @orderUnit</td>
                                         <td>@o.Farmer.FullName</td>
                                         <td>
                                             <span class="badge bg-danger rounded-pill px-2.5 py-1">@o.DeclineReason</span>
@@ -263,11 +266,12 @@
                                     string cropName = o.CropListing != null
                                         ? o.CropListing.Harvest.CropCycle.Crop.CropName
                                         : o.Harvest.CropCycle.Crop.CropName;
+                                    string orderUnit = o.CropListing?.Unit ?? o.Harvest?.Unit ?? "kg";
                                     <tr>
                                         <td class="ps-4 fw-bold">#@o.OrderId</td>
                                         <td class="small text-muted">@o.OrderDate.ToString("dd-MM-yyyy")</td>
                                         <td class="fw-bold">@cropName</td>
-                                        <td>@o.Quantity kg</td>
+                                        <td>@o.Quantity @orderUnit</td>
                                         <td>@o.Farmer.FullName</td>
                                         <td class="fw-bold">₹@o.TotalAmount.ToString("N2")</td>
                                         <td>

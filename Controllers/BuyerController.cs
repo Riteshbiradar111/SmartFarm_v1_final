@@ -363,7 +363,18 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Query all transactions (orders) for this buyer with full navigation properties
+            var transactionStatuses = new[]
+            {
+                "Paid",
+                "PAID_ESCROW",
+                "Preparing Produce",
+                "Ready for Pickup",
+                "In Transit",
+                "Delivered",
+                "Completed"
+            };
+
+            // 1. Query only completed payment transactions for this buyer with full navigation properties
             var query = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -378,11 +389,11 @@ namespace SmartFarmMVC.Controllers
                             .ThenInclude(p => p.Farm)
                                 .ThenInclude(f => f.Farmer)
                 .Include(o => o.Farmer)
-                .Where(o => o.BuyerId == buyer.BuyerId)
+                .Where(o => o.BuyerId == buyer.BuyerId && transactionStatuses.Contains(o.Status))
                 .AsQueryable();
 
             // 2. Apply status filter if provided
-            if (!string.IsNullOrEmpty(status))
+            if (!string.IsNullOrEmpty(status) && transactionStatuses.Contains(status))
             {
                 query = query.Where(o => o.Status == status);
             }
@@ -392,16 +403,15 @@ namespace SmartFarmMVC.Controllers
 
             // 4. Calculate summary statistics
             ViewBag.TotalTransactions = transactions.Count;
-            // Total paid = sum of all orders (buyer pays when placing order, not when delivered)
             ViewBag.TotalSpent = transactions
                 .Sum(o => (decimal?)o.TotalAmount) ?? 0m;
-            // Pending = any status except Delivered (Request Sent, Farmer Accepted, Ready)
-            ViewBag.PendingOrders = transactions.Count(o => o.Status != "Delivered");
-            ViewBag.CompletedOrders = transactions.Count(o => o.Status == "Delivered");
+            ViewBag.PendingOrders = transactions.Count(o => o.Status != "Delivered" && o.Status != "Completed");
+            ViewBag.CompletedOrders = transactions.Count(o => o.Status == "Delivered" || o.Status == "Completed");
+            ViewBag.Status = status;
 
-            // Compute buyer sequential order map
+            // Compute buyer sequential order map for paid transactions only
             var allBuyerOrdersAscending = _context.CropOrders
-                .Where(o => o.BuyerId == buyer.BuyerId)
+                .Where(o => o.BuyerId == buyer.BuyerId && transactionStatuses.Contains(o.Status))
                 .OrderBy(o => o.OrderDate)
                 .ThenBy(o => o.OrderId)
                 .Select(o => o.OrderId)

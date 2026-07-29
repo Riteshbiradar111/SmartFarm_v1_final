@@ -1,45 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Smart_Farm_and_Crop_Yeild_Management_System.Models;
-using Smart_Farm_and_Crop_Yeild_Management_System;
 
-// TEST: Ensure console is working
-Console.WriteLine("============================================");
-Console.WriteLine("🚀 SMART FARM APPLICATION STARTING...");
-Console.WriteLine("============================================");
-System.Diagnostics.Debug.WriteLine("🚀 DEBUG: Smart Farm starting...");
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Force Development environment if not already set
-if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
-{
-    Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-}
-builder.Environment.EnvironmentName = "Development";
-
-// Force correct web root path - works from both project root and bin folder
-var projectRoot = Directory.GetCurrentDirectory();
-if (projectRoot.Contains("bin"))
-{
-    // Running from bin folder (Visual Studio) - go up to project root
-    projectRoot = Path.GetFullPath(Path.Combine(projectRoot, "..", "..", ".."));
-}
-builder.Environment.WebRootPath = Path.Combine(projectRoot, "wwwroot");
-builder.Environment.ContentRootPath = projectRoot;
-
-Console.WriteLine("========================================");
-Console.WriteLine($"🔧 Environment: {builder.Environment.EnvironmentName}");
-Console.WriteLine($"📁 Project Root: {projectRoot}");
-Console.WriteLine($"📁 Content Root: {builder.Environment.ContentRootPath}");
-Console.WriteLine($"🌐 Web Root: {builder.Environment.WebRootPath}");
-Console.WriteLine($"✅ Web Root Exists: {Directory.Exists(builder.Environment.WebRootPath)}");
-if (Directory.Exists(builder.Environment.WebRootPath))
-{
-    var cssPath = Path.Combine(builder.Environment.WebRootPath, "css");
-    Console.WriteLine($"✅ CSS Folder Exists: {Directory.Exists(cssPath)}");
-}
-Console.WriteLine("========================================");
-Console.WriteLine();
 
 // Add MVC services (Controllers + Views)
 builder.Services.AddControllersWithViews();
@@ -55,12 +18,7 @@ builder.Services.AddScoped<Smart_Farm_and_Crop_Yeild_Management_System.Services.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<SmartFarmDbContext>(options =>
-{
-    options.UseSqlServer(connectionString);
-    // Suppress pending model changes warning (TEMPORARY - for development only)
-    options.ConfigureWarnings(warnings => 
-        warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
-});
+    options.UseSqlServer(connectionString));
 
 // Add HTTP context accessor (used in controllers & views)
 builder.Services.AddHttpContextAccessor();
@@ -75,168 +33,89 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// ===== AUTO-APPLY MIGRATIONS AND SEED DATA (CODE FIRST) =====
-Console.WriteLine("========================================");
-Console.WriteLine("🔄 CHECKING DATABASE STATUS...");
-Console.WriteLine("========================================");
-
+// Apply migrations and backfill legacy role profiles.
 try
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
+
+    db.Database.Migrate();
+
+    var agronomistUsers = db.Users
+        .Where(u => u.RoleId == 4 && !u.IsDeleted)
+        .ToList();
+    var fieldOfficerUsers = db.Users
+        .Where(u => u.RoleId == 5 && !u.IsDeleted)
+        .ToList();
+    var managerUsers = db.Users
+        .Where(u => u.RoleId == 6 && !u.IsDeleted)
+        .ToList();
+
+    var hasChanges = false;
+
+    foreach (var user in agronomistUsers)
     {
-        var db = scope.ServiceProvider.GetRequiredService<SmartFarmDbContext>();
-
-        Console.WriteLine($"📊 Database: {db.Database.GetDbConnection().Database}");
-
-        // Check if we should reset the database (only during development)
-        bool resetDatabase = false;  // Set to true to force reset
-
-        if (resetDatabase)
+        if (db.Agronomists.Any(a => a.UserId == user.UserId))
         {
-            Console.WriteLine("🗑️  Force reset enabled - Deleting old database...");
-            db.Database.EnsureDeleted();
-            Console.WriteLine("✅ Database deleted");
-
-            // Wait for SQL Server to release locks
-            Console.WriteLine("⏳ Waiting for SQL Server to release locks...");
-            System.Threading.Thread.Sleep(3000);  // Increased to 3 seconds
+            continue;
         }
 
-        // Apply migrations (creates database from migration files)
-        Console.WriteLine("🔧 Applying pending migrations...");
-        db.Database.Migrate();
-        Console.WriteLine("✅ Migrations applied, waiting for database initialization...");
-
-        // Additional wait to ensure all tables are created
-        System.Threading.Thread.Sleep(2000);
-
-        Console.WriteLine("✅ DATABASE MIGRATIONS APPLIED!");
-
-        // Code First schema check for new marketplace columns
-        try
+        db.Agronomists.Add(new Agronomist
         {
-            db.Database.ExecuteSqlRaw(@"
-                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropListing' AND COLUMN_NAME = 'OriginalQuantity')
-                BEGIN
-                    ALTER TABLE [CropListing] ADD [OriginalQuantity] DECIMAL(18,2) NULL;
-                END;
-                EXEC('UPDATE [CropListing] SET [OriginalQuantity] = [AvailableQuantity] WHERE [OriginalQuantity] IS NULL');
+            UserId = user.UserId,
+            FullName = string.IsNullOrWhiteSpace(user.FullName) ? user.Username : user.FullName,
+            MobileNumber = string.IsNullOrWhiteSpace(user.Phone) ? "N/A" : user.Phone,
+            Specialization = "General",
+            CreatedDate = DateTime.Now
+        });
 
-                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'CropOrder' AND COLUMN_NAME = 'DeclineReason')
-                BEGIN
-                    ALTER TABLE [CropOrder] ADD [DeclineReason] NVARCHAR(100) NULL, [DeclineNotes] NVARCHAR(500) NULL, [DeclinedDate] DATETIME NULL;
-                END;
-            ");
-            Console.WriteLine("✅ Code First Marketplace columns verified in SQL Server!");
-        }
-        catch (Exception ex)
+        hasChanges = true;
+    }
+
+    foreach (var user in fieldOfficerUsers)
+    {
+        if (db.FieldOfficers.Any(f => f.UserId == user.UserId))
         {
-            Console.WriteLine($"⚠️ Column verification note: {ex.Message}");
+            continue;
         }
 
-        // Verify seed data
-        Console.WriteLine("🔍 Verifying data...");
-        var rolesCount = db.Roles.Count();
-        var usersCount = db.Users.Count();
-        Console.WriteLine($"✅ Found: {rolesCount} roles, {usersCount} users");
-
-        if (usersCount > 0)
+        db.FieldOfficers.Add(new FieldOfficer
         {
-            var admin = db.Users.FirstOrDefault(u => u.Username == "admin");
-            Console.WriteLine($"✅ Admin user: {admin?.Username} / {admin?.Email}");
+            UserId = user.UserId,
+            FullName = string.IsNullOrWhiteSpace(user.FullName) ? user.Username : user.FullName,
+            MobileNumber = string.IsNullOrWhiteSpace(user.Phone) ? "N/A" : user.Phone
+        });
+
+        hasChanges = true;
+    }
+
+    foreach (var user in managerUsers)
+    {
+        if (db.CooperativeManagers.Any(m => m.UserId == user.UserId))
+        {
+            continue;
         }
 
-        // ===== ONE-TIME BACKFILL: create missing role-specific profile rows =====
-        // Older accounts created before AdminController.CreateUser was fixed have a
-        // row in Users but no matching Agronomist/FieldOfficer profile row, which
-        // makes them invisible in staff-selection dropdowns. Create any missing rows.
-        Console.WriteLine("🔧 Backfilling missing Agronomist/FieldOfficer profiles...");
-
-        // Agronomists (RoleId = 4)
-        var agronomistUsers = db.Users
-            .Where(u => u.RoleId == 4 && !u.IsDeleted)
-            .ToList();
-        int agronomistsAdded = 0;
-        foreach (var u in agronomistUsers)
+        db.CooperativeManagers.Add(new CooperativeManager
         {
-            if (!db.Agronomists.Any(a => a.UserId == u.UserId))
-            {
-                db.Agronomists.Add(new Agronomist
-                {
-                    UserId = u.UserId,
-                    FullName = string.IsNullOrWhiteSpace(u.FullName) ? u.Username : u.FullName,
-                    MobileNumber = string.IsNullOrWhiteSpace(u.Phone) ? "N/A" : u.Phone,
-                    Specialization = "General",
-                    CreatedDate = DateTime.Now
-                });
-                agronomistsAdded++;
-            }
-        }
+            UserId = user.UserId,
+            FullName = string.IsNullOrWhiteSpace(user.FullName) ? user.Username : user.FullName,
+            CooperativeName = "N/A",
+            MobileNumber = string.IsNullOrWhiteSpace(user.Phone) ? "N/A" : user.Phone
+        });
 
-        // Field Officers (RoleId = 5)
-        var fieldOfficerUsers = db.Users
-            .Where(u => u.RoleId == 5 && !u.IsDeleted)
-            .ToList();
-        int fieldOfficersAdded = 0;
-        foreach (var u in fieldOfficerUsers)
-        {
-            if (!db.FieldOfficers.Any(f => f.UserId == u.UserId))
-            {
-                db.FieldOfficers.Add(new FieldOfficer
-                {
-                    UserId = u.UserId,
-                    FullName = string.IsNullOrWhiteSpace(u.FullName) ? u.Username : u.FullName,
-                    MobileNumber = string.IsNullOrWhiteSpace(u.Phone) ? "N/A" : u.Phone
-                });
-                fieldOfficersAdded++;
-            }
-        }
+        hasChanges = true;
+    }
 
-        // Cooperative Managers (RoleId = 6)
-        var managerUsers = db.Users
-            .Where(u => u.RoleId == 6 && !u.IsDeleted)
-            .ToList();
-        int managersAdded = 0;
-        foreach (var u in managerUsers)
-        {
-            if (!db.CooperativeManagers.Any(m => m.UserId == u.UserId))
-            {
-                db.CooperativeManagers.Add(new CooperativeManager
-                {
-                    UserId = u.UserId,
-                    FullName = string.IsNullOrWhiteSpace(u.FullName) ? u.Username : u.FullName,
-                    CooperativeName = "N/A",
-                    MobileNumber = string.IsNullOrWhiteSpace(u.Phone) ? "N/A" : u.Phone
-                });
-                managersAdded++;
-            }
-        }
-
-        if (agronomistsAdded > 0 || fieldOfficersAdded > 0 || managersAdded > 0)
-        {
-            db.SaveChanges();
-        }
-        Console.WriteLine($"✅ Backfill complete: {agronomistsAdded} agronomists, {fieldOfficersAdded} field officers, {managersAdded} managers added.");
-
-        Console.WriteLine("✅ SETUP COMPLETE!");
+    if (hasChanges)
+    {
+        db.SaveChanges();
     }
 }
-catch (Exception ex)
+catch
 {
-    Console.WriteLine($"❌ Error: {ex.Message}");
-    if (ex.InnerException != null)
-    {
-        Console.WriteLine($"   Inner: {ex.InnerException.Message}");
-    }
-    Console.WriteLine("⚠️  App will continue, but database may not be initialized.");
+    // Continue startup even if migration/bootstrap steps fail.
 }
-
-// DEBUG: Print web root path for troubleshooting
-Console.WriteLine("========================================");
-Console.WriteLine($"🌐 Web Root Path: {app.Environment.WebRootPath}");
-Console.WriteLine($"📁 Content Root Path: {app.Environment.ContentRootPath}");
-Console.WriteLine("========================================");
-Console.WriteLine();
 
 // Configure the request pipeline
 if (!app.Environment.IsDevelopment())

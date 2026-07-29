@@ -385,7 +385,7 @@ namespace SmartFarmMVC.Controllers
                 ViewBag.HarvestId = order.HarvestId;
                 ViewBag.Quantity = order.Quantity;
                 ViewBag.PricePerUnit = order.PricePerUnit;
-                ViewBag.Unit = order.Harvest?.Unit ?? "kg";
+                ViewBag.Unit = order.CropListing?.Unit ?? order.Harvest?.Unit ?? "kg";
                 ViewBag.FarmerId = order.FarmerId;
                 ViewBag.FarmerName = order.Farmer.FullName;
                 ViewBag.ItemTitle = (order.Harvest?.CropCycle?.Crop?.CropName ?? "Crop") + " (Pre-Order)";
