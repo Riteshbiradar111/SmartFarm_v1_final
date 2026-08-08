@@ -1,10 +1,4 @@
-﻿/* ============================================================
-   SMARTFARM — AUTH PAGES JAVASCRIPT (login.html & register.html)
-   - Password visibility toggle
-   - Password match checker
-   - Basic form validation feedback
-   No SPA, no LocalStorage, no APIs. Razor-compatible.
-============================================================ */
+﻿
 
 (function () {
     "use strict";
@@ -43,7 +37,7 @@
         if (p2.length === 0) {
             matchMsg.textContent = "";
             matchMsg.className = "password-match-msg";
-            return;
+            return;=
         }
         if (p1 === p2) {
             matchMsg.textContent = "Passwords match";

@@ -2799,7 +2799,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         /// Update admin profile information with validation
         /// </summary>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public async Task<IActionResult> UpdateMyProfile(MyProfileViewModel model)
         {
             try

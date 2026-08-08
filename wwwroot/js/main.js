@@ -1,12 +1,4 @@
-﻿/* ============================================================
-   SMARTFARM — MINIMAL JAVASCRIPT
-   - Sticky navbar scroll effect
-   - Mobile hamburger menu
-   - FAQ accordion
-   - Back to top button
-   No SPA, no LocalStorage, no APIs, no complex animations.
-   Compatible with Razor Views (.cshtml) migration.
-============================================================ */
+﻿
 
 (function () {
     "use strict";

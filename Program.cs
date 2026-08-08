@@ -7,20 +7,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add MVC services (Controllers + Views)
 builder.Services.AddControllersWithViews();
 
-// Add memory cache and HTTP client factory for weather API
+// Add memory cache and Allows application to call external APIs.
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 
 // Register WeatherService
 builder.Services.AddScoped<Smart_Farm_and_Crop_Yeild_Management_System.Services.IWeatherService, Smart_Farm_and_Crop_Yeild_Management_System.Services.WeatherService>();
 
-// Register the Database Context to use SQL Server
+// Register the Database Context to use SQL Server Reads Database Connections
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<SmartFarmDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Add HTTP context accessor (used in controllers & views)
+// Add HTTP context to access (used controllers & views)
 builder.Services.AddHttpContextAccessor();
 
 // Add Session support — keeps track of the logged-in user
@@ -117,7 +117,7 @@ catch
     // Continue startup even if migration/bootstrap steps fail.
 }
 
-// Configure the request pipeline
+// Configure the request to MiddleWare pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -129,10 +129,10 @@ app.UseStaticFiles();  // Serve CSS, JS, images from wwwroot
 
 app.UseRouting();
 
-app.UseSession();      // Must be before UseAuthorization and MapControllerRoute
+app.UseSession();      // login session will work because of this line.
 app.UseAuthorization();
 
-// Default route: Home controller → Index action
+// Conventional Routing : Home controller → Index action
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

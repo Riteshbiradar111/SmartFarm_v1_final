@@ -5,6 +5,8 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels
 {
     public class MemberFarmPerformanceItem
     {
+        // Stores performance details of each farmer.10    
+        // Used to display farmer performance on the dashboard.
         public int FarmerId { get; set; }
         public string FarmerName { get; set; } = string.Empty;
         public string MobileNumber { get; set; } = string.Empty;
@@ -20,6 +22,8 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels
         public string ProduceStatus { get; set; } = "Active";
     }
 
+    // ViewModel used for Cooperative Manager Dashboard.   
+    // Combines dashboard statistics and farmer data.
     public class CooperativeManagerDashboardViewModel
     {
         public string ManagerFullName { get; set; } = string.Empty;

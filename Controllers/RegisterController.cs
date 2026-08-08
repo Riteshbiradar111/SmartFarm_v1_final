@@ -16,10 +16,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             _context = context;
         }
 
-        // ---------------------------------------------------------------
-        // GET: /Register/ChooseType
+        
         // Show the "Choose Registration Type" page with 2 cards
-        // ---------------------------------------------------------------
+        
         [HttpGet]
         public IActionResult ChooseType()
         {
@@ -27,10 +26,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             return View();
         }
 
-        // ---------------------------------------------------------------
-        // GET: /Register/Farmer
+        
+       
         // Show the Farmer Registration form
-        // ---------------------------------------------------------------
+        
         [HttpGet]
         public IActionResult Farmer()
         {
@@ -38,10 +37,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             return View(new FarmerRegistrationViewModel());
         }
 
-        // ---------------------------------------------------------------
+       
         // POST: /Register/Farmer
         // Database-driven Farmer registration with validations
-        // ---------------------------------------------------------------
+        
         [HttpPost]
         public IActionResult Farmer(FarmerRegistrationViewModel model)
         {
@@ -108,13 +107,13 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     return View(model);
                 }
 
-                // Save user information
+                //  user information
                 var newUser = new User
                 {
                     Username = model.Username.Trim(),
                     PasswordHash = model.Password, // ALIGNED WITH DB: PasswordHash
-                    Email = model.Email.Trim(), // Saved in Users table
-                    Phone = model.MobileNumber.Trim(), // Saved in Users table
+                    Email = model.Email.Trim(), // d in Users table
+                    Phone = model.MobileNumber.Trim(), // d in Users table
                     RoleId = 2, // ALIGNED WITH DB: Role ID 2 is Farmer
                     IsActive = true,
                     IsDeleted = false,
@@ -123,9 +122,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 };
 
                 _context.Users.Add(newUser);
-                _context.SaveChanges(); // Saves to database and populates newUser.UserId
+                _context.SaveChanges(); // s to database and populates newUser.UserId
 
-                // Save farmer details
+                //  farmer details
                 var newFarmer = new Smart_Farm_and_Crop_Yeild_Management_System.Models.Farmer
                 {
                     UserId = newUser.UserId,
@@ -157,10 +156,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             }
         }
 
-        // ---------------------------------------------------------------
+       
         // GET: /Register/Buyer
         // Show the Buyer Registration form
-        // ---------------------------------------------------------------
+        
         [HttpGet]
         public IActionResult Buyer()
         {
@@ -168,10 +167,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             return View(new BuyerRegistrationViewModel());
         }
 
-        // ---------------------------------------------------------------
+        
         // POST: /Register/Buyer
         // Database-driven Buyer registration with validations
-        // ---------------------------------------------------------------
+        
         [HttpPost]
         public IActionResult Buyer(BuyerRegistrationViewModel model)
         {
@@ -234,22 +233,22 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     return View(model);
                 }
 
-                // Save user information
+                //  user information
                 var newUser = new User
                 {
                     Username = model.Username.Trim(),
                     PasswordHash = model.Password, // ALIGNED WITH DB: PasswordHash
-                    Email = model.Email.Trim(), // Saved in Users table
-                    Phone = model.MobileNumber.Trim(), // Saved in Users table
+                    Email = model.Email.Trim(), // d in Users table
+                    Phone = model.MobileNumber.Trim(), // d in Users table
                     RoleId = 3, // ALIGNED WITH DB: Role ID 3 is Buyer
                     IsActive = true,
                     CreatedAt = DateTime.Now // ALIGNED WITH DB: CreatedAt
                 };
 
                 _context.Users.Add(newUser);
-                _context.SaveChanges(); // Saves to database and populates newUser.UserId
+                _context.SaveChanges(); // s to database and populates newUser.UserId
 
-                // Save buyer details mapping to SSMS columns
+                //  buyer details mapping to SSMS columns
                 var newBuyer = new Buyer
                 {
                     UserId = newUser.UserId,

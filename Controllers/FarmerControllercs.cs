@@ -348,7 +348,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Farmer/ApprovePestCase
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult ApprovePestCase(int pestCaseId)
         {
             var farmer = GetActiveFarmer();
@@ -391,7 +391,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Farmer/RejectPestCase
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult RejectPestCase(int pestCaseId, string rejectionReason)
         {
             var farmer = GetActiveFarmer();

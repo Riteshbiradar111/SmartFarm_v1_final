@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smart_Farm_and_Crop_Yeild_Management_System.Models;
 
@@ -11,9 +12,11 @@ using Smart_Farm_and_Crop_Yeild_Management_System.Models;
 namespace Smart_Farm_and_Crop_Yeild_Management_System.Migrations
 {
     [DbContext(typeof(SmartFarmDbContext))]
-    partial class SmartFarmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260729055904_m1")]
+    partial class m1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

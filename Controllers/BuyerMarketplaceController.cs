@@ -37,7 +37,7 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Start base query for available listings
+            // Start base query for available listings
             IQueryable<CropListing> query = _context.CropListings
                 .Include(l => l.Harvest)
                     .ThenInclude(h => h.CropCycle)
@@ -49,35 +49,35 @@ namespace SmartFarmMVC.Controllers
                                 .ThenInclude(f => f.Farmer)
                 .Where(l => l.Status == "Available");
 
-            // 2. Apply search text (Crop Name or keyword)
+            //  Apply search text (Crop Name or keyword)
             if (!string.IsNullOrEmpty(search.CropName))
             {
                 string kw = search.CropName.Trim().ToLower();
                 query = query.Where(l => l.Harvest.CropCycle.Crop.CropName.ToLower().Contains(kw));
             }
 
-            // 3. Apply Farmer's name filter
+            //  Apply Farmer's name filter
             if (!string.IsNullOrEmpty(search.FarmerName))
             {
                 string fn = search.FarmerName.Trim().ToLower();
                 query = query.Where(l => l.Harvest.CropCycle.LandPlot.Farm.Farmer.FullName.ToLower().Contains(fn));
             }
 
-            // 4. Apply Village location filter
+            //  Apply Village location filter
             if (!string.IsNullOrEmpty(search.Village))
             {
                 string vil = search.Village.Trim().ToLower();
                 query = query.Where(l => l.Harvest.CropCycle.LandPlot.Farm.Village.ToLower().Contains(vil));
             }
 
-            // 5. Apply District location filter
+            //  Apply District location filter
             if (!string.IsNullOrEmpty(search.District))
             {
                 string dst = search.District.Trim().ToLower();
                 query = query.Where(l => l.Harvest.CropCycle.LandPlot.Farm.District.ToLower().Contains(dst));
             }
 
-            // 6. Apply Category filter (e.g. Grains, Vegetables, Fruits, Cash Crops)
+            //  Apply Category filter (e.g. Grains, Vegetables, Fruits, Cash Crops)
             if (!string.IsNullOrEmpty(search.Category))
             {
                 string cat = search.Category.Trim().ToLower();
@@ -85,22 +85,22 @@ namespace SmartFarmMVC.Controllers
                                      l.Harvest.CropCycle.Crop.Description.ToLower().Contains(cat));
             }
 
-            // 7. Apply Max Price filter
+            //  Apply Max Price filter
             if (search.MaxPrice.HasValue)
             {
                 query = query.Where(l => l.PricePerUnit <= search.MaxPrice.Value);
             }
 
-            // 8. Apply Min Quantity available filter
+            //  Apply Min Quantity available filter
             if (search.MinQuantity.HasValue)
             {
                 query = query.Where(l => l.AvailableQuantity >= search.MinQuantity.Value);
             }
 
-            // 9. Execute query
+            //  Execute query
             var listings = query.OrderByDescending(l => l.ListedDate).ToList();
 
-            // 10. Extract all saved crop IDs in the buyer's wishlist to show the red heart on the UI
+            //  Extract all saved crop IDs in the buyer's wishlist to show the red heart on the UI
             var savedCropIds = _context.Wishlists
                 .Where(w => w.BuyerId == buyer.BuyerId && w.CropId.HasValue)
                 .Select(w => w.CropId!.Value)
@@ -122,7 +122,7 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Query the specific produce listing
+            //  Query the specific produce listing
             var listing = _context.CropListings
                 .Include(l => l.Harvest)
                     .ThenInclude(h => h.CropCycle)
@@ -140,12 +140,12 @@ namespace SmartFarmMVC.Controllers
                 return RedirectToAction("Index");
             }
 
-            // 2. Check if this crop type is already saved in the buyer's wishlist
+            //  Check if this crop type is already saved in the buyer's wishlist
             var cropId = listing.Harvest.CropCycle.CropId;
             bool isSaved = _context.Wishlists
                 .Any(w => w.BuyerId == buyer.BuyerId && w.CropId == cropId);
 
-            // 3. Check if they have already subscribed to "Notify Me" notifications
+            //  Check if they have already subscribed to "Notify Me" notifications
             bool isSubscribed = _context.Wishlists
                 .Any(w => w.BuyerId == buyer.BuyerId && w.CropId == cropId && w.NotifyWhenAvailable);
 
@@ -173,13 +173,13 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Fetch directory list of farmers
+            //  Fetch directory list of farmers
             var farmers = _context.Farmers
                 .Include(f => f.User)
                 .OrderBy(f => f.FullName)
                 .ToList();
 
-            // 2. Fetch list of saved farmer IDs in buyer's wishlist
+            //  Fetch list of saved farmer IDs in buyer's wishlist
             var savedFarmerIds = _context.Wishlists
                 .Where(w => w.BuyerId == buyer.BuyerId && w.FarmerId.HasValue)
                 .Select(w => w.FarmerId!.Value)
@@ -196,13 +196,13 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /BuyerMarketplace/ToggleWishlist
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ToggleWishlist(int? cropId, int? farmerId, string returnUrl)
         {
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Look for existing saved record
+            //  Look for existing saved record
             var existing = _context.Wishlists.FirstOrDefault(w =>
                 w.BuyerId == buyer.BuyerId &&
                 w.CropId == cropId &&
@@ -237,13 +237,13 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /BuyerMarketplace/ToggleNotifyMe
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ToggleNotifyMe(int cropId, string returnUrl)
         {
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Fetch wishlist item or create if not present
+            //  Fetch wishlist item or create if not present
             var item = _context.Wishlists.FirstOrDefault(w => w.BuyerId == buyer.BuyerId && w.CropId == cropId);
             if (item == null)
             {

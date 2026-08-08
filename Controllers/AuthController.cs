@@ -18,18 +18,18 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             _context = context;
         }
 
-        // ---------------------------------------------------------------
+         
         // GET: /Auth/Login  — Show the login page
-        // ---------------------------------------------------------------
+         
         [HttpGet]
         public IActionResult Login()
         {
             return View(new LoginViewModel());
         }
 
-        // ---------------------------------------------------------------
+         
         // POST: /Auth/Login  — Validate credentials and redirect by role
-        // ---------------------------------------------------------------
+         
         [HttpPost]
         public IActionResult Login(LoginViewModel model)
         {
@@ -132,18 +132,18 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             return RedirectToAction("Dashboard", "Farmer");
         }
 
-        // ---------------------------------------------------------------
+       
         // Logout — clear session and go back to Login
-        // ---------------------------------------------------------------
+        
         public IActionResult Logout()
         {
             HttpContext.Session.Clear(); // Remove all session data
             return RedirectToAction("Login");
         }
 
-        // ---------------------------------------------------------------
+        
         // Simple password hashing using SHA256 (matches AdminController)
-        // ---------------------------------------------------------------
+       
         private string HashPassword(string password)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
@@ -158,9 +158,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             }
         }
 
-        // ---------------------------------------------------------------
+         
         // GET: /Auth/Register — Redirect to Registration Choice Page
-        // ---------------------------------------------------------------
+         
         [HttpGet]
         public IActionResult Register()
         {
@@ -175,7 +175,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 
         // POST: /Auth/ForgotPassword
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult ForgotPassword(string emailOrUsername)
         {
             if (string.IsNullOrWhiteSpace(emailOrUsername))
@@ -204,7 +204,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 
         // POST: /Auth/ResetPassword
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult ResetPassword(string username, string newPassword, string confirmPassword)
         {
             if (string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
@@ -250,10 +250,10 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             }
         }
 
-        // ---------------------------------------------------------------
+         
         // Helper: Get first two initials from a full name
         // Example: "Ramesh Patil" → "RP"
-        // ---------------------------------------------------------------
+         
         private string GetInitials(string fullName)
         {
             if (string.IsNullOrEmpty(fullName))

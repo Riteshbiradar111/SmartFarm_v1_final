@@ -50,7 +50,7 @@ namespace SmartFarmMVC.Controllers
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
-            // 2. Separate into lists based on timeline status
+            //  Separate into lists based on timeline status
             // Purchase Requests: Pending farmer approval
             ViewBag.Requests = orders.Where(o => o.Status == "Pending" || o.Status == "Request Sent" || o.Status == "PENDING_FARMER_ACCEPTANCE" || o.Status == "REQUESTED").ToList();
 
@@ -91,7 +91,7 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Query the specific order details including nested properties
+            //  Query the specific order details including nested properties
             var order = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -135,14 +135,14 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Guard against empty selections
+            //  Guard against empty selections
             if (!listingId.HasValue && !harvestId.HasValue)
             {
                 TempData["ErrorMessage"] = "Invalid checkout attempt.";
                 return RedirectToAction("Index", "BuyerMarketplace");
             }
 
-            // 2. Map checkout details depending on whether it is standard or pre-order
+            //  Map checkout details depending on whether it is standard or pre-order
             if (listingId.HasValue)
             {
                 // Standard Purchase
@@ -223,7 +223,7 @@ namespace SmartFarmMVC.Controllers
                 ViewBag.HarvestId = harvest.HarvestId;
             }
 
-            // 3. Compute billing metrics
+            //  Compute billing metrics
             decimal rate = ViewBag.Rate;
             decimal subtotal = quantity * rate;
             decimal gst = subtotal * 0.05m;
@@ -244,7 +244,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /BuyerOrder/PlaceOrder
         // Validates order and redirects to payment page
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult PlaceOrder(CropOrderViewModel model)
         {
             var buyer = GetActiveBuyer();
@@ -264,7 +264,7 @@ namespace SmartFarmMVC.Controllers
                 string farmerName = "";
                 string itemTitle = "";
 
-                // 1. Process listing purchase request
+                //  Process listing purchase request
                 if (model.ListingId.HasValue)
                 {
                     var listing = _context.CropListings
@@ -429,7 +429,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /BuyerOrder/ConfirmPayment
         // Finalizes order after simulated payment
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ConfirmPayment(int? orderId)
         {
             var buyer = GetActiveBuyer();
@@ -513,7 +513,7 @@ namespace SmartFarmMVC.Controllers
 
             try
             {
-                // 1. Process stock reductions and purchase tracking
+                //  Process stock reductions and purchase tracking
                 if (listingId.HasValue)
                 {
                     var listing = _context.CropListings
@@ -549,11 +549,11 @@ namespace SmartFarmMVC.Controllers
                     }
                 }
 
-                // 2. Auto-generate invoice format: INV-YEAR-RANDOM
+                //  Auto-generate invoice format: INV-YEAR-RANDOM
                 Random rand = new Random();
                 string invNo = $"INV-{DateTime.Now.Year}-{rand.Next(10000, 99999)}";
 
-                // 3. Save order record to SQL Server
+                //  Save order record to SQL Server
                 var order = new CropOrder
                 {
                     ListingId = listingId,
@@ -574,7 +574,7 @@ namespace SmartFarmMVC.Controllers
                 _context.CropOrders.Add(order);
                 _context.SaveChanges();
 
-                // 4. Generate notifications for event-driven feedback
+                //  Generate notifications for event-driven feedback
                 // Buyer notification
                 var buyerNotif = new Notification
                 {
@@ -620,7 +620,7 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Fetch invoice info
+            // Fetch invoice info
             var order = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -647,53 +647,6 @@ namespace SmartFarmMVC.Controllers
             return View(order);
         }
 
-        /* REMOVED: This simulation panel should not be accessible to buyers.
-         * Order status updates should only be performed by the FARMER from their dashboard.
-         * Keeping this code commented for reference/testing purposes only.
-         * 
-        // POST: /BuyerOrder/UpdateStatusSimulate
-        // Helper shortcut to update the shipment status timeline for testing/interview demo
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult UpdateStatusSimulate(int id, string nextStatus)
-        {
-            var buyer = GetActiveBuyer();
-            if (buyer == null) return RedirectToAction("Login", "Auth");
-
-            var order = _context.CropOrders.FirstOrDefault(o => o.OrderId == id && o.BuyerId == buyer.BuyerId);
-            if (order != null)
-            {
-                // Update status
-                order.Status = nextStatus;
-
-                if (nextStatus == "Farmer Accepted")
-                {
-                    order.AcceptedDate = DateTime.Now;
-                }
-                else if (nextStatus == "Delivered")
-                {
-                    order.DeliveryDate = DateTime.Now;
-                }
-
-                _context.SaveChanges();
-
-                // Log notification event
-                var notification = new Notification
-                {
-                    UserId = buyer.UserId,
-                    Title = $"Order Status Updated",
-                    Message = $"Your order #{order.OrderId} is now: {nextStatus}.",
-                    IsRead = false,
-                    CreatedDate = DateTime.Now
-                };
-                _context.Notifications.Add(notification);
-                _context.SaveChanges();
-
-                TempData["SuccessMessage"] = $"Shipment status simulated to: {nextStatus}";
-            }
-
-            return RedirectToAction("Details", new { id = id });
-        }
-        */
+       
     }
 }

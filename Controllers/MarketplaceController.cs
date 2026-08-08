@@ -37,7 +37,7 @@ namespace SmartFarmMVC.Controllers
             var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == username);
             if (farmer == null && role == "Farmer") return RedirectToAction("Login", "Auth");
 
-            // 1. Fetch Listings
+            // Fetch Listings
             IQueryable<CropListing> query = _context.CropListings
                 .Include(l => l.Harvest)
                     .ThenInclude(h => h.CropCycle)
@@ -76,7 +76,7 @@ namespace SmartFarmMVC.Controllers
 
             var listings = query.OrderByDescending(l => l.ListedDate).ToList();
 
-            // 2. Fetch Buyer Orders (if Farmer)
+            // Fetch Buyer Orders (if Farmer)
             if (role == "Farmer" && farmer != null)
             {
                 var orders = _context.CropOrders
@@ -151,7 +151,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Marketplace/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult Create(MarketplaceViewModel model, IFormFile? cropImage)
         {
             var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == GetSessionUsername());
@@ -229,7 +229,7 @@ namespace SmartFarmMVC.Controllers
                     }
                 }
 
-                // 1. Create crop listing record
+                //  Create crop listing record
                 var listing = new CropListing
                 {
                     HarvestId = model.HarvestId,
@@ -242,7 +242,7 @@ namespace SmartFarmMVC.Controllers
                     ImagePath = imagePath
                 };
 
-                // 2. Mark harvest as listed (but don't reduce ActualQuantity)
+                //  Mark harvest as listed (but don't reduce ActualQuantity)
                 if (selectedHarvest.ActualQuantity == model.AvailableQuantity)
                 {
                     selectedHarvest.Status = "Listed";
@@ -267,7 +267,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /Marketplace/AcceptOrder
         // Farmer accepts an incoming buyer request with stock deduction & oversell protection
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult AcceptOrder(int orderId)
         {
             var username = GetSessionUsername();
@@ -309,17 +309,17 @@ namespace SmartFarmMVC.Controllers
                 return RedirectToAction("Index");
             }
 
-            // STEP 8 & STEP 5: Oversell protection & Stock Deduction Validation
+            // Oversell protection & Stock Deduction Validation
             if (order.Quantity > listing.AvailableQuantity)
             {
                 TempData["ErrorMessage"] = $"Cannot accept order! Insufficient stock available. Remaining stock is {listing.AvailableQuantity} {listing.Unit}, but requested quantity is {order.Quantity} {listing.Unit}.";
                 return RedirectToAction("Index");
             }
 
-            // STEP 5: Deduct stock immediately upon acceptance
+            //  Deduct stock immediately upon acceptance
             listing.AvailableQuantity -= order.Quantity;
 
-            // STEP 7: If AvailableQuantity becomes 0, set status to Sold Out (auto-hides from Buyer view)
+            //  If AvailableQuantity becomes 0, set status to Sold Out (auto-hides from Buyer view)
             if (listing.AvailableQuantity <= 0)
             {
                 listing.AvailableQuantity = 0;
@@ -354,7 +354,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /Marketplace/DeclineOrder
         // Farmer declines a buyer request with mandatory decline reason
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult DeclineOrder(int orderId, string declineReason, string? declineNotes)
         {
             var username = GetSessionUsername();
@@ -380,7 +380,7 @@ namespace SmartFarmMVC.Controllers
                 return RedirectToAction("Index");
             }
 
-            // STEP 6: Mandatory Decline Reason Validation
+            //  Mandatory Decline Reason Validation
             if (string.IsNullOrWhiteSpace(declineReason))
             {
                 TempData["ErrorMessage"] = "Please select a mandatory decline reason.";
@@ -422,7 +422,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /Marketplace/UpdateOrderStatus
         // Farmer updates shipping/delivery timeline stages
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult UpdateOrderStatus(int orderId, string status)
         {
             var farmer = _context.Farmers.FirstOrDefault(f => f.User.Username == GetSessionUsername());

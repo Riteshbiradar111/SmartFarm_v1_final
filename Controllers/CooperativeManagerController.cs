@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -9,21 +10,26 @@ using Smart_Farm_and_Crop_Yeild_Management_System.Models.ViewModels;
 
 namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 {
+    //Controller used to manage All Cooperative Manager functionalities. 
     public class CooperativeManagerController : Controller
     {
         private readonly SmartFarmDbContext _context;
 
+        
+        //Constructor used to initialize database context.
         public CooperativeManagerController(SmartFarmDbContext context)
         {
             _context = context;
         }
 
+        //Checks wheather the logged in user is cooperative manager or admin.
         private bool IsCooperativeManager()
         {
             var role = HttpContext.Session.GetString("UserRole");
             return role == "Cooperative Manager" || role == "Admin";
         }
 
+        //Used to indentify the active user. 
         private int? GetCurrentUserId()
         {
             var userIdVal = HttpContext.Session.GetInt32("UserId");
@@ -35,6 +41,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/Dashboard
+        //Loads dashboard for cooperative manager.
         public IActionResult Dashboard()
         {
             if (!IsCooperativeManager())
@@ -45,8 +52,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             var currentUserId = GetCurrentUserId();
             var manager = _context.CooperativeManagers.FirstOrDefault(cm => cm.UserId == currentUserId);
             string managerFullName = manager?.FullName ?? HttpContext.Session.GetString("UserName") ?? "Cooperative Manager";
-            string managerRegion = manager?.Region ?? "Wardha Region";
+            string managerRegion = manager?.Region ?? "Maharashtra Region";
 
+            //Pass page information to view. 
             ViewData["Title"] = "Cooperative Manager Dashboard";
             ViewData["Subtitle"] = "Cooperative Operations — Live data from SQL Server";
             ViewData["UserRole"] = "Cooperative Manager";
@@ -64,7 +72,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             int totalPestCases = _context.PestCases.Count();
             int activeImprovementPlans = _context.SupportQueries.Count(s => s.ImprovementStatus == "In Progress");
 
-            // Dynamic Member Farm Performance Calculation
+            // Load farmer, farm, crop and harvest details.
             var farmersList = _context.Farmers
                 .Include(f => f.Farms)
                     .ThenInclude(farm => farm.LandPlots)
@@ -76,22 +84,23 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                             .ThenInclude(cycle => cycle.Harvests)
                 .ToList();
 
-            // Pre-fetch sales by farmer
+            // Get farmer sales revenue data.
             var farmerSalesMap = _context.CropOrders
                 .Where(o => o.Status == "Delivered" || o.Status == "PAID_ESCROW" || o.Status == "Paid" || o.Status == "Farmer Accepted")
                 .GroupBy(o => o.FarmerId)
                 .ToDictionary(g => g.Key, g => g.Sum(o => o.TotalAmount));
 
-            // Pre-fetch open issues by farmer
+            // Get unresolved issues for each farmer.
             var farmerOpenIssuesMap = _context.SupportQueries
                 .Where(q => q.Status != "Resolved")
                 .GroupBy(q => q.FarmerId)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            // Build staff lookup dictionary across Agronomists, FieldOfficers, and Users
+            // Load agronomist list and field officer list.
             var agronomistsList = _context.Agronomists.ToList();
             var fieldOfficersList = _context.FieldOfficers.ToList();
 
+            //Disctionary used to store UserId and Staff Name. 
             var staffNameByUserId = new Dictionary<int, string>();
             foreach (var a in agronomistsList)
             {
@@ -111,7 +120,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             {
                 var staffNames = new List<string>();
 
-                // 1. Check Assignments table (set by Cooperative Manager / Admin)
+                //Check Assignments table (set by Cooperative Manager / Admin)
                 var farmerAssigns = allAssignments.Where(a => a.FarmerId == f.FarmerId).ToList();
                 foreach (var a in farmerAssigns)
                 {
@@ -130,7 +139,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     }
                 }
 
-                // 2. Check FieldOfficerAssignments table
+                //Check assignments from FieldOfficerAssignments table
                 var farmerFoAssigns = allFoAssignments.Where(a => a.FarmerId == f.FarmerId).ToList();
                 foreach (var fa in farmerFoAssigns)
                 {
@@ -146,6 +155,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 }
             }
 
+            //Create list to Store farmer performance date. 
             var memberFarmPerformanceList = new List<MemberFarmPerformanceItem>();
 
             foreach (var f in farmersList)
@@ -168,6 +178,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     }
                 }
 
+                //Store names of active crop.
                 var activeCropsList = new List<string>();
                 string lastCropName = "General Crops";
 
@@ -183,17 +194,21 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     }
                 }
 
+                //Convert crop list into text format.
                 string activeCropsStr = activeCropsList.Any()
                     ? string.Join(", ", activeCropsList)
                     : lastCropName;
 
                 double totalArea = 0;
+                //Calculate total cultivative area.
                 foreach (var p in allPlots)
                 {
                     totalArea += (double)p.Area;
                 }
 
                 decimal totalHarvest = 0;
+
+                //Calsulate total harvest from all crops cycles.
                 foreach (var c in allCycles)
                 {
                     if (c.Harvests != null)
@@ -204,13 +219,14 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                         }
                     }
                 }
-
+                //Get total sales revenue, open issues and assigned staff name for each farmer.
                 farmerSalesMap.TryGetValue(f.FarmerId, out decimal salesRev);
                 farmerOpenIssuesMap.TryGetValue(f.FarmerId, out int openIssues);
                 officerAssignmentsMap.TryGetValue(f.FarmerId, out string staffName);
 
                 string produceStatus = salesRev > 0 ? "Revenue Generated" : (totalHarvest > 0 ? "Harvest Completed" : (activeCropsList.Any() ? "In Cultivation" : "Registered"));
 
+                //Add farmer performance detail to list.
                 memberFarmPerformanceList.Add(new MemberFarmPerformanceItem
                 {
                     FarmerId = f.FarmerId,
@@ -229,11 +245,13 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 });
             }
 
+            // Sort farmers based on harvest quantity and land area.
             memberFarmPerformanceList = memberFarmPerformanceList
                 .OrderByDescending(p => p.TotalHarvestQuantity)
                 .ThenByDescending(p => p.TotalAreaAcres)
                 .ToList();
 
+            // Get latest cultivation requests from database.
             var cultivationPlans = _context.CultivationRequests
                 .Include(cr => cr.Farmer)
                 .Include(cr => cr.Crop)
@@ -241,6 +259,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 .Take(10)
                 .ToList();
 
+            // Create dashboard view model.
             var viewModel = new CooperativeManagerDashboardViewModel
             {
                 ManagerFullName = managerFullName,
@@ -256,15 +275,17 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 MemberFarmPerformance = memberFarmPerformanceList,
                 CultivationPlans = cultivationPlans
             };
-
+            // Send dashboard data to view page.
             return View(viewModel);
         }
 
         // GET: /CooperativeManager/MemberFarms
+        // Displays all registered farmers.
         public IActionResult MemberFarms(string? searchFarmer, string? district, string? village)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
 
+            // Set page title and user information.
             ViewData["Title"] = "Member Farms Directory";
             ViewData["Subtitle"] = "All registered member farmers in the cooperative";
             ViewData["UserRole"] = "Cooperative Manager";
@@ -273,6 +294,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 
             var farmersQuery = _context.Farmers.AsQueryable();
 
+            //Searching farmers Using their Information.
             if (!string.IsNullOrEmpty(searchFarmer))
             {
                 farmersQuery = farmersQuery.Where(f => f.FullName.Contains(searchFarmer) || f.MobileNumber.Contains(searchFarmer));
@@ -289,7 +311,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             }
 
             var farmersList = farmersQuery.ToList();
-
+            //Loading All Data 
             ViewBag.Districts = _context.Farmers.Select(f => f.District).Where(d => !string.IsNullOrEmpty(d)).Distinct().ToList();
             ViewBag.Villages = _context.Farmers.Select(f => f.Village).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
             
@@ -315,21 +337,24 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // POST: /CooperativeManager/AssignStaff
+        // Used to assign Agronomist or Field Officer to a farmer.
         [HttpPost]
         public IActionResult AssignStaff(int farmerId, int? officerId, string? notes)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
 
+            // Find selected farmer from database.
             var farmer = _context.Farmers.FirstOrDefault(f => f.FarmerId == farmerId);
             if (farmer == null)
             {
                 TempData["ErrorMessage"] = "Farmer record not found.";
                 return RedirectToAction("MemberFarms");
             }
-
+            // Get farmer's farm details.
             var farm = _context.Farms.FirstOrDefault(f => f.FarmerId == farmerId);
             int farmId = farm != null ? farm.FarmId : 1;
 
+            // Check whether officer is selected.
             if (officerId == null || officerId <= 0)
             {
                 TempData["ErrorMessage"] = "Please select a staff member to assign.";
@@ -380,7 +405,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             // Route the farmer's open support queries to the assigned staff member so they
             // appear in the Agronomist/Field Officer "Assigned Issues" list. The staff pages
             // read from SupportQuery.AssignedToUserId (a FK to User), and assignedOfficerId is
-            // the staff member's UserId.
+            // Get unresolved support queries of farmer.
             var openQueries = _context.SupportQueries
                 .Where(q => q.FarmerId == farmerId && q.Status != "Resolved")
                 .ToList();
@@ -415,6 +440,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                     _context.SaveChanges();
                 }
             }
+            // Send notification to assigned staff member.
             if (openQueries.Count > 0)
             {
                 _context.Notifications.Add(new Notification
@@ -428,7 +454,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
                 _context.SaveChanges();
             }
 
-            // Create Notification
+            // Create Notification For Farmer.
             var notification = new Notification
             {
                 UserId = farmer.UserId,
@@ -445,16 +471,19 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/Assignments
+        // Displays all farmer assignments.
         public IActionResult Assignments(string? search)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
 
+        // Set page title and details.
             ViewData["Title"] = "Farm Assignments Directory";
             ViewData["Subtitle"] = "Monitor and assign field tasks to officers";
             ViewData["UserRole"] = "Cooperative Manager";
             ViewData["UserName"] = HttpContext.Session.GetString("UserName") ?? "Cooperative Manager";
             ViewData["UserInitials"] = HttpContext.Session.GetString("UserInitials") ?? "CM";
 
+        // Load assignments along with farmer and farm information.
             var assignmentsQuery = _context.Assignments
                 .Include(a => a.Farmer)
                 .Include(a => a.Farm)
@@ -469,6 +498,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/SupportCases
+        // Displays all support tickets raised by farmers.
         public IActionResult SupportCases()
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -479,13 +509,14 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             ViewData["UserName"] = HttpContext.Session.GetString("UserName") ?? "Cooperative Manager";
             ViewData["UserInitials"] = HttpContext.Session.GetString("UserInitials") ?? "CM";
 
+        // Load support queries with farmer details.
             var supportTickets = _context.SupportQueries
                 .Include(sq => sq.Farmer)
                 .Include(sq => sq.AssignedToUser)
                 .OrderByDescending(sq => sq.CreatedDate)
                 .ToList();
 
-            // Fetch active Agronomists (RoleId = 4) and Field Officers (RoleId = 5)
+            // Fetch active Agronomists and Field Officers.
             var staffUsers = _context.Users
                 .Where(u => (u.RoleId == 4 || u.RoleId == 5) && u.IsActive)
                 .OrderBy(u => u.RoleId)
@@ -498,12 +529,14 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // POST: /CooperativeManager/AssignSupportTicket
+        // Assigns support ticket to Agronomist or Field Officer.
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult AssignSupportTicket(int queryId, int assignedUserId)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
 
+        // Find support query.
             var query = _context.SupportQueries
                 .Include(q => q.Farmer)
                 .FirstOrDefault(q => q.QueryId == queryId);
@@ -527,7 +560,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
 
             string roleTitle = assignedUser.RoleId == 4 ? "Agronomist" : "Field Officer";
 
-            // Notify assigned staff member
+            //Send Notification to assigned staff member
             _context.Notifications.Add(new Notification
             {
                 UserId = assignedUserId,
@@ -557,6 +590,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/PestCases
+        // Displays all pest and disease cases reported by farmers.
         public IActionResult PestCases()
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -567,6 +601,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
             ViewData["UserName"] = HttpContext.Session.GetString("UserName") ?? "Cooperative Manager";
             ViewData["UserInitials"] = HttpContext.Session.GetString("UserInitials") ?? "CM";
 
+        // Load pest cases with crop details.
             var pestCases = _context.PestCases
                 .Include(p => p.CropCycle)
                     .ThenInclude(c => c.Crop)
@@ -582,6 +617,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/ImprovementPlans
+        // Displays cultivation and improvement plans.
         public IActionResult ImprovementPlans()
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -605,6 +641,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // POST: /CooperativeManager/CreateImprovementPlan
+        // Creates a new cultivation improvement plan.
         [HttpPost]
         public IActionResult CreateImprovementPlan(int farmerId, int cropId, decimal targetArea)
         {
@@ -638,6 +675,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/Reports
+        // Displays cooperative reports and analytics.
         public IActionResult Reports()
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -657,6 +695,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/MyProfile
+        // Displays Cooperative Manager profile details.
         public IActionResult MyProfile()
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -675,6 +714,7 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // GET: /CooperativeManager/FarmerHarvest
+        // Displays farmer harvest and crop records.
         public IActionResult FarmerHarvest(string searchFarmer)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");
@@ -715,8 +755,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Controllers
         }
 
         // POST: /CooperativeManager/UpdateAssignmentStatus
+        // Updates assignment progress status.
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult UpdateAssignmentStatus(int assignmentId, string status)
         {
             if (!IsCooperativeManager()) return RedirectToAction("Login", "Auth");

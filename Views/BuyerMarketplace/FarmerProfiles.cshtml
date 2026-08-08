@@ -30,7 +30,7 @@
 
                 <!-- Wishlist save button for farmer -->
                 <form asp-action="ToggleWishlist" asp-controller="BuyerMarketplace" method="post" class="position-absolute top-0 end-0 m-3">
-                    @Html.AntiForgeryToken()
+                     
                     <input type="hidden" name="farmerId" value="@farmer.FarmerId" />
                     <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
                     <button type="submit" class="btn btn-link p-0 text-decoration-none">

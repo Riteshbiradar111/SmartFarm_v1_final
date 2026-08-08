@@ -41,9 +41,9 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
             ViewData["RoleColor"] = "#2563eb";
         }
 
-        // ---------------------------------------------------------------
+        
         // GET: /FieldOfficer/Dashboard
-        // ---------------------------------------------------------------
+        
         public IActionResult Dashboard()
         {
             var userId = GetCurrentUserId();
@@ -198,7 +198,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/VerifyPlot/{id}
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult VerifyPlot(int id)
         {
             if (GetCurrentUserId() == null) return RedirectToAction("Login", "Auth");
@@ -369,7 +369,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/AddPlot
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult AddPlot(int FarmId, string PlotName, string PlotCode, decimal Area,
             string AreaUnit, string? SoilType, string? IrrigationType, decimal Latitude, decimal Longitude)
         {
@@ -406,7 +406,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/DeletePlot
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult DeletePlot(int id)
         {
             if (GetCurrentUserId() == null) return RedirectToAction("Login", "Auth");
@@ -551,7 +551,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
 
         // POST: /FieldOfficer/ScheduleSupportQueryVisit
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ScheduleSupportQueryVisit(int queryId, DateTime visitDate)
         {
             int? userId = GetCurrentUserId();
@@ -610,7 +610,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
 
         // POST: /FieldOfficer/ResolveSupportQuery
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ResolveSupportQuery(int queryId, string fieldObservation, string actionTaken)
         {
             int? userId = GetCurrentUserId();
@@ -706,7 +706,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/ScheduleVisitFromIncident
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ScheduleVisitFromIncident(int pestCaseId, DateTime visitDate)
         {
             var officerId = GetCurrentUserId();
@@ -775,7 +775,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/ResolveIncident
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ResolveIncident(int pestCaseId, string fieldReport)
         {
             var officerId = GetCurrentUserId();
@@ -863,7 +863,7 @@ namespace smart_farm_and_crop_yeild_management_system.Controllers
         // POST: /FieldOfficer/ScheduleVisit
         // ---------------------------------------------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public IActionResult ScheduleVisit(int visitId, DateTime visitDate)
         {
             var officerId = GetCurrentUserId();

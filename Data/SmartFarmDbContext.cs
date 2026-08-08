@@ -18,8 +18,6 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
         public virtual DbSet<Farmer> Farmers { get; set; } = null!;
         public virtual DbSet<Buyer> Buyers { get; set; } = null!;
         public virtual DbSet<Agronomist> Agronomists { get; set; } = null!;
-
-        // Newly added tables
         public virtual DbSet<Farm> Farms { get; set; } = null!;
         public virtual DbSet<LandPlot> LandPlots { get; set; } = null!;
         public virtual DbSet<Crop> Crops { get; set; } = null!;
@@ -480,9 +478,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
                     .HasConstraintName("FK_AdminProfile_Users_UserId");
             });
 
-            // =============================================
+            
             // FIELD OFFICER MODULE MAPPINGS
-            // =============================================
+            
 
             // YieldRecord mapping
             modelBuilder.Entity<YieldRecord>(entity =>
@@ -719,9 +717,9 @@ namespace Smart_Farm_and_Crop_Yeild_Management_System.Models
                     .HasConstraintName("FK_HarvestDecision_Agronomist");
             });
 
-            // ========================================
+            
             // SEED DATA FOR CODE FIRST APPROACH
-            // ========================================
+            
             SeedData(modelBuilder);
         }
 

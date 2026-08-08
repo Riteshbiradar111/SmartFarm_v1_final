@@ -1,13 +1,4 @@
-﻿/* =========================================
-   SmartFarm Dashboard — Shared JS
-   ========================================= */
-
-/**
- * Sidebar toggle logic.
- * Adds/removes 'collapsed' on sidebar,
- * 'sidebar-collapsed' on .dash-main,
- * 'sb-collapsed' on body (for toggle-btn positioning).
- */
+﻿
 (function () {
     'use strict';
 

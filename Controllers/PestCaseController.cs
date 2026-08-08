@@ -641,7 +641,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /PestCase/AcceptVisitSchedule/{id}
         // Farmer accepts & confirms scheduled visit date from Field Officer
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult AcceptVisitSchedule(int id)
         {
             var role = GetSessionRole();
@@ -681,7 +681,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /PestCase/ApproveFieldReport/{id}
         // Farmer approves field officer report -> Marks issue Resolved
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult ApproveFieldReport(int id)
         {
             var role = GetSessionRole();
@@ -727,7 +727,7 @@ namespace SmartFarmMVC.Controllers
         // POST: /PestCase/RejectFieldReport/{id}
         // Farmer rejects field officer report -> Escalates back for re-visit
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult RejectFieldReport(int id, string rejectionReason)
         {
             var role = GetSessionRole();

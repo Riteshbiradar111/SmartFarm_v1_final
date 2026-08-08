@@ -1,6 +1,4 @@
-﻿/* =========================================
-   SmartFarm Dashboard — Buyer Specific JS
-   ========================================= */
+﻿
 
 (function () {
     'use strict';

@@ -84,7 +84,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Support/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public async Task<IActionResult> Create(SupportQueryViewModel model)
         {
             var farmer = GetActiveFarmer();
@@ -201,7 +201,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Support/ConfirmVisitSchedule
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public async Task<IActionResult> ConfirmVisitSchedule(int id)
         {
             var farmer = GetActiveFarmer();
@@ -247,7 +247,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Support/UpdateImprovementStatus
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public async Task<IActionResult> UpdateImprovementStatus(int id, string status)
         {
             var farmer = GetActiveFarmer();

@@ -27,11 +27,11 @@ namespace SmartFarmMVC.Controllers
         // Helper method to retrieve the logged-in Buyer record from the database based on session
         private Buyer? GetActiveBuyer()
         {
-            // 1. Read the user session username
+            // Read the user session username
             var username = HttpContext.Session.GetString("UserUsername");
             if (string.IsNullOrEmpty(username)) return null;
 
-            // 2. Fetch the corresponding Buyer record including User login details
+            // Fetch the corresponding Buyer record including User login details
             return _context.Buyers
                 .Include(b => b.User)
                 .FirstOrDefault(b => b.User.Username == username);
@@ -40,11 +40,11 @@ namespace SmartFarmMVC.Controllers
         // GET: /Buyer/Dashboard
         public IActionResult Dashboard()
         {
-            // 1. Fetch active buyer context
+            // Fetch active buyer context
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 2. Query statistics from SQL Server
+            // Query statistics from SQL Server
             // Calculate total spending (Sum of TotalAmount for completed orders)
             decimal totalSpent = _context.CropOrders
                 .Where(o => o.BuyerId == buyer.BuyerId && o.Status == "Delivered")
@@ -62,7 +62,7 @@ namespace SmartFarmMVC.Controllers
             int wishlistCount = _context.Wishlists
                 .Count(w => w.BuyerId == buyer.BuyerId);
 
-            // 3. Fetch latest 5 orders for the summary grid
+            //Fetch latest 5 orders for the summary grid
             var recentOrders = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -76,7 +76,7 @@ namespace SmartFarmMVC.Controllers
                 .Take(5)
                 .ToList();
 
-            // 4. Fetch latest 5 notifications matching this buyer
+            //Fetch latest 5 notifications matching this buyer
             var notifications = _context.Notifications
                 .Where(n => n.UserId == buyer.UserId)
                 .OrderByDescending(n => n.CreatedDate)
@@ -98,7 +98,7 @@ namespace SmartFarmMVC.Controllers
             }
             ViewBag.OrderNumberMap = orderNumberMap;
 
-            // 5. Query 4 recent marketplace crop listings to showcase as highlights
+            //Query 4 recent marketplace crop listings to showcase as highlights
             var highlights = _context.CropListings
                 .Include(l => l.Harvest)
                     .ThenInclude(h => h.CropCycle)
@@ -113,7 +113,7 @@ namespace SmartFarmMVC.Controllers
                 .Take(4)
                 .ToList();
 
-            // 6. Bind viewbag parameters for Razor view
+            // Bind viewbag parameters for Razor view
             ViewBag.BuyerName = buyer.FullName;
             ViewBag.CompanyName = buyer.CompanyName;
             ViewBag.TotalSpent = totalSpent;
@@ -164,7 +164,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Buyer/Profile
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult Profile(BuyerProfileViewModel model)
         {
             var buyer = GetActiveBuyer();
@@ -271,7 +271,7 @@ namespace SmartFarmMVC.Controllers
 
         // POST: /Buyer/ChangePassword
         [HttpPost]
-        [ValidateAntiForgeryToken]
+         
         public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
             var buyer = GetActiveBuyer();
@@ -336,7 +336,7 @@ namespace SmartFarmMVC.Controllers
             var buyer = GetActiveBuyer();
             if (buyer == null) return RedirectToAction("Login", "Auth");
 
-            // 1. Query all orders placed by this buyer (both active and completed)
+            // Query all orders placed by this buyer (both active and completed)
             var orders = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -374,7 +374,7 @@ namespace SmartFarmMVC.Controllers
                 "Completed"
             };
 
-            // 1. Query only completed payment transactions for this buyer with full navigation properties
+            //  Query only completed payment transactions for this buyer with full navigation properties
             var query = _context.CropOrders
                 .Include(o => o.CropListing)
                     .ThenInclude(l => l.Harvest)
@@ -392,16 +392,16 @@ namespace SmartFarmMVC.Controllers
                 .Where(o => o.BuyerId == buyer.BuyerId && transactionStatuses.Contains(o.Status))
                 .AsQueryable();
 
-            // 2. Apply status filter if provided
+            //  Apply status filter if provided
             if (!string.IsNullOrEmpty(status) && transactionStatuses.Contains(status))
             {
                 query = query.Where(o => o.Status == status);
             }
 
-            // 3. Execute query and order by date descending
+            //  Execute query and order by date descending
             var transactions = query.OrderByDescending(o => o.OrderDate).ToList();
 
-            // 4. Calculate summary statistics
+            // Calculate summary statistics
             ViewBag.TotalTransactions = transactions.Count;
             ViewBag.TotalSpent = transactions
                 .Sum(o => (decimal?)o.TotalAmount) ?? 0m;
